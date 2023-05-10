@@ -1,4 +1,4 @@
-package com.hatake.xyz1;
+package com.hatake.MedTalk;
 
 import io.flutter.embedding.android.FlutterActivity;
 

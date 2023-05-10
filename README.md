@@ -1,4 +1,4 @@
-# xyz1
+# MedTalk
 
 sample prototype speech to text flutter project , with speech_to_text package 
 

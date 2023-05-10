@@ -1,6 +1,6 @@
 {
-    "name": "xyz1",
-    "short_name": "xyz1",
+    "name": "MedTalk",
+    "short_name": "MedTalk",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

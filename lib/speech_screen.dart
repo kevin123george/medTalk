@@ -76,7 +76,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           color: Colors.black87,
         ),
         title: const Text(
-          "Speech to Text",
+          "MedTalk",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: textColor,

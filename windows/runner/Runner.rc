@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.hatake" "\0"
-            VALUE "FileDescription", "xyz1" "\0"
+            VALUE "FileDescription", "MedTalk" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "xyz1" "\0"
+            VALUE "InternalName", "MedTalk" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.hatake. All rights reserved." "\0"
-            VALUE "OriginalFilename", "xyz1.exe" "\0"
-            VALUE "ProductName", "xyz1" "\0"
+            VALUE "OriginalFilename", "MedTalk.exe" "\0"
+            VALUE "ProductName", "MedTalk" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

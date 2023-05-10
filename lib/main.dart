@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:xyz1/speech_screen.dart';
+import 'package:MedTalk/speech_screen.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-  runApp(MyApp());
+  runApp(const MedTalk());
 }
 
-class MyApp extends StatelessWidget {
+class MedTalk extends StatelessWidget {
+  const MedTalk({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Voice To Text',
+      title: 'MedTalk',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.red,
