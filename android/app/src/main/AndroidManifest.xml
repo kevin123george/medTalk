@@ -1,10 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hatake.MedTalk">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="MedTalk"
+        android:label="animated_responsive_layout"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

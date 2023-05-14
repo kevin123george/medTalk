@@ -1,6 +1,6 @@
 {
-    "name": "MedTalk",
-    "short_name": "MedTalk",
+    "name": "animated_responsive_layout",
+    "short_name": "animated_responsive_layout",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
