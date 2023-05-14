@@ -1,18 +1,20 @@
-// Copyright 2022 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
-
 import '../models/models.dart';
 
-class SearchBar extends StatelessWidget {
-  const SearchBar({
-    super.key,
+class AppBarWidget extends StatefulWidget {
+  const AppBarWidget({
+    Key? key,
     required this.currentUser,
-  });
+  }) : super(key: key);
 
   final User currentUser;
+
+  @override
+  _AppBarWidgetState createState() => _AppBarWidgetState();
+}
+
+class _AppBarWidgetState extends State<AppBarWidget> {
+  String selectedLanguage = 'EN';
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class SearchBar extends StatelessWidget {
       height: 56,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
+          // borderRadius: BorderRadius.circular(100),
           color: Colors.white,
         ),
         padding: const EdgeInsets.fromLTRB(31, 12, 12, 12),
@@ -33,21 +35,64 @@ class SearchBar extends StatelessWidget {
               child: AppBar(
                 centerTitle: false,
                 title: const Text(
-                  "MedTalk",
-                  style: TextStyle(
-                  ),
+                  'MedTalk',
                 ),
-                // maxLines: 1,
-                // decoration: InputDecoration(
-                //   isDense: true,
-                //   border: InputBorder.none,
-                //   hintText: 'Search replies',
-                //   hintStyle: Theme.of(context).textTheme.bodyMedium,
-                // ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        print("-----------------");
+                        selectedLanguage = 'EN';
+                        print(selectedLanguage);
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      textStyle: TextStyle(
+                        color: selectedLanguage == 'EN'
+                            ? Colors.white
+                            : Colors.grey,
+                      ),
+                    ),
+                    child: const Text('EN'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedLanguage = 'DE';
+                        print(selectedLanguage);
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      textStyle: TextStyle(
+                        color: selectedLanguage == 'DE'
+                            ? Colors.white
+                            : Colors.grey,
+                      ),
+                    ),
+                    child: const Text('DE'),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (String value) {
+                      setState(() {
+                        selectedLanguage = value;
+                      });
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'EN',
+                        child: Text('Option 1'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'DE',
+                        child: Text('Option 2'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             CircleAvatar(
-              backgroundImage: AssetImage(currentUser.avatarUrl),
+              backgroundImage: AssetImage(widget.currentUser.avatarUrl),
             ),
           ],
         ),

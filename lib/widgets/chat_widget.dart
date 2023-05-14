@@ -1,10 +1,7 @@
-// Copyright 2022 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 
 import 'package:flutter/material.dart';
 import '../models/models.dart';
-import 'star_button.dart';
+import 'edit_button.dart';
 
 enum EmailType {
   preview,
@@ -12,8 +9,8 @@ enum EmailType {
   primaryThreaded,
 }
 
-class EmailWidget extends StatefulWidget {
-  const EmailWidget({
+class ChatWidget extends StatefulWidget {
+  const ChatWidget({
     super.key,
     required this.email,
     this.isSelected = false,
@@ -28,13 +25,13 @@ class EmailWidget extends StatefulWidget {
   final bool showHeadline;
   final bool isThreaded;
   final void Function()? onSelected;
-  final Email email;
+  final Chat email;
 
   @override
-  State<EmailWidget> createState() => _EmailWidgetState();
+  State<ChatWidget> createState() => _ChatWidgetState();
 }
 
-class _EmailWidgetState extends State<EmailWidget> {
+class _ChatWidgetState extends State<ChatWidget> {
   late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
   late Color unselectedColor = Color.alphaBlend(
     _colorScheme.primary.withOpacity(0.08),
@@ -52,19 +49,13 @@ class _EmailWidgetState extends State<EmailWidget> {
     return GestureDetector(
       onTap: widget.onSelected,
       child: Card(
-        elevation: 5,
+        elevation: 0,
         color: _surfaceColor,
         clipBehavior: Clip.hardEdge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.showHeadline) ...[
-              EmailHeadline(
-                email: widget.email,
-                isSelected: widget.isSelected,
-              ),
-            ],
             EmailContent(
               email: widget.email,
               isPreview: widget.isPreview,
@@ -87,7 +78,7 @@ class EmailContent extends StatefulWidget {
     required this.isSelected,
   });
 
-  final Email email;
+  final Chat email;
   final bool isPreview;
   final bool isThreaded;
   final bool isSelected;
@@ -157,22 +148,22 @@ class _EmailContentState extends State<EmailContent> {
                             : _textTheme.labelMedium
                                 ?.copyWith(color: _colorScheme.onSurface),
                       ),
-                      // Text(
-                      //   lastActiveLabel,
-                      //   overflow: TextOverflow.fade,
-                      //   maxLines: 1,
-                      //   style: widget.isSelected
-                      //       ? _textTheme.labelMedium?.copyWith(
-                      //           color: _colorScheme.onSecondaryContainer)
-                      //       : _textTheme.labelMedium?.copyWith(
-                      //           color: _colorScheme.onSurfaceVariant),
-                      // ),
+                      Text(
+                        lastActiveLabel,
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        style: widget.isSelected
+                            ? _textTheme.labelMedium?.copyWith(
+                                color: _colorScheme.onSecondaryContainer)
+                            : _textTheme.labelMedium?.copyWith(
+                                color: _colorScheme.onSurfaceVariant),
+                      ),
                     ],
                   ),
                 ),
-                // if (constraints.maxWidth - 200 > 0) ...[
-                  const StarButton(),
-                // ]
+                if (constraints.maxWidth - 200 > 0) ...[
+                  const EditButton(),
+                ]
               ],
             );
           }),
@@ -182,7 +173,7 @@ class _EmailContentState extends State<EmailContent> {
             children: [
               if (widget.isPreview) ...[
                 Text(
-                  widget.email.subject,
+                  '',
                   style: const TextStyle(fontSize: 18)
                       .copyWith(color: _colorScheme.onSurface),
                 ),
@@ -216,152 +207,9 @@ class _EmailContentState extends State<EmailContent> {
           //         ),
           //       )
           //     : const SizedBox.shrink(),
-          if (!widget.isPreview) ...[
-            const EmailReplyOptions(),
-          ],
+
         ],
       ),
-    );
-  }
-}
-
-class EmailHeadline extends StatefulWidget {
-  const EmailHeadline({
-    super.key,
-    required this.email,
-    required this.isSelected,
-  });
-
-  final Email email;
-  final bool isSelected;
-
-  @override
-  State<EmailHeadline> createState() => _EmailHeadlineState();
-}
-
-class _EmailHeadlineState extends State<EmailHeadline> {
-  late final TextTheme _textTheme = Theme.of(context).textTheme;
-  late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        height: 84,
-        color: Color.alphaBlend(
-          _colorScheme.primary.withOpacity(0.05),
-          _colorScheme.surface,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 12, 12),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.email.subject,
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w400),
-                    ),
-                    Text(
-                      '${widget.email.replies.toString()} Messages',
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      style: _textTheme.labelMedium
-                          ?.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-              // Display a "condensed" version if the widget in the row are
-              // expected to overflow.
-              if (constraints.maxWidth - 200 > 0) ...[
-                SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: FloatingActionButton(
-                    onPressed: () {},
-                    elevation: 0,
-                    backgroundColor: _colorScheme.surface,
-                    child: const Icon(Icons.delete_outline),
-                  ),
-                ),
-                const Padding(padding: EdgeInsets.only(right: 8.0)),
-                SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: FloatingActionButton(
-                    onPressed: () {},
-                    elevation: 0,
-                    backgroundColor: _colorScheme.surface,
-                    child: const Icon(Icons.more_vert),
-                  ),
-                ),
-              ]
-            ],
-          ),
-        ),
-      );
-    });
-  }
-}
-
-class EmailReplyOptions extends StatefulWidget {
-  const EmailReplyOptions({super.key});
-
-  @override
-  State<EmailReplyOptions> createState() => _EmailReplyOptionsState();
-}
-
-class _EmailReplyOptionsState extends State<EmailReplyOptions> {
-  late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 100) {
-          return const SizedBox.shrink();
-        }
-        return Row(
-          children: [
-            Expanded(
-              child: TextButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(_colorScheme.onInverseSurface),
-                ),
-                onPressed: () {},
-                child: Text(
-                  'Reply',
-                  style: TextStyle(color: _colorScheme.onSurfaceVariant),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(_colorScheme.onInverseSurface),
-                ),
-                onPressed: () {},
-                child: Text(
-                  'Reply All',
-                  style: TextStyle(color: _colorScheme.onSurfaceVariant),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

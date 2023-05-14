@@ -1,17 +1,14 @@
-// Copyright 2022 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 
 import 'package:flutter/material.dart';
 
-class StarButton extends StatefulWidget {
-  const StarButton({super.key});
+class EditButton extends StatefulWidget {
+  const EditButton({super.key});
 
   @override
-  State<StarButton> createState() => _StarButtonState();
+  State<EditButton> createState() => _EditButtonState();
 }
 
-class _StarButtonState extends State<StarButton> {
+class _EditButtonState extends State<EditButton> {
   bool state = false;
   late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
 

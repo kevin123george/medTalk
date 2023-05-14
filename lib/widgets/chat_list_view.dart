@@ -1,16 +1,13 @@
-// Copyright 2022 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
 
 import 'package:flutter/material.dart';
 
 import '../models/data.dart' as data;
 import '../models/models.dart';
-import 'email_widget.dart';
 import 'app_bar.dart' as app_bar;
+import 'chat_widget.dart';
 
-class EmailListView extends StatelessWidget {
-  const EmailListView({
+class ChatListView extends StatelessWidget {
+  const ChatListView({
     super.key,
     this.selectedIndex,
     this.onSelected,
@@ -28,16 +25,15 @@ class EmailListView extends StatelessWidget {
       child: ListView(
         children: [
           const SizedBox(height: 8),
-          // app_bar.AppBarApp(),
-          app_bar.SearchBar(currentUser: currentUser),
+          app_bar.AppBarWidget(currentUser: currentUser),
           const SizedBox(height: 8),
           ...List.generate(
-            data.emails.length,
+            data.chats.length,
             (index) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                child: EmailWidget(
-                  email: data.emails[index],
+                child: ChatWidget(
+                  email: data.chats[index],
                   onSelected: onSelected != null
                       ? () {
                           onSelected!(index);
