@@ -178,13 +178,13 @@ class _EmailContentState extends State<EmailContent> {
                       .copyWith(color: _colorScheme.onSurface),
                 ),
               ],
-              if (widget.isThreaded) ...[
-                contentSpacer,
-                Text(
-                  "To ${widget.email.recipients.map((recipient) => recipient.name.first).join(", ")}",
-                  style: _textTheme.bodyMedium,
-                )
-              ],
+              // if (widget.isThreaded) ...[
+              //   contentSpacer,
+              //   Text(
+              //     "To ${widget.email.recipients.map((recipient) => recipient.name.first).join(", ")}",
+              //     style: _textTheme.bodyMedium,
+              //   )
+              // ],
               contentSpacer,
               Text(
                 widget.email.content,

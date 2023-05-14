@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   speech_to_text: ^6.1.1
+  shared_preferences: 2.1.1
+  sqflite:
+  path_provider:
 
 dev_dependencies:
   flutter_test:

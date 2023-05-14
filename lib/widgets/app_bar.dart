@@ -52,7 +52,10 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                             ? Colors.white
                             : Colors.grey,
                       ),
+                        backgroundColor: selectedLanguage == 'EN' ? Colors.green : Colors.transparent
+
                     ),
+
                     child: const Text('EN'),
                   ),
                   TextButton(
@@ -68,26 +71,28 @@ class _AppBarWidgetState extends State<AppBarWidget> {
                             ? Colors.white
                             : Colors.grey,
                       ),
+                        backgroundColor: selectedLanguage == 'DE' ? Colors.green : Colors.transparent
                     ),
                     child: const Text('DE'),
+
                   ),
-                  PopupMenuButton<String>(
-                    onSelected: (String value) {
-                      setState(() {
-                        selectedLanguage = value;
-                      });
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'EN',
-                        child: Text('Option 1'),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'DE',
-                        child: Text('Option 2'),
-                      ),
-                    ],
-                  ),
+                  // PopupMenuButton<String>(
+                  //   onSelected: (String value) {
+                  //     setState(() {
+                  //       selectedLanguage = value;
+                  //     });
+                  //   },
+                  //   itemBuilder: (BuildContext context) => [
+                  //     // PopupMenuItem<String>(
+                  //     //   value: 'EN',
+                  //     //   child: Text('Option 1'),
+                  //     // ),
+                  //     // PopupMenuItem<String>(
+                  //     //   value: 'DE',
+                  //     //   child: Text('Option 2'),
+                  //     // ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
