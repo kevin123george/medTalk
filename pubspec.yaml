@@ -1,26 +1,32 @@
-name: MedTalk
-description: A new Flutter project.
-publish_to: 'none'
-version: 0.1.0
+name: medTalk
+description:
+  A Flutter project showcasing supported Material 3 components, typography, color system and elevation.
+  Supports different light/dark mode, color seed, and comparison to Material 2.
+
+publish_to: "none"
+
+version: 1.0.0+1
 
 environment:
-  sdk: '>=2.19.2 <3.0.0'
+  sdk: ^3.0.0
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.5
   speech_to_text: ^6.1.1
-  highlight_text: ^1.6.0
-  avatar_glow: ^2.0.2
+  avatar_glow:
+
+
+  cupertino_icons: ^1.0.2
+  url_launcher: ^6.1.8
 
 dev_dependencies:
+#  analysis_defaults:
+#    path: ../analysis_defaults
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

@@ -1,26 +1,110 @@
+// Copyright 2021 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:MedTalk/speech_screen.dart';
+
+import 'constants.dart';
+import 'screens/home.dart';
 
 void main() {
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-  runApp(const MedTalk());
+  runApp(
+    const App(),
+  );
 }
 
-class MedTalk extends StatelessWidget {
-  const MedTalk({super.key});
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool useMaterial3 = true;
+  ThemeMode themeMode = ThemeMode.system;
+  ColorSeed colorSelected = ColorSeed.baseColor;
+  ColorImageProvider imageSelected = ColorImageProvider.leaves;
+  ColorScheme? imageColorScheme = const ColorScheme.light();
+  ColorSelectionMethod colorSelectionMethod = ColorSelectionMethod.colorSeed;
+
+  bool get useLightMode {
+    switch (themeMode) {
+      case ThemeMode.system:
+        return View.of(context).platformDispatcher.platformBrightness ==
+            Brightness.light;
+      case ThemeMode.light:
+        return true;
+      case ThemeMode.dark:
+        return false;
+    }
+  }
+
+  void handleBrightnessChange(bool useLightMode) {
+    setState(() {
+      themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  void handleMaterialVersionChange() {
+    setState(() {
+      useMaterial3 = !useMaterial3;
+    });
+  }
+
+  void handleColorSelect(int value) {
+    setState(() {
+      colorSelectionMethod = ColorSelectionMethod.colorSeed;
+      colorSelected = ColorSeed.values[value];
+    });
+  }
+
+  void handleImageSelect(int value) {
+    final String url = ColorImageProvider.values[value].url;
+    ColorScheme.fromImageProvider(provider: NetworkImage(url))
+        .then((newScheme) {
+      setState(() {
+        colorSelectionMethod = ColorSelectionMethod.image;
+        imageSelected = ColorImageProvider.values[value];
+        imageColorScheme = newScheme;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MedTalk',
       debugShowCheckedModeBanner: false,
+      title: 'MedTalk',
+      themeMode: themeMode,
       theme: ThemeData(
-        primarySwatch: Colors.red,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        colorSchemeSeed: colorSelectionMethod == ColorSelectionMethod.colorSeed
+            ? colorSelected.color
+            : null,
+        colorScheme: colorSelectionMethod == ColorSelectionMethod.image
+            ? imageColorScheme
+            : null,
+        useMaterial3: useMaterial3,
+        brightness: Brightness.light,
       ),
-      home: const SpeechScreen(),
+      darkTheme: ThemeData(
+        colorSchemeSeed: colorSelectionMethod == ColorSelectionMethod.colorSeed
+            ? colorSelected.color
+            : imageColorScheme!.primary,
+        useMaterial3: useMaterial3,
+        brightness: Brightness.dark,
+      ),
+      home: Home(
+        useLightMode: useLightMode,
+        useMaterial3: useMaterial3,
+        colorSelected: colorSelected,
+        imageSelected: imageSelected,
+        handleBrightnessChange: handleBrightnessChange,
+        handleMaterialVersionChange: handleMaterialVersionChange,
+        handleColorSelect: handleColorSelect,
+        handleImageSelect: handleImageSelect,
+        colorSelectionMethod: colorSelectionMethod,
+      ),
     );
   }
 }
-

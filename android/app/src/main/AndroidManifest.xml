@@ -1,10 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hatake.MedTalk">
+    package="com.example.medTalk">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-
     <application
-        android:label="MedTalk"
+        android:label="medTalk"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
