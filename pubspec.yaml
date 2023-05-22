@@ -1,33 +1,32 @@
-name: animated_responsive_layout
-description: A new Flutter project.
-publish_to: 'none'
-version: 0.1.0
+name: medTalk
+description:
+  A Flutter project showcasing supported Material 3 components, typography, color system and elevation.
+  Supports different light/dark mode, color seed, and comparison to Material 2.
+
+publish_to: "none"
+
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.0.0
 
 dependencies:
   flutter:
     sdk: flutter
   speech_to_text: ^6.1.1
-  shared_preferences: 2.1.1
-  sqflite:
-  path_provider:
+  avatar_glow:
+
+
+  cupertino_icons: ^1.0.2
+  url_launcher: ^6.1.8
 
 dev_dependencies:
+#  analysis_defaults:
+#    path: ../analysis_defaults
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - assets/avatar_1.png
-    - assets/avatar_2.png
-    - assets/avatar_3.png
-    - assets/avatar_4.png
-    - assets/avatar_5.png
-    - assets/avatar_6.png
-    - assets/avatar_7.png
-    - assets/thumbnail_1.png

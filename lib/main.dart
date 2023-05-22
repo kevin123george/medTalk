@@ -1,114 +1,109 @@
-import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+// Copyright 2021 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-import 'destinations.dart';
-import 'models/data.dart' as data;
-import 'models/models.dart';
-import 'widgets/chat_list_view.dart';
+import 'package:flutter/material.dart';
+
+import 'constants.dart';
+import 'screens/home.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    const App(),
+  );
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool useMaterial3 = true;
+  ThemeMode themeMode = ThemeMode.system;
+  ColorSeed colorSelected = ColorSeed.baseColor;
+  ColorImageProvider imageSelected = ColorImageProvider.leaves;
+  ColorScheme? imageColorScheme = const ColorScheme.light();
+  ColorSelectionMethod colorSelectionMethod = ColorSelectionMethod.colorSeed;
+
+  bool get useLightMode {
+    switch (themeMode) {
+      case ThemeMode.system:
+        return View.of(context).platformDispatcher.platformBrightness ==
+            Brightness.light;
+      case ThemeMode.light:
+        return true;
+      case ThemeMode.dark:
+        return false;
+    }
+  }
+
+  void handleBrightnessChange(bool useLightMode) {
+    setState(() {
+      themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  void handleMaterialVersionChange() {
+    setState(() {
+      useMaterial3 = !useMaterial3;
+    });
+  }
+
+  void handleColorSelect(int value) {
+    setState(() {
+      colorSelectionMethod = ColorSelectionMethod.colorSeed;
+      colorSelected = ColorSeed.values[value];
+    });
+  }
+
+  void handleImageSelect(int value) {
+    final String url = ColorImageProvider.values[value].url;
+    ColorScheme.fromImageProvider(provider: NetworkImage(url))
+        .then((newScheme) {
+      setState(() {
+        colorSelectionMethod = ColorSelectionMethod.image;
+        imageSelected = ColorImageProvider.values[value];
+        imageColorScheme = newScheme;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'MedTalk',
-      theme: ThemeData.light(useMaterial3: true),
-      home: Feed(currentUser: data.user_0),
-    );
-  }
-}
-
-class Feed extends StatefulWidget {
-  const Feed({
-    super.key,
-    required this.currentUser,
-  });
-
-  final User currentUser;
-
-  @override
-  State<Feed> createState() => _FeedState();
-}
-
-class _FeedState extends State<Feed> {
-  SpeechToText speechToText = SpeechToText();
-  var text = 'hold the button to start speaking';
-  var isListening = false;
-  late final _colorScheme = Theme.of(context).colorScheme;
-  late final _backgroundColor = Color.alphaBlend(
-      _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
-
-  int selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color: _backgroundColor,
-        child: ChatListView(
-          selectedIndex: selectedIndex,
-          onSelected: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-          currentUser: widget.currentUser,
-        ),
+      themeMode: themeMode,
+      theme: ThemeData(
+        colorSchemeSeed: colorSelectionMethod == ColorSelectionMethod.colorSeed
+            ? colorSelected.color
+            : null,
+        colorScheme: colorSelectionMethod == ColorSelectionMethod.image
+            ? imageColorScheme
+            : null,
+        useMaterial3: useMaterial3,
+        brightness: Brightness.light,
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: _colorScheme.tertiaryContainer,
-        foregroundColor: _colorScheme.onTertiaryContainer,
-        onPressed: () {},
-        child: GestureDetector(
-          onTapDown: (details) async {
-            if (!isListening) {
-              var available = await speechToText.initialize();
-              if (available) {
-                setState(() {
-                  isListening = true;
-                  speechToText.listen(onResult: (result) {
-                    setState(() {
-                      print(result);
-                      text = result.recognizedWords;
-                      print(text);
-                    });
-                  });
-                });
-              }
-            }
-          },
-          onTapUp: (details) {
-            setState(() {
-              isListening = false;
-            });
-            speechToText.stop();
-          },
-          child: Icon(
-            isListening ? Icons.mic : Icons.mic_none,
-            color: Colors.red,
-          ),
-        ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: colorSelectionMethod == ColorSelectionMethod.colorSeed
+            ? colorSelected.color
+            : imageColorScheme!.primary,
+        useMaterial3: useMaterial3,
+        brightness: Brightness.dark,
       ),
-      bottomNavigationBar: NavigationBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        destinations: destinations.map<NavigationDestination>((d) {
-          return NavigationDestination(
-            icon: Icon(d.icon),
-            label: d.label,
-          );
-        }).toList(),
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+      home: Home(
+        useLightMode: useLightMode,
+        useMaterial3: useMaterial3,
+        colorSelected: colorSelected,
+        imageSelected: imageSelected,
+        handleBrightnessChange: handleBrightnessChange,
+        handleMaterialVersionChange: handleMaterialVersionChange,
+        handleColorSelect: handleColorSelect,
+        handleImageSelect: handleImageSelect,
+        colorSelectionMethod: colorSelectionMethod,
       ),
     );
   }

@@ -1,4 +1,4 @@
-package com.example.animated_responsive_layout
+package com.example.medTalk
 
 import io.flutter.embedding.android.FlutterActivity
 
