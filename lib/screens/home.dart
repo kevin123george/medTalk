@@ -3,9 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 
-import 'settings_screen.dart';
+import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
 
@@ -46,7 +47,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool showMediumSizeLayout = false;
   bool showLargeSizeLayout = false;
 
-  int screenIndex = ScreenSelected.blank.value;
+  int screenIndex = ScreenSelected.speechToText.value;
 
   @override
   initState() {
@@ -109,10 +110,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget createScreenFor(
       ScreenSelected screenSelected, bool showNavBarExample) {
     switch (screenSelected) {
-      case ScreenSelected.blank:
+      case ScreenSelected.speechToText:
         return const SpeechToTextScreen();
-      case ScreenSelected.color:
-        return const SettingsScreen();
+      case ScreenSelected.profile:
+        return const ProfileScreen();
+      case ScreenSelected.records:
+        return const RecordsScreen();
     }
   }
 

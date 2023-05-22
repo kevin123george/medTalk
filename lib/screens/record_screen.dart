@@ -13,14 +13,14 @@ const Widget divider = SizedBox(height: 10);
 // be displayed in a row.
 const double narrowScreenWidthThreshold = 400;
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+class RecordsScreen extends StatefulWidget {
+  const RecordsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<RecordsScreen> createState() => _RecordsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _RecordsScreenState extends State<RecordsScreen> {
 
   @override
   Widget build(BuildContext context) {
