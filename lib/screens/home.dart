@@ -123,15 +123,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   PreferredSizeWidget createAppBar() {
     return AppBar(
       title: Text('MedTalk'),
+
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
               _BrightnessButton(
                 handleBrightnessChange: widget.handleBrightnessChange,
+                showLabels: false,
               ),
               _ColorSeedButton(
                 handleColorSelect: widget.handleColorSelect,
                 colorSelected: widget.colorSelected,
                 colorSelectionMethod: widget.colorSelectionMethod,
+                showLabels: false,
+              ),
+              _FontSizeButton(
+                showLabels: false,
               ),
               // _ColorImageButton(
               //   handleImageSelect: widget.handleImageSelect,
@@ -150,6 +156,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             child: _BrightnessButton(
               handleBrightnessChange: widget.handleBrightnessChange,
               showTooltipBelow: false,
+              showLabels: true,
             ),
           ),
           Flexible(
@@ -157,10 +164,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               handleColorSelect: widget.handleColorSelect,
               colorSelected: widget.colorSelected,
               colorSelectionMethod: widget.colorSelectionMethod,
+              showLabels: true,
             ),
           ),
           Flexible(
             child: _FontSizeButton(
+              showLabels: true,
             ),
           ),
           // Flexible(
@@ -235,10 +244,12 @@ class _BrightnessButton extends StatelessWidget {
   const _BrightnessButton({
     required this.handleBrightnessChange,
     this.showTooltipBelow = true,
+    required this.showLabels
   });
 
   final Function handleBrightnessChange;
   final bool showTooltipBelow;
+  final bool showLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -250,13 +261,20 @@ class _BrightnessButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            icon: isBright
-                ? const Icon(Icons.dark_mode_outlined)
-                : const Icon(Icons.light_mode_outlined),
-            onPressed: () => handleBrightnessChange(!isBright),
+          Flexible(
+            child: IconButton(
+              icon: isBright
+                  ? const Icon(Icons.dark_mode_outlined)
+                  : const Icon(Icons.light_mode_outlined),
+              onPressed: () => handleBrightnessChange(!isBright),
+            ),
           ),
-          Text("Helligkeit")
+          Visibility(
+            visible: showLabels,
+              child: Flexible(
+                  child: Text("Helligkeit")
+              )
+          )
         ],
       ),
     );
@@ -269,11 +287,14 @@ class _ColorSeedButton extends StatelessWidget {
     required this.handleColorSelect,
     required this.colorSelected,
     required this.colorSelectionMethod,
+    required this.showLabels
   });
 
   final void Function(int) handleColorSelect;
   final ColorSeed colorSelected;
   final ColorSelectionMethod colorSelectionMethod;
+  final bool showLabels;
+
 
   @override
   Widget build(BuildContext context) {
@@ -281,58 +302,73 @@ class _ColorSeedButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
-        PopupMenuButton(
-          icon: Icon(
-            Icons.palette_outlined,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          tooltip: 'Select a seed color',
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          itemBuilder: (context) {
-            return List.generate(ColorSeed.values.length, (index) {
-              ColorSeed currentColor = ColorSeed.values[index];
+        Flexible(
+          child: PopupMenuButton(
+            icon: Icon(
+              Icons.palette_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: 'Select a seed color',
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            itemBuilder: (context) {
+              return List.generate(ColorSeed.values.length, (index) {
+                ColorSeed currentColor = ColorSeed.values[index];
 
-              return PopupMenuItem(
-                value: index,
-                enabled: currentColor != colorSelected ||
-                    colorSelectionMethod != ColorSelectionMethod.colorSeed,
-                child: Wrap(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Icon(
-                        currentColor == colorSelected &&
-                                colorSelectionMethod != ColorSelectionMethod.image
-                            ? Icons.color_lens
-                            : Icons.color_lens_outlined,
-                        color: currentColor.color,
+                return PopupMenuItem(
+                  value: index,
+                  enabled: currentColor != colorSelected ||
+                      colorSelectionMethod != ColorSelectionMethod.colorSeed,
+                  child: Wrap(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Icon(
+                          currentColor == colorSelected &&
+                                  colorSelectionMethod != ColorSelectionMethod.image
+                              ? Icons.color_lens
+                              : Icons.color_lens_outlined,
+                          color: currentColor.color,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Text(currentColor.label),
-                    ),
-                  ],
-                ),
-              );
-            });
-          },
-          onSelected: handleColorSelect,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(currentColor.label),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+            onSelected: handleColorSelect,
+          ),
         ),
-        Text("Farben")
+        Visibility(
+            visible: showLabels,
+            child: Flexible(
+                child: Text("Helligkeit")
+            )
+        )
       ],
     );
   }
 }
 
 class _FontSizeButton extends StatefulWidget {
-  const _FontSizeButton({Key? key}) : super(key: key);
+  const _FontSizeButton({
+    required this.showLabels
+  });
+  final bool showLabels;
 
   @override
-  State<_FontSizeButton> createState() => _FontSizeButtonState();
+  State<_FontSizeButton> createState() => _FontSizeButtonState(showLabels);
+
 }
 
 class _FontSizeButtonState extends State<_FontSizeButton> {
+
+  _FontSizeButtonState(this.showLabels);
+
+  final bool showLabels;
   double _sliderValue = 1;
 
   @override
@@ -341,58 +377,65 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
-        PopupMenuButton(
-          icon: Icon(
-            Icons.text_increase,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          tooltip: 'Select a seed color',
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          itemBuilder: (context){
-            return [
-              PopupMenuItem(
-                  child: Column(
-                    children: [
-                      Text("Schriftgröße"),
-                      StatefulBuilder(
-                        builder: (context, state){
-                          return SfSlider.vertical(
-                            min: 0,
-                            max: 2,
-                            interval: 1,
-                            stepSize: 1,
-                            showLabels: true,
-                            showDividers: true,
-                            value: _sliderValue,
-                            labelFormatterCallback:
-                                (dynamic actualValue, String formattedText) {
-                              switch (actualValue) {
-                                case 0:
-                                  return 'Klein';
-                                case 1:
-                                  return 'Mittel';
-                                case 2:
-                                  return 'Groß';
-                              }
-                              return actualValue.toString();
-                            },
-                            onChanged: (value) {
-                              state((){
+        Flexible(
+          child: PopupMenuButton(
+            icon: Icon(
+              Icons.text_increase,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: 'Select a seed color',
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            itemBuilder: (context){
+              return [
+                PopupMenuItem(
+                    child: Column(
+                      children: [
+                        Text("Schriftgröße"),
+                        StatefulBuilder(
+                          builder: (context, state){
+                            return SfSlider.vertical(
+                              min: 0,
+                              max: 2,
+                              interval: 1,
+                              stepSize: 1,
+                              showLabels: true,
+                              showDividers: true,
+                              value: _sliderValue,
+                              labelFormatterCallback:
+                                  (dynamic actualValue, String formattedText) {
+                                switch (actualValue) {
+                                  case 0:
+                                    return 'Klein';
+                                  case 1:
+                                    return 'Mittel';
+                                  case 2:
+                                    return 'Groß';
+                                }
+                                return actualValue.toString();
+                              },
+                              onChanged: (value) {
+                                state((){
 
-                              });
-                              setState(() {
-                                _sliderValue = value;
-                              });
-                            },
-                          );
-                        },
-                      )
-                    ],
-                  ))
-            ];
-          }
+                                });
+                                setState(() {
+                                  _sliderValue = value;
+                                });
+                              },
+                            );
+                          },
+                        )
+                      ],
+                    ))
+              ];
+            }
+          ),
         ),
-        Text("Schrift")
+        Visibility(
+            visible: showLabels,
+            child: Flexible(
+                child: Text("Helligkeit")
+            )
+        )
       ],
     );
   }
