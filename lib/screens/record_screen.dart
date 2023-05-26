@@ -29,7 +29,28 @@ class _RecordsScreenState extends State<RecordsScreen> {
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
     return Expanded(
       child: Scaffold(
-
+        body: Center(
+          child: Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  title: Text(
+                    'Title',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'This is the content of the card.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
