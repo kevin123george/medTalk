@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import 'profile_screen.dart';
 import '../components.dart';
@@ -132,11 +133,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 colorSelected: widget.colorSelected,
                 colorSelectionMethod: widget.colorSelectionMethod,
               ),
-              _ColorImageButton(
-                handleImageSelect: widget.handleImageSelect,
-                imageSelected: widget.imageSelected,
-                colorSelectionMethod: widget.colorSelectionMethod,
-              )
+              // _ColorImageButton(
+              //   handleImageSelect: widget.handleImageSelect,
+              //   imageSelected: widget.imageSelected,
+              //   colorSelectionMethod: widget.colorSelectionMethod,
+              // )
             ]
           : [Container()],
     );
@@ -159,12 +160,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ),
           ),
           Flexible(
-            child: _ColorImageButton(
-              handleImageSelect: widget.handleImageSelect,
-              imageSelected: widget.imageSelected,
-              colorSelectionMethod: widget.colorSelectionMethod,
+            child: _FontSizeButton(
             ),
           ),
+          // Flexible(
+          //   child: _ColorImageButton(
+          //     handleImageSelect: widget.handleImageSelect,
+          //     imageSelected: widget.imageSelected,
+          //     colorSelectionMethod: widget.colorSelectionMethod,
+          //   ),
+          // ),
         ],
       );
 
@@ -241,11 +246,18 @@ class _BrightnessButton extends StatelessWidget {
     return Tooltip(
       preferBelow: showTooltipBelow,
       message: 'Toggle brightness',
-      child: IconButton(
-        icon: isBright
-            ? const Icon(Icons.dark_mode_outlined)
-            : const Icon(Icons.light_mode_outlined),
-        onPressed: () => handleBrightnessChange(!isBright),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: isBright
+                ? const Icon(Icons.dark_mode_outlined)
+                : const Icon(Icons.light_mode_outlined),
+            onPressed: () => handleBrightnessChange(!isBright),
+          ),
+          Text("Helligkeit")
+        ],
       ),
     );
   }
@@ -265,108 +277,189 @@ class _ColorSeedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      icon: Icon(
-        Icons.palette_outlined,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      tooltip: 'Select a seed color',
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) {
-        return List.generate(ColorSeed.values.length, (index) {
-          ColorSeed currentColor = ColorSeed.values[index];
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PopupMenuButton(
+          icon: Icon(
+            Icons.palette_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Select a seed color',
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          itemBuilder: (context) {
+            return List.generate(ColorSeed.values.length, (index) {
+              ColorSeed currentColor = ColorSeed.values[index];
 
-          return PopupMenuItem(
-            value: index,
-            enabled: currentColor != colorSelected ||
-                colorSelectionMethod != ColorSelectionMethod.colorSeed,
-            child: Wrap(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Icon(
-                    currentColor == colorSelected &&
-                            colorSelectionMethod != ColorSelectionMethod.image
-                        ? Icons.color_lens
-                        : Icons.color_lens_outlined,
-                    color: currentColor.color,
-                  ),
+              return PopupMenuItem(
+                value: index,
+                enabled: currentColor != colorSelected ||
+                    colorSelectionMethod != ColorSelectionMethod.colorSeed,
+                child: Wrap(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Icon(
+                        currentColor == colorSelected &&
+                                colorSelectionMethod != ColorSelectionMethod.image
+                            ? Icons.color_lens
+                            : Icons.color_lens_outlined,
+                        color: currentColor.color,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(currentColor.label),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(currentColor.label),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-      onSelected: handleColorSelect,
+              );
+            });
+          },
+          onSelected: handleColorSelect,
+        ),
+        Text("Farben")
+      ],
     );
   }
 }
 
-class _ColorImageButton extends StatelessWidget {
-  const _ColorImageButton({
-    required this.handleImageSelect,
-    required this.imageSelected,
-    required this.colorSelectionMethod,
-  });
+class _FontSizeButton extends StatefulWidget {
+  const _FontSizeButton({Key? key}) : super(key: key);
 
-  final void Function(int) handleImageSelect;
-  final ColorImageProvider imageSelected;
-  final ColorSelectionMethod colorSelectionMethod;
+  @override
+  State<_FontSizeButton> createState() => _FontSizeButtonState();
+}
+
+class _FontSizeButtonState extends State<_FontSizeButton> {
+  double _sliderValue = 1;
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      icon: Icon(
-        Icons.image_outlined,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      tooltip: 'Select a color extraction image',
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) {
-        return List.generate(ColorImageProvider.values.length, (index) {
-          ColorImageProvider currentImageProvider =
-              ColorImageProvider.values[index];
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PopupMenuButton(
+          icon: Icon(
+            Icons.text_increase,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          tooltip: 'Select a seed color',
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          itemBuilder: (context){
+            return [
+              PopupMenuItem(
+                  child: Column(
+                    children: [
+                      Text("Schriftgröße"),
+                      StatefulBuilder(
+                        builder: (context, state){
+                          return SfSlider.vertical(
+                            min: 0,
+                            max: 2,
+                            interval: 1,
+                            stepSize: 1,
+                            showLabels: true,
+                            showDividers: true,
+                            value: _sliderValue,
+                            labelFormatterCallback:
+                                (dynamic actualValue, String formattedText) {
+                              switch (actualValue) {
+                                case 0:
+                                  return 'Klein';
+                                case 1:
+                                  return 'Mittel';
+                                case 2:
+                                  return 'Groß';
+                              }
+                              return actualValue.toString();
+                            },
+                            onChanged: (value) {
+                              state((){
 
-          return PopupMenuItem(
-            value: index,
-            enabled: currentImageProvider != imageSelected ||
-                colorSelectionMethod != ColorSelectionMethod.image,
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 48),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image(
-                          image: NetworkImage(
-                              ColorImageProvider.values[index].url),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(currentImageProvider.label),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-      onSelected: handleImageSelect,
+                              });
+                              setState(() {
+                                _sliderValue = value;
+                              });
+                            },
+                          );
+                        },
+                      )
+                    ],
+                  ))
+            ];
+          }
+        ),
+        Text("Schrift")
+      ],
     );
   }
 }
+
+
+// class _ColorImageButton extends StatelessWidget {
+//   const _ColorImageButton({
+//     required this.handleImageSelect,
+//     required this.imageSelected,
+//     required this.colorSelectionMethod,
+//   });
+//
+//   final void Function(int) handleImageSelect;
+//   final ColorImageProvider imageSelected;
+//   final ColorSelectionMethod colorSelectionMethod;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return PopupMenuButton(
+//       icon: Icon(
+//         Icons.image_outlined,
+//         color: Theme.of(context).colorScheme.onSurfaceVariant,
+//       ),
+//       tooltip: 'Select a color extraction image',
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//       itemBuilder: (context) {
+//         return List.generate(ColorImageProvider.values.length, (index) {
+//           ColorImageProvider currentImageProvider =
+//               ColorImageProvider.values[index];
+//
+//           return PopupMenuItem(
+//             value: index,
+//             enabled: currentImageProvider != imageSelected ||
+//                 colorSelectionMethod != ColorSelectionMethod.image,
+//             child: Wrap(
+//               crossAxisAlignment: WrapCrossAlignment.center,
+//               children: [
+//                 Padding(
+//                   padding: const EdgeInsets.only(left: 10),
+//                   child: ConstrainedBox(
+//                     constraints: const BoxConstraints(maxWidth: 48),
+//                     child: Padding(
+//                       padding: const EdgeInsets.all(4.0),
+//                       child: ClipRRect(
+//                         borderRadius: BorderRadius.circular(8.0),
+//                         child: Image(
+//                           image: NetworkImage(
+//                               ColorImageProvider.values[index].url),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 Padding(
+//                   padding: const EdgeInsets.only(left: 20),
+//                   child: Text(currentImageProvider.label),
+//                 ),
+//               ],
+//             ),
+//           );
+//         });
+//       },
+//       onSelected: handleImageSelect,
+//     );
+//   }
+// }
 
 class _ExpandedTrailingActions extends StatelessWidget {
   const _ExpandedTrailingActions({
