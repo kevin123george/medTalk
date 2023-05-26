@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class DatabaseHelper {
   static const int _version = 1;
-  static const String _dbName = "Chat.db";
+  static const String _dbName = " Medtalk.db";
 
   static Future<Database> _getDb() async {
     return openDatabase(join(await getDatabasesPath(), _dbName),

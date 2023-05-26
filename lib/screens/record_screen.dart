@@ -39,6 +39,12 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     'Title',
                     style: TextStyle(fontSize: 20),
                   ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      // Perform delete action
+                    },
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(16.0),
