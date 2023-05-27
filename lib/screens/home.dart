@@ -504,7 +504,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
 //   }
 // }
 
-class _ExpandedTrailingActions extends StatelessWidget {
+class _ExpandedTrailingActions extends StatefulWidget {
   const _ExpandedTrailingActions({
     required this.useLightMode,
     required this.handleBrightnessChange,
@@ -530,6 +530,13 @@ class _ExpandedTrailingActions extends StatelessWidget {
   final ColorSelectionMethod colorSelectionMethod;
 
   @override
+  State<_ExpandedTrailingActions> createState() => _ExpandedTrailingActionsState();
+}
+
+class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
+  double _sliderValue = 1;
+
+  @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final trailingActionsBody = Container(
@@ -544,37 +551,70 @@ class _ExpandedTrailingActions extends StatelessWidget {
               const Text('Brightness'),
               Expanded(child: Container()),
               Switch(
-                  value: useLightMode,
+                  value: widget.useLightMode,
                   onChanged: (value) {
-                    handleBrightnessChange(value);
+                    widget.handleBrightnessChange(value);
                   })
             ],
           ),
           Row(
             children: [
-              useMaterial3
+              widget.useMaterial3
                   ? const Text('Material 3')
                   : const Text('Material 2'),
               Expanded(child: Container()),
               Switch(
-                  value: useMaterial3,
+                  value: widget.useMaterial3,
                   onChanged: (_) {
-                    handleMaterialVersionChange();
+                    widget.handleMaterialVersionChange();
                   })
             ],
           ),
           const Divider(),
           _ExpandedColorSeedAction(
-            handleColorSelect: handleColorSelect,
-            colorSelected: colorSelected,
-            colorSelectionMethod: colorSelectionMethod,
+            handleColorSelect: widget.handleColorSelect,
+            colorSelected: widget.colorSelected,
+            colorSelectionMethod: widget.colorSelectionMethod,
           ),
           const Divider(),
-          _ExpandedImageColorAction(
-            handleImageSelect: handleImageSelect,
-            imageSelected: imageSelected,
-            colorSelectionMethod: colorSelectionMethod,
-          ),
+          StatefulBuilder(
+            builder: (context, state){
+              return SfSlider(
+              min: 0,
+              max: 2,
+              interval: 1,
+              stepSize: 1,
+              showLabels: true,
+              showDividers: true,
+              value: _sliderValue,
+              labelFormatterCallback:
+                (dynamic actualValue, String formattedText) {
+                  switch (actualValue) {
+                    case 0:
+                      return 'Klein';
+                    case 1:
+                      return 'Mittel';
+                    case 2:
+                      return 'Groß';
+                  }
+                return actualValue.toString();
+              },
+              onChanged: (value) {
+                state((){
+
+                });
+                setState(() {
+                _sliderValue = value;
+                });
+              },
+            );
+          })
+          // const Divider(),
+          // _ExpandedImageColorAction(
+          //   handleImageSelect: handleImageSelect,
+          //   imageSelected: imageSelected,
+          //   colorSelectionMethod: colorSelectionMethod,
+          // ),
         ],
       ),
     );
