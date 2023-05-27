@@ -345,7 +345,7 @@ class _ColorSeedButton extends StatelessWidget {
         Visibility(
             visible: showLabels,
             child: Flexible(
-                child: Text("Helligkeit")
+                child: Text("Farbe")
             )
         )
       ],
@@ -433,7 +433,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
         Visibility(
             visible: showLabels,
             child: Flexible(
-                child: Text("Helligkeit")
+                child: Text("Schrift")
             )
         )
       ],
