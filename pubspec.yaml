@@ -20,6 +20,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   url_launcher: ^6.1.8
   syncfusion_flutter_sliders: ^21.2.6
+  get_storage:
 
 dev_dependencies:
 #  analysis_defaults:

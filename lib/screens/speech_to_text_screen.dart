@@ -5,6 +5,7 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:get_storage/get_storage.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({super.key});
@@ -29,7 +30,11 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
-            child: Text(text, style: textTheme.displaySmall),
+            child: Text(text, style:
+            GetStorage().read('font_size') == 0.0 ? textTheme.displaySmall
+                : GetStorage().read('font_size') == 1.0 ? textTheme.displayMedium
+                : GetStorage().read('font_size') == 2.0 ? textTheme.displayLarge
+                : textTheme.displayLarge),
           ),
         ),
         floatingActionButton: AvatarGlow(

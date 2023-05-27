@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'profile_screen.dart';
 import '../components.dart';
@@ -420,6 +421,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
                                 setState(() {
                                   _sliderValue = value;
                                 });
+                                GetStorage().write('font_size', _sliderValue);
                               },
                             );
                           },
@@ -608,6 +610,7 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                 setState(() {
                 _sliderValue = value;
                 });
+                GetStorage().write('font_size', _sliderValue);
               },
             );
           })
