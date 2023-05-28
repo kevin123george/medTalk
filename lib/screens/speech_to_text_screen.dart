@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -45,14 +44,13 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   speechToText.listen(
                     onResult: (result) {
                       setState(() {
-                        print(result);
-                        print("###############");
-                        print(result.recognizedWords);
-                        print("###############");
-
-                        print("--------------------");
-                        text = result.recognizedWords;
-                        print(text);
+                        List<dynamic> alternates =
+                            result.toJson()["alternates"];
+                        List<String> recognizedWords = alternates
+                            .map((alternate) => alternate["recognizedWords"])
+                            .toList()
+                            .cast<String>();
+                        text = recognizedWords.join(' ');
                       });
                     },
                     localeId: 'de-DE',
