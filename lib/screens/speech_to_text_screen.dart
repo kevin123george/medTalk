@@ -57,7 +57,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   );
                 });
               } else {
-                print("-----still true ");
                 setState(() {
                   isButtonPressed = false;
                   isListening = false;
@@ -65,7 +64,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                 speechToText.stop();
               }
             } else {
-              print("the thing is not available");
               setState(() {
                 isButtonPressed = false;
                 isListening = false;
