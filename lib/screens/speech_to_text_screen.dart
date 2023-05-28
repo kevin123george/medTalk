@@ -16,6 +16,7 @@ class SpeechToTextScreen extends StatefulWidget {
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var text = "hold the button to start speaking";
   var isListening = false;
+  var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
 
   @override
@@ -32,57 +33,53 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             child: Text(text, style: textTheme.displaySmall),
           ),
         ),
-        floatingActionButton: AvatarGlow(
-          // onPressed: () {  },
-          // elevation: 10,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            var available = await speechToText.initialize();
+            if (available) {
+              if (!isButtonPressed) {
+                print("the thing is available");
+                setState(() {
+                  isButtonPressed = true;
+                  isListening = true;
+                  speechToText.listen(
+                    onResult: (result) {
+                      setState(() {
+                        print(result);
+                        print("###############");
+                        print(result.recognizedWords);
+                        print("###############");
 
-          // endRadius: 75,
-          animate: isListening,
-          glowColor: Colors.blue,
-          endRadius: 90,
-          shape: BoxShape.rectangle,
-          child: GestureDetector(
-            onTapDown: (details) async {
-              print("object");
-              if (!isListening) {
-                var available = await speechToText.initialize();
-                print(available);
-                if (available) {
-                  setState(() {
-                    isListening = true;
-                    speechToText.listen(
-                      onResult: (result) {
-                        setState(() {
-                          print(result);
-                          print("###############");
-                          print(result.recognizedWords);
-                          print("###############");
-
-                          print("--------------------");
-                          text = result.recognizedWords;
-                          print(text);
-                        });
-                      },
-                      localeId: 'de-DE',
-                    );
-                  });
-                }
+                        print("--------------------");
+                        text = result.recognizedWords;
+                        print(text);
+                      });
+                    },
+                    localeId: 'de-DE',
+                  );
+                });
+              } else {
+                print("-----still true ");
+                setState(() {
+                  isButtonPressed = false;
+                  isListening = false;
+                });
+                speechToText.stop();
               }
-            },
-            onTapUp: (details) {
+            } else {
+              print("the thing is not available");
               setState(() {
+                isButtonPressed = false;
                 isListening = false;
-                // text = "";
               });
-              speechToText.stop();
-            },
-            child: Icon(
-              isListening ? Icons.mic : Icons.mic_none,
-              color: Colors.red,
-            ),
+            }
+          },
+          child: Icon(
+            isListening ? Icons.mic : Icons.mic_none,
+            color: Colors.red,
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
