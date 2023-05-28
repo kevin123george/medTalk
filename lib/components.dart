@@ -744,9 +744,15 @@ const List<NavigationDestination> appBarDestinations = [
   ),
   NavigationDestination(
     tooltip: '',
-    icon: Icon(Icons.settings_outlined),
-    label: 'Settings',
-    selectedIcon: Icon(Icons.settings),
+    icon: Icon(Icons.account_circle_outlined),
+    label: 'Profile',
+    selectedIcon: Icon(Icons.account_circle),
+  ),
+  NavigationDestination(
+    tooltip: '',
+    icon: Icon(Icons.storage_outlined),
+    label: 'Records',
+    selectedIcon: Icon(Icons.storage),
   )
 ];
 
@@ -846,8 +852,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
             children: <Widget>[
               IconButton(
                 isSelected: standardSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: () {
                   setState(() {
                     standardSelected = !standardSelected;
@@ -857,8 +863,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               colDivider,
               IconButton(
                 isSelected: standardSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: null,
               ),
             ],
@@ -868,7 +874,7 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               // Filled IconButton
               IconButton.filled(
                 isSelected: filledSelected,
-                icon: const Icon(Icons.settings_outlined),
+                icon: const Icon(Icons.account_circle_outlined),
                 selectedIcon: const Icon(Icons.settings),
                 onPressed: () {
                   setState(() {
@@ -879,7 +885,7 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               colDivider,
               IconButton.filled(
                 isSelected: filledSelected,
-                icon: const Icon(Icons.settings_outlined),
+                icon: const Icon(Icons.account_circle_outlined),
                 selectedIcon: const Icon(Icons.settings),
                 onPressed: null,
               ),
@@ -890,8 +896,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               // Filled Tonal IconButton
               IconButton.filledTonal(
                 isSelected: tonalSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: () {
                   setState(() {
                     tonalSelected = !tonalSelected;
@@ -901,8 +907,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               colDivider,
               IconButton.filledTonal(
                 isSelected: tonalSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: null,
               ),
             ],
@@ -912,8 +918,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               // Outlined IconButton
               IconButton.outlined(
                 isSelected: outlinedSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: () {
                   setState(() {
                     outlinedSelected = !outlinedSelected;
@@ -923,8 +929,8 @@ class _IconToggleButtonsState extends State<IconToggleButtons> {
               colDivider,
               IconButton.outlined(
                 isSelected: outlinedSelected,
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.account_circle_outlined),
+                selectedIcon: const Icon(Icons.account_circle),
                 onPressed: null,
               ),
             ],
@@ -1252,7 +1258,7 @@ class _BottomSheetSectionState extends State<BottomSheetSection> {
       IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
       IconButton(onPressed: () {}, icon: const Icon(Icons.delete_outline)),
       IconButton(onPressed: () {}, icon: const Icon(Icons.archive_outlined)),
-      IconButton(onPressed: () {}, icon: const Icon(Icons.settings_outlined)),
+      IconButton(onPressed: () {}, icon: const Icon(Icons.account_circle_outlined)),
       IconButton(onPressed: () {}, icon: const Icon(Icons.favorite_border)),
     ];
     List<Text> labelList = const <Text>[
@@ -1260,7 +1266,7 @@ class _BottomSheetSectionState extends State<BottomSheetSection> {
       Text('Add to'),
       Text('Trash'),
       Text('Archive'),
-      Text('Settings'),
+      Text('Profile'),
       Text('Favorite')
     ];
 
@@ -1489,89 +1495,6 @@ class ButtonAnchorExample extends StatelessWidget {
     );
   }
 }
-
-// class NavigationDrawers extends StatelessWidget {
-//   const NavigationDrawers({super.key, required this.scaffoldKey});
-//   final GlobalKey<ScaffoldState> scaffoldKey;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ComponentDecoration(
-//       label: 'Navigation drawer',
-//       tooltipMessage:
-//           'Use NavigationDrawer. For modal navigation drawers, see Scaffold.endDrawer',
-//       child: Column(
-//         children: [
-//           const SizedBox(height: 520, child: NavigationDrawerSection()),
-//           colDivider,
-//           colDivider,
-//           TextButton(
-//             child: const Text('Show modal navigation drawer',
-//                 style: TextStyle(fontWeight: FontWeight.bold)),
-//             onPressed: () {
-//               scaffoldKey.currentState!.openEndDrawer();
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class NavigationDrawerSection extends StatefulWidget {
-//   const NavigationDrawerSection({super.key});
-//
-//   @override
-//   State<NavigationDrawerSection> createState() =>
-//       _NavigationDrawerSectionState();
-// }
-//
-// class _NavigationDrawerSectionState extends State<NavigationDrawerSection> {
-//   int navDrawerIndex = 0;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return NavigationDrawer(
-//       onDestinationSelected: (selectedIndex) {
-//         setState(() {
-//           navDrawerIndex = selectedIndex;
-//         });
-//       },
-//       selectedIndex: navDrawerIndex,
-//       children: <Widget>[
-//         Padding(
-//           padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-//           child: Text(
-//             'Mail',
-//             style: Theme.of(context).textTheme.titleSmall,
-//           ),
-//         ),
-//         ...destinations.map((destination) {
-//           return NavigationDrawerDestination(
-//             label: Text(destination.label),
-//             icon: destination.icon,
-//             selectedIcon: destination.selectedIcon,
-//           );
-//         }),
-//         const Divider(indent: 28, endIndent: 28),
-//         Padding(
-//           padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-//           child: Text(
-//             'Labels',
-//             style: Theme.of(context).textTheme.titleSmall,
-//           ),
-//         ),
-//         ...labelDestinations.map((destination) {
-//           return NavigationDrawerDestination(
-//             label: Text(destination.label),
-//             icon: destination.icon,
-//             selectedIcon: destination.selectedIcon,
-//           );
-//         }),
-//       ],
-//     );
-//   }
-// }
 
 class ExampleDestination {
   const ExampleDestination(this.label, this.icon, this.selectedIcon);

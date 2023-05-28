@@ -36,7 +36,7 @@ void main() {
     expect(find.widgetWithText(FloatingActionButton, 'Create'), findsOneWidget);
 
     // Icon buttons
-    expect(find.widgetWithIcon(IconButton, Icons.settings_outlined),
+    expect(find.widgetWithIcon(IconButton, Icons.account_circle_outlined),
         findsNWidgets(8));
 
     // Segmented buttons
