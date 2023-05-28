@@ -20,6 +20,15 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   SpeechToText speechToText = SpeechToText();
 
   @override
+  void initState() {
+    super.initState();
+    GetStorage().listenKey('font_size', (value) {
+      setState(() {
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context)
         .textTheme
@@ -30,11 +39,10 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
-            child: Text(text, style:
-            GetStorage().read('font_size') == 0.0 ? textTheme.displaySmall
-                : GetStorage().read('font_size') == 1.0 ? textTheme.displayMedium
-                : GetStorage().read('font_size') == 2.0 ? textTheme.displayLarge
-                : textTheme.displayLarge),
+            child: Text(
+                text,
+                style: _getTextStyle(textTheme)
+            ),
           ),
         ),
         floatingActionButton: AvatarGlow(
@@ -90,6 +98,13 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
+  }
+
+  TextStyle? _getTextStyle(TextTheme textTheme) {
+    return GetStorage().read('font_size') == 0.0 ? textTheme.displaySmall
+              : GetStorage().read('font_size') == 1.0 ? textTheme.displayMedium
+              : GetStorage().read('font_size') == 2.0 ? textTheme.displayLarge
+              : textTheme.displayMedium;
   }
 }
 

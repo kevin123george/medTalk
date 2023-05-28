@@ -370,7 +370,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
   _FontSizeButtonState(this.showLabels);
 
   final bool showLabels;
-  double _sliderValue = 1;
+  double _sliderValue = GetStorage().read('font_size') != null ? GetStorage().read('font_size') : 1.0;
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +381,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
         Flexible(
           child: PopupMenuButton(
             icon: Icon(
-              Icons.text_increase,
+              Icons.format_size,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             tooltip: 'Select a seed color',
