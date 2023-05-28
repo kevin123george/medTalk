@@ -11,6 +11,7 @@ import 'package:get_storage/get_storage.dart';
 import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -374,6 +375,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -394,35 +396,41 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
                         Text("Schriftgröße"),
                         StatefulBuilder(
                           builder: (context, state){
-                            return SfSlider.vertical(
-                              min: 0,
-                              max: 2,
-                              interval: 1,
-                              stepSize: 1,
-                              showLabels: true,
-                              showDividers: true,
-                              value: _sliderValue,
-                              labelFormatterCallback:
-                                  (dynamic actualValue, String formattedText) {
-                                switch (actualValue) {
-                                  case 0:
-                                    return 'Klein';
-                                  case 1:
-                                    return 'Mittel';
-                                  case 2:
-                                    return 'Groß';
-                                }
-                                return actualValue.toString();
-                              },
-                              onChanged: (value) {
-                                state((){
+                            return SfSliderTheme(
+                              data: SfSliderThemeData(
+                                activeLabelStyle: theme.textTheme.bodySmall,
+                                inactiveLabelStyle: theme.textTheme.bodySmall,
+                              ),
+                              child: SfSlider.vertical(
+                                min: 0,
+                                max: 2,
+                                interval: 1,
+                                stepSize: 1,
+                                showLabels: true,
+                                showDividers: true,
+                                value: _sliderValue,
+                                labelFormatterCallback:
+                                    (dynamic actualValue, String formattedText) {
+                                  switch (actualValue) {
+                                    case 0:
+                                      return 'Klein';
+                                    case 1:
+                                      return 'Mittel';
+                                    case 2:
+                                      return 'Groß';
+                                  }
+                                  return actualValue.toString();
+                                },
+                                onChanged: (value) {
+                                  state((){
 
-                                });
-                                setState(() {
-                                  _sliderValue = value;
-                                });
-                                GetStorage().write('font_size', _sliderValue);
-                              },
+                                  });
+                                  setState(() {
+                                    _sliderValue = value;
+                                  });
+                                  GetStorage().write('font_size', _sliderValue);
+                                },
+                              ),
                             );
                           },
                         )
@@ -540,6 +548,7 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
     final trailingActionsBody = Container(
       constraints: const BoxConstraints.tightFor(width: 250),
@@ -583,36 +592,42 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
           const Text('Schriftgröße'),
           StatefulBuilder(
             builder: (context, state){
-              return SfSlider(
-              min: 0,
-              max: 2,
-              interval: 1,
-              stepSize: 1,
-              showLabels: true,
-              showDividers: true,
-              value: _sliderValue,
-              labelFormatterCallback:
-                (dynamic actualValue, String formattedText) {
-                  switch (actualValue) {
-                    case 0:
-                      return 'Klein';
-                    case 1:
-                      return 'Mittel';
-                    case 2:
-                      return 'Groß';
-                  }
-                return actualValue.toString();
-              },
-              onChanged: (value) {
-                state((){
+              return SfSliderTheme(
+                data: SfSliderThemeData(
+                  activeLabelStyle: theme.textTheme.bodyMedium,
+                  inactiveLabelStyle: theme.textTheme.bodyMedium,
+                ),
+                child: SfSlider(
+                min: 0,
+                max: 2,
+                interval: 1,
+                stepSize: 1,
+                showLabels: true,
+                showDividers: true,
+                value: _sliderValue,
+                labelFormatterCallback:
+                  (dynamic actualValue, String formattedText) {
+                    switch (actualValue) {
+                      case 0:
+                        return 'Klein';
+                      case 1:
+                        return 'Mittel';
+                      case 2:
+                        return 'Groß';
+                    }
+                  return actualValue.toString();
+                },
+                onChanged: (value) {
+                  state((){
 
-                });
-                setState(() {
-                _sliderValue = value;
-                });
-                GetStorage().write('font_size', _sliderValue);
-              },
-            );
+                  });
+                  setState(() {
+                  _sliderValue = value;
+                  });
+                  GetStorage().write('font_size', _sliderValue);
+                },
+            ),
+              );
           })
           // const Divider(),
           // _ExpandedImageColorAction(
