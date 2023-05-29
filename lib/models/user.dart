@@ -1,6 +1,6 @@
 enum UserType {
   Doctor,
-  Patient,
+  Patient, defaultValue,
 }
 
 class User {

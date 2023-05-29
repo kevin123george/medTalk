@@ -2,18 +2,26 @@ import 'package:medTalk/models/records.dart';
 import 'package:medTalk/models/user.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+
+
+
 
 class DatabaseHelper {
   static const int _version = 1;
   static const String _dbName = "Medtalk.db";
+  DatabaseFactory? databaseFactory; // Add this line
+
 
   static Future<Database> _getDb() async {
-    return openDatabase(
-      join(await getDatabasesPath(), _dbName),
+    // print('path ist ' + dataDirectory.path);
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, _dbName);
+
+    return await openDatabase(
+      path,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE Users (
+          CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT,
@@ -23,7 +31,7 @@ class DatabaseHelper {
         ''');
 
         await db.execute('''
-          CREATE TABLE Records (
+          CREATE TABLE IF NOT EXISTS Records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
             timestamp DATETIME NOT NULL
@@ -33,7 +41,6 @@ class DatabaseHelper {
       version: _version,
     );
   }
-
   // User table operations
 
   static Future<int> insertUser(User user) async {
@@ -64,6 +71,40 @@ class DatabaseHelper {
       whereArgs: [user.id],
     );
   }
+  static Future<User> fetchUser() async {
+    final db = await _getDb();
+    final List<Map<String, dynamic>> results = await db.query(
+      'Users',
+      limit: 1,
+    );
+
+    if (results.isNotEmpty) {
+      // User already exists in the database, return the fetched user
+      final userData = results.first;
+      final userTypeString = userData['userType'] as String;
+      final userType = UserType.values.firstWhere(
+            (type) => type.toString() == 'UserType.$userTypeString',
+        orElse: () => UserType.defaultValue,
+      );
+      return User(
+        id: userData['id'] as int,
+        name: userData['name'] as String,
+        email: userData['email'] as String?,
+        address: userData['address'] as String?,
+        userType: userType,
+      );
+    } else {
+      // User doesn't exist in the database, return a new empty user
+      return User(
+        id: null,
+        name: '',
+        email: null,
+        address: null,
+        userType: UserType.defaultValue,
+      );
+    }
+  }
+
 
   // Records table operations
 
