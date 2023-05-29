@@ -78,11 +78,11 @@ class _ProfileFormState extends State<ProfileForm> {
         _user = updatedUser;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User data updated successfully')),
+          SnackBar(content: Text('Benutzerdaten erfolgreich aktualisiert')),
         );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update user data')),
+        ScaffoldMessenger.of(context).showSnackBar( 
+          SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
     }
@@ -129,12 +129,12 @@ class _ProfileFormState extends State<ProfileForm> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Your Name',
-                hintText: 'Enter your name',
+                labelText: 'Ihre Name',
+                hintText: 'Gib deinen Namen ein',
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
+                  return 'Bitte geben Sie Ihren Namen ein';
                 }
                 return null;
               },
@@ -144,7 +144,7 @@ class _ProfileFormState extends State<ProfileForm> {
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
-                hintText: 'Enter your email address',
+                hintText: 'Geben sie ihre E-Mailadresse ein',
               ),
               validator: _validateEmail,
             ),
@@ -155,7 +155,7 @@ class _ProfileFormState extends State<ProfileForm> {
                 controller: _addressController,
                 decoration: InputDecoration(
                   labelText: 'Address',
-                  hintText: 'Enter your address',
+                  hintText: 'Geben Sie Ihre Adresse ein',
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 5,
@@ -164,7 +164,7 @@ class _ProfileFormState extends State<ProfileForm> {
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: _submitForm,
-              child: Text('Update'),
+              child: Text('Aktualisieren'),
             ),
           ],
         ),
