@@ -3,7 +3,10 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../models/records.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({super.key});
@@ -61,6 +64,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   isButtonPressed = false;
                   isListening = false;
                 });
+                final recordEntry = Records(text: text, timestamp: DateTime.now());
+                final generatedId = await DatabaseHelper.addRecord(recordEntry);
+                print("Added record to database: " + generatedId.toString());
                 speechToText.stop();
               }
             } else {

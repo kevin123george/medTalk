@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+/.metadata
 .DS_Store
 .atom/
 .buildlog/
@@ -31,6 +32,22 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+
+# Android specific
+**/android/gradle.properties
+**/android/local.properties
+**/android/*.iml
+**/android/app/*.iml
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+
+# iOS specific
+**/ios/Podfile.lock
+**/ios/Pods/
+**/ios/Flutter/Debug.xcconfig
+**/ios/Flutter/Release.xcconfig
 
 # Web related
 lib/generated_plugin_registrant.dart
