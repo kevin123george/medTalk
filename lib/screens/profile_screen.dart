@@ -81,7 +81,7 @@ class _ProfileFormState extends State<ProfileForm> {
           SnackBar(content: Text('Benutzerdaten erfolgreich aktualisiert')),
         );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar( 
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
