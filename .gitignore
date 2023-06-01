@@ -33,9 +33,9 @@ migrate_working_dir/
 .pub/
 /build/
 # Flutter specific
-linux/flutter/
-macos/flutter/
-windows/flutter/
+./linux/flutter/
+./macos/flutter/
+./windows/flutter/
 
 
 # Android specific
