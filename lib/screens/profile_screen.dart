@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+
 import '../models/user.dart';
 import '../util/db_helper.dart';
 
+ 
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -12,7 +14,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context)
@@ -34,13 +35,24 @@ class ProfileForm extends StatefulWidget {
   @override
   _ProfileFormState createState() => _ProfileFormState();
 }
+ 
 
 class _ProfileFormState extends State<ProfileForm> {
+  
   final _formKey = GlobalKey<FormState>();
   late final _nameController;
   late final _emailController;
   late final _addressController;
+  late final _profileUrlController; 
+  late final _userTypeController;
+  String dropdownvalue = 'Select';
 
+  // List of items in our dropdown menu
+  var items = [
+    'Select',
+    'Patient',
+    'Doctor',
+  ];
   User? _user;
 
   @override
@@ -126,6 +138,50 @@ class _ProfileFormState extends State<ProfileForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            CircleAvatar(
+                radius: 115,
+                backgroundColor: Theme.of(context).colorScheme.onSurface,
+                child: Center(
+                  child: CircleAvatar(
+                    foregroundImage: NetworkImage(
+                        "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
+                    radius: 110,
+                  ),
+                ),
+              ),
+              Container(
+                width: 300,
+                height: 65,
+                child: DropdownButton(
+                  // Initial Value
+
+                  value: dropdownvalue,
+                  underline: Container(
+                    height: 1,
+                    color: Colors.black54, //<-- SEE HERE
+                  ),
+                  // Down Arrow Icon
+                  icon: const Icon(Icons.keyboard_arrow_down),
+
+                  // Array list of items
+                  items: items.map((String items) {
+                    return DropdownMenuItem(
+                      value: items,
+                      child: Text(
+                        items,
+                        // style: TextStyle(color: Colors.black),
+                      ),
+                    );
+                  }).toList(),
+                  // After selecting the desired option,it will
+                  // change button value to selected value
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownvalue = newValue!;
+                    });
+                  },
+                ),
+              ),
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -167,10 +223,12 @@ class _ProfileFormState extends State<ProfileForm> {
               child: Text('Aktualisieren'),
             ),
           ],
+ 
         ),
       ),
     );
   }
+ 
 }
 
 
