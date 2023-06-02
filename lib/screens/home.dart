@@ -490,19 +490,6 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                   })
             ],
           ),
-          Row(
-            children: [
-              widget.useMaterial3
-                  ? const Text('Material 3')
-                  : const Text('Material 2'),
-              Expanded(child: Container()),
-              Switch(
-                  value: widget.useMaterial3,
-                  onChanged: (_) {
-                    widget.handleMaterialVersionChange();
-                  })
-            ],
-          ),
           const Divider(),
           const Text('Farbe'),
           _ExpandedColorSeedAction(
