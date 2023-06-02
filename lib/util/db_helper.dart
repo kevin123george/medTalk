@@ -4,24 +4,36 @@ import 'package:path/path.dart';
 
 class DatabaseHelper {
   static const int _version = 1;
-  static const String _dbName = " Medtalk.db";
+  static const String _dbName = "Medtalk.db";
 
   static Future<Database> _getDb() async {
-    return openDatabase(join(await getDatabasesPath(), _dbName),
-        onCreate: (db, version) async => await db.execute(
-            "CREATE TABLE Records (id INT PRIMARY KEY AUTO_INCREMENT,text VARCHAR(255) NOT NULL,timestamp DATETIME NOT NULL);"),
-        version: _version);
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, _dbName);
+
+    return await openDatabase(
+      path,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS Records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            text TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+          )
+        ''');
+      },
+      version: _version,
+    );
   }
 
   static Future<int> addRecord(Records record) async {
     final db = await _getDb();
-    return await db.insert("Records", record as Map<String, Object?>,
+    return await db.insert("Records", record.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<int> updateRecord(Records record) async {
     final db = await _getDb();
-    return await db.update("Records", record as Map<String, Object?>,
+    return await db.update("Records", record.toMap(),
         where: 'id = ?',
         whereArgs: [record.id],
         conflictAlgorithm: ConflictAlgorithm.replace);

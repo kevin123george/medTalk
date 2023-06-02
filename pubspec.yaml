@@ -16,7 +16,7 @@ dependencies:
   speech_to_text: ^6.1.1
   avatar_glow:
   sqflite: ^2.2.8+4
-
+  intl: ^0.18.0
   cupertino_icons: ^1.0.2
   url_launcher: ^6.1.8
 

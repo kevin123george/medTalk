@@ -64,7 +64,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   isButtonPressed = false;
                   isListening = false;
                 });
-                final recordEntry = Records(text: text, timestamp: DateTime.now());
+                final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
                 final generatedId = await DatabaseHelper.addRecord(recordEntry);
                 print("Added record to database: " + generatedId.toString());
                 speechToText.stop();
