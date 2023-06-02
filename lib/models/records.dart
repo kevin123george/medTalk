@@ -1,7 +1,7 @@
 class Records{
  final int? id;
  final String text;
- final DateTime timestamp;
+ final int timestamp;
  final int? uid;
 
  const Records({required this.text,required this.timestamp,this.id,this.uid});

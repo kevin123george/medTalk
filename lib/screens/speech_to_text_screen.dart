@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../models/records.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({super.key});
@@ -16,6 +18,7 @@ class SpeechToTextScreen extends StatefulWidget {
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var text = "hold the button to start speaking";
   var isListening = false;
+  var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
 
   @override
@@ -32,57 +35,53 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             child: Text(text, style: textTheme.displaySmall),
           ),
         ),
-        floatingActionButton: AvatarGlow(
-          // onPressed: () {  },
-          // elevation: 10,
-
-          // endRadius: 75,
-          animate: isListening,
-          glowColor: Colors.blue,
-          endRadius: 90,
-          shape: BoxShape.rectangle,
-          child: GestureDetector(
-            onTapDown: (details) async {
-              print("object");
-              if (!isListening) {
-                var available = await speechToText.initialize();
-                print(available);
-                if (available) {
-                  setState(() {
-                    isListening = true;
-                    speechToText.listen(
-                      onResult: (result) {
-                        setState(() {
-                          print(result);
-                          print("###############");
-                          print(result.recognizedWords);
-                          print("###############");
-
-                          print("--------------------");
-                          text = result.recognizedWords;
-                          print(text);
-                        });
-                      },
-                      localeId: 'de-DE',
-                    );
-                  });
-                }
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            var available = await speechToText.initialize();
+            if (available) {
+              if (!isButtonPressed) {
+                print("the thing is available");
+                setState(() {
+                  isButtonPressed = true;
+                  isListening = true;
+                  speechToText.listen(
+                    onResult: (result) {
+                      setState(() {
+                        List<dynamic> alternates =
+                            result.toJson()["alternates"];
+                        List<String> recognizedWords = alternates
+                            .map((alternate) => alternate["recognizedWords"])
+                            .toList()
+                            .cast<String>();
+                        text = recognizedWords.join(' ');
+                      });
+                    },
+                    localeId: 'de-DE',
+                  );
+                });
+              } else {
+                setState(() {
+                  isButtonPressed = false;
+                  isListening = false;
+                });
+                final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
+                final generatedId = await DatabaseHelper.addRecord(recordEntry);
+                print("Added record to database: " + generatedId.toString());
+                speechToText.stop();
               }
-            },
-            onTapUp: (details) {
+            } else {
               setState(() {
+                isButtonPressed = false;
                 isListening = false;
-                // text = "";
               });
-              speechToText.stop();
-            },
-            child: Icon(
-              isListening ? Icons.mic : Icons.mic_none,
-              color: Colors.red,
-            ),
+            }
+          },
+          child: Icon(
+            isListening ? Icons.mic : Icons.mic_none,
+            color: Colors.red,
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
