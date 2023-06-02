@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:provider/provider.dart';
+import 'package:medTalk/providers/font_provider.dart';
 
 import 'profile_screen.dart';
 import '../components.dart';
@@ -124,7 +125,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   PreferredSizeWidget createAppBar() {
     return AppBar(
-      title: Text('MedTalk'),
+      title: Text('MedTalk - Smart City Bamberg'),
 
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
@@ -141,11 +142,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               _FontSizeButton(
                 showLabels: false,
               ),
-              // _ColorImageButton(
-              //   handleImageSelect: widget.handleImageSelect,
-              //   imageSelected: widget.imageSelected,
-              //   colorSelectionMethod: widget.colorSelectionMethod,
-              // )
             ]
           : [Container()],
     );
@@ -174,13 +170,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               showLabels: true,
             ),
           ),
-          // Flexible(
-          //   child: _ColorImageButton(
-          //     handleImageSelect: widget.handleImageSelect,
-          //     imageSelected: widget.imageSelected,
-          //     colorSelectionMethod: widget.colorSelectionMethod,
-          //   ),
-          // ),
         ],
       );
 
@@ -258,7 +247,7 @@ class _BrightnessButton extends StatelessWidget {
     final isBright = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       preferBelow: showTooltipBelow,
-      message: 'Toggle brightness',
+      message: 'Helligkeit umschalten',
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
@@ -310,7 +299,7 @@ class _ColorSeedButton extends StatelessWidget {
               Icons.palette_outlined,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            tooltip: 'Select a seed color',
+            tooltip: 'Wähle eine Farbe',
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context) {
               return List.generate(ColorSeed.values.length, (index) {
@@ -371,7 +360,6 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
   _FontSizeButtonState(this.showLabels);
 
   final bool showLabels;
-  double _sliderValue = GetStorage().read('font_size') != null ? GetStorage().read('font_size') : 1.0;
 
   @override
   Widget build(BuildContext context) {
@@ -386,7 +374,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
               Icons.format_size,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            tooltip: 'Select a seed color',
+            tooltip: 'Wähle eine Schriftgröße',
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context){
               return [
@@ -408,7 +396,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
                                 stepSize: 1,
                                 showLabels: true,
                                 showDividers: true,
-                                value: _sliderValue,
+                                value: context.read<FontProvider>().font_size,
                                 labelFormatterCallback:
                                     (dynamic actualValue, String formattedText) {
                                   switch (actualValue) {
@@ -422,13 +410,11 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
                                   return actualValue.toString();
                                 },
                                 onChanged: (value) {
+                                  context.read<FontProvider>().change_font_size(value);
                                   state((){
-
                                   });
                                   setState(() {
-                                    _sliderValue = value;
                                   });
-                                  GetStorage().write('font_size', _sliderValue);
                                 },
                               ),
                             );
@@ -450,69 +436,6 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
     );
   }
 }
-
-
-// class _ColorImageButton extends StatelessWidget {
-//   const _ColorImageButton({
-//     required this.handleImageSelect,
-//     required this.imageSelected,
-//     required this.colorSelectionMethod,
-//   });
-//
-//   final void Function(int) handleImageSelect;
-//   final ColorImageProvider imageSelected;
-//   final ColorSelectionMethod colorSelectionMethod;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return PopupMenuButton(
-//       icon: Icon(
-//         Icons.image_outlined,
-//         color: Theme.of(context).colorScheme.onSurfaceVariant,
-//       ),
-//       tooltip: 'Select a color extraction image',
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//       itemBuilder: (context) {
-//         return List.generate(ColorImageProvider.values.length, (index) {
-//           ColorImageProvider currentImageProvider =
-//               ColorImageProvider.values[index];
-//
-//           return PopupMenuItem(
-//             value: index,
-//             enabled: currentImageProvider != imageSelected ||
-//                 colorSelectionMethod != ColorSelectionMethod.image,
-//             child: Wrap(
-//               crossAxisAlignment: WrapCrossAlignment.center,
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.only(left: 10),
-//                   child: ConstrainedBox(
-//                     constraints: const BoxConstraints(maxWidth: 48),
-//                     child: Padding(
-//                       padding: const EdgeInsets.all(4.0),
-//                       child: ClipRRect(
-//                         borderRadius: BorderRadius.circular(8.0),
-//                         child: Image(
-//                           image: NetworkImage(
-//                               ColorImageProvider.values[index].url),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//                 Padding(
-//                   padding: const EdgeInsets.only(left: 20),
-//                   child: Text(currentImageProvider.label),
-//                 ),
-//               ],
-//             ),
-//           );
-//         });
-//       },
-//       onSelected: handleImageSelect,
-//     );
-//   }
-// }
 
 class _ExpandedTrailingActions extends StatefulWidget {
   const _ExpandedTrailingActions({
@@ -544,7 +467,6 @@ class _ExpandedTrailingActions extends StatefulWidget {
 }
 
 class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
-  double _sliderValue = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -604,7 +526,7 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                 stepSize: 1,
                 showLabels: true,
                 showDividers: true,
-                value: _sliderValue,
+                value: context.read<FontProvider>().font_size,
                 labelFormatterCallback:
                   (dynamic actualValue, String formattedText) {
                     switch (actualValue) {
@@ -618,23 +540,15 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                   return actualValue.toString();
                 },
                 onChanged: (value) {
+                  context.read<FontProvider>().change_font_size(value);
                   state((){
-
                   });
                   setState(() {
-                  _sliderValue = value;
                   });
-                  GetStorage().write('font_size', _sliderValue);
                 },
             ),
               );
           })
-          // const Divider(),
-          // _ExpandedImageColorAction(
-          //   handleImageSelect: handleImageSelect,
-          //   imageSelected: imageSelected,
-          //   colorSelectionMethod: colorSelectionMethod,
-          // ),
         ],
       ),
     );
@@ -678,57 +592,6 @@ class _ExpandedColorSeedAction extends StatelessWidget {
     );
   }
 }
-
-// class _ExpandedImageColorAction extends StatelessWidget {
-//   const _ExpandedImageColorAction({
-//     required this.handleImageSelect,
-//     required this.imageSelected,
-//     required this.colorSelectionMethod,
-//   });
-//
-//   final void Function(int) handleImageSelect;
-//   final ColorImageProvider imageSelected;
-//   final ColorSelectionMethod colorSelectionMethod;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return ConstrainedBox(
-//       constraints: const BoxConstraints(maxHeight: 150.0),
-//       child: Padding(
-//         padding: const EdgeInsets.symmetric(vertical: 8.0),
-//         child: GridView.count(
-//           crossAxisCount: 3,
-//           children: List.generate(
-//             ColorImageProvider.values.length,
-//             (i) => InkWell(
-//               borderRadius: BorderRadius.circular(4.0),
-//               onTap: () => handleImageSelect(i),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: Material(
-//                   borderRadius: BorderRadius.circular(4.0),
-//                   elevation: imageSelected == ColorImageProvider.values[i] &&
-//                           colorSelectionMethod == ColorSelectionMethod.image
-//                       ? 3
-//                       : 0,
-//                   child: Padding(
-//                     padding: const EdgeInsets.all(4.0),
-//                     child: ClipRRect(
-//                       borderRadius: BorderRadius.circular(4.0),
-//                       child: Image(
-//                         image: NetworkImage(ColorImageProvider.values[i].url),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class NavigationTransition extends StatefulWidget {
   const NavigationTransition(

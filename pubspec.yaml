@@ -22,6 +22,7 @@ dependencies:
   syncfusion_flutter_sliders: ^21.2.6
   syncfusion_flutter_core: ^21.2.6
   get_storage:
+  provider: ^6.0.5
 
 dev_dependencies:
 #  analysis_defaults:

@@ -5,7 +5,8 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:provider/provider.dart';
+import 'package:medTalk/providers/font_provider.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({super.key});
@@ -15,18 +16,9 @@ class SpeechToTextScreen extends StatefulWidget {
 }
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
-  var text = "hold the button to start speaking";
+  var text = "Drück den Knopf um mit der Transkription zu starten";
   var isListening = false;
   SpeechToText speechToText = SpeechToText();
-
-  @override
-  void initState() {
-    super.initState();
-    GetStorage().listenKey('font_size', (value) {
-      setState(() {
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +93,10 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   }
 
   TextStyle? _getTextStyle(TextTheme textTheme) {
-    return GetStorage().read('font_size') == 0.0 ? textTheme.displaySmall
-              : GetStorage().read('font_size') == 1.0 ? textTheme.displayMedium
-              : GetStorage().read('font_size') == 2.0 ? textTheme.displayLarge
+    double value = context.watch<FontProvider>().font_size;
+    return value == 0.0 ? textTheme.displaySmall
+              : value == 1.0 ? textTheme.displayMedium
+              : value == 2.0 ? textTheme.displayLarge
               : textTheme.displayMedium;
   }
 }
