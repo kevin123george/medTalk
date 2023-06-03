@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:provider/provider.dart';
+import 'package:medTalk/providers/font_provider.dart';
 
 import '../models/records.dart';
 
@@ -16,7 +18,7 @@ class SpeechToTextScreen extends StatefulWidget {
 }
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
-  var text = "hold the button to start speaking";
+  var text = "Drück den Knopf um mit der Transkription zu starten";
   var isListening = false;
   var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
@@ -32,7 +34,10 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
-            child: Text(text, style: textTheme.displaySmall),
+            child: Text(
+                text,
+                style: _getTextStyle(textTheme)
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
@@ -84,6 +89,14 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
+  }
+
+  TextStyle? _getTextStyle(TextTheme textTheme) {
+    double value = context.watch<FontProvider>().font_size;
+    return value == 0.0 ? textTheme.displaySmall
+              : value == 1.0 ? textTheme.displayMedium
+              : value == 2.0 ? textTheme.displayLarge
+              : textTheme.displayMedium;
   }
 }
 
