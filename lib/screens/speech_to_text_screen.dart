@@ -19,6 +19,7 @@ class SpeechToTextScreen extends StatefulWidget {
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var text = "Drück den Knopf um mit der Transkription zu starten";
+  var helperText = "Drück den Knopf um mit der Transkription zu starten";
   var isListening = false;
   var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
@@ -58,7 +59,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                             .map((alternate) => alternate["recognizedWords"])
                             .toList()
                             .cast<String>();
-                        text = recognizedWords.join(' ');
+                        text = result.recognizedWords;
                       });
                     },
                     localeId: 'de-DE',
@@ -69,9 +70,10 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   isButtonPressed = false;
                   isListening = false;
                 });
-                final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
-                final generatedId = await DatabaseHelper.addRecord(recordEntry);
-                print("Added record to database: " + generatedId.toString());
+                if(text != helperText){
+                  final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
+                  final generatedId = await DatabaseHelper.addRecord(recordEntry);
+                }
                 speechToText.stop();
               }
             } else {
