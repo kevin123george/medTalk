@@ -31,7 +31,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
   @override
   void initState() {
     super.initState();
-    createDummyRecords();
+    //createDummyRecords();
     fetchRecords();
   }
 
