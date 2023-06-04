@@ -41,7 +41,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.large(
           onPressed: () async {
             var available = await speechToText.initialize();
             if (available) {
