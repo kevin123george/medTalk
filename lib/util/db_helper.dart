@@ -128,6 +128,46 @@ class DatabaseHelper {
   }
 
 
+  static Future<List<Records>> fetchAllRecords() async {
+    List<Records> recordsList = <Records>[];
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+        'Records'
+    );
+
+    for (Map<String, dynamic> item in records) {
+      Records record = new Records(
+        id: item['id'],
+        text: item['text'],
+        timestamp: item['timestamp'],
+      );
+      recordsList.add(record);
+    }
+
+    return recordsList;
+  }
+
+  static Future<List<Records>> fetchAllRecordsInTimeRange(DateTime start, DateTime end) async {
+    List<Records> recordsList = <Records>[];
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+      'Records',
+      where: 'timestamp >= ? AND timestamp <= ?',
+      whereArgs: [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    );
+
+    for (Map<String, dynamic> item in records) {
+      Records record = new Records(
+        id: item['id'],
+        text: item['text'],
+        timestamp: item['timestamp'],
+      );
+      recordsList.add(record);
+    }
+
+    return recordsList;
+  }
+
 
 }
 
