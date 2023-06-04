@@ -31,7 +31,7 @@ class DatabaseHelper {
           CREATE TABLE IF NOT EXISTS Records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
-            timestamp DATETIME NOT NULL
+            timestamp INTEGER NOT NULL
           )
         ''');
       },
@@ -107,13 +107,13 @@ class DatabaseHelper {
 
   static Future<int> addRecord(Records record) async {
     final db = await _getDb();
-    return await db.insert("Records", record as Map<String, Object?>,
+    return await db.insert("Records", record.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<int> updateRecord(Records record) async {
     final db = await _getDb();
-    return await db.update("Records", record as Map<String, Object?>,
+    return await db.update("Records", record.toMap(),
         where: 'id = ?',
         whereArgs: [record.id],
         conflictAlgorithm: ConflictAlgorithm.replace);
