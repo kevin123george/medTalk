@@ -39,11 +39,11 @@ class _ProfileFormState extends State<ProfileForm> {
   late final _addressController;
   late final _profileUrlController;
   late final _userTypeController;
-  String dropdownvalue = 'Wählen'; // Declaration of dropdownvalue variable
+  String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
   // List of items in our dropdown menu
   var items = [
-    'Wählen',
+    'Select',
     'Patient',
     'Doctor',
   ];
@@ -64,24 +64,24 @@ class _ProfileFormState extends State<ProfileForm> {
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
-      final userType = dropdownvalue == 'Wählen' ? UserType.Patient : _getUserTypeFromValue(dropdownvalue);
+      final userType =
+      dropdownvalue == 'Select' ? UserType.Patient : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
-        id: _user?.id, // Use the existing user's ID for update
+        id: _user?.id,
         name: name,
         email: email.isNotEmpty ? email : null,
         address: address.isNotEmpty ? address : null,
-        userType:userType,
+        userType: userType,
       );
 
       try {
-        if (_user == null) {
+        if (_user?.id == null) {
           // User does not exist, insert as new user
           final generatedId = await DatabaseHelper.insertUser(updatedUser);
           updatedUser.id = generatedId;
         } else {
           // User exists, update the existing user
-
           await DatabaseHelper.updateUser(updatedUser);
         }
 
@@ -93,11 +93,12 @@ class _ProfileFormState extends State<ProfileForm> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('FBenutzerdaten konnten nicht aktualisiert werden')),
+          SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
     }
   }
+
 
   Future<void> _fetchUserData() async {
     _user = await DatabaseHelper.fetchUser();

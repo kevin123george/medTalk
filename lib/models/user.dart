@@ -1,7 +1,7 @@
 enum UserType {
   Doctor,
   Patient,
-  defaultValue,
+  Select,
 }
 
 class User {
@@ -20,7 +20,7 @@ class User {
   });
 
   Map<String, dynamic> toMap() {
-     
+
     return {
       'id': id,
       'name': name,

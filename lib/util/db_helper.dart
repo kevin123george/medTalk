@@ -84,7 +84,7 @@ class DatabaseHelper {
       final userTypeString = userData['userType'] as String;
       final userType = UserType.values.firstWhere(
             (type) => type.toString() == 'UserType.$userTypeString',
-        orElse: () => UserType.defaultValue,
+        orElse: () => UserType.Patient,
       );
       return User(
         id: userData['id'] as int,
@@ -100,7 +100,7 @@ class DatabaseHelper {
         name: '',
         email: null,
         address: null,
-        userType: UserType.defaultValue,
+        userType: UserType.Patient,
       );
     }
   }
