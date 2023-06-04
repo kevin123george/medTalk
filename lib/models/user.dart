@@ -1,6 +1,7 @@
 enum UserType {
   Doctor,
-  Patient, defaultValue,
+  Patient,
+  defaultValue,
 }
 
 class User {
@@ -19,12 +20,14 @@ class User {
   });
 
   Map<String, dynamic> toMap() {
+    print('chain ' + userType.toString().split('.').last);
     return {
       'id': id,
       'name': name,
       'email': email,
       'address': address,
-      'userType': userType.toString(),
+      'userType': userType.toString().split('.').last,
     };
   }
+
 }
