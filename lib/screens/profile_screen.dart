@@ -127,6 +127,7 @@ class _ProfileFormState extends State<ProfileForm> {
     }
     return null;
   }
+
   UserType _getUserTypeFromValue(String value) {
     switch (value) {
       case 'Patient':
@@ -137,6 +138,7 @@ class _ProfileFormState extends State<ProfileForm> {
         return UserType.Patient;
     }
   }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -148,94 +150,97 @@ class _ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            CircleAvatar(
-              radius: 115,
-              backgroundColor: Theme.of(context).colorScheme.onSurface,
-              child: Center(
-                child: CircleAvatar(
-                  foregroundImage: NetworkImage(
-                      "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
-                  radius: 110,
+    return SingleChildScrollView( // Wrap the form with SingleChildScrollView
+      child: SizedBox(
+        width: 300,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CircleAvatar(
+                radius: 115,
+                backgroundColor: Theme.of(context).colorScheme.onSurface,
+                child: Center(
+                  child: CircleAvatar(
+                    foregroundImage: NetworkImage(
+                        "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
+                    radius: 110,
+                  ),
                 ),
               ),
-            ),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Ihre Name',
-                hintText: 'Gib deinen Namen ein',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Bitte geben Sie Ihren Namen ein';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Geben sie ihre E-Mailadresse ein',
-              ),
-              validator: _validateEmail,
-            ),
-            SizedBox(height: 10),
-            Container(
-              height: 120,
-              child: TextField(
-                controller: _addressController,
+              TextFormField(
+                controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Address',
-                  hintText: 'Geben Sie Ihre Adresse ein',
-                  border: OutlineInputBorder(),
+                  labelText: 'Ihre Name',
+                  hintText: 'Gib deinen Namen ein',
                 ),
-                maxLines: 5,
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              width: 300,
-              height: 65,
-              child: DropdownButton<String>(
-                value: dropdownvalue,
-                underline: Container(
-                  height: 1,
-                  color: Colors.black54,
-                ),
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: items.map((String item) {
-                  return DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(
-                      item,
-                    ),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownvalue = newValue!;
-                  });
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Bitte geben Sie Ihren Namen ein';
+                  }
+                  return null;
                 },
               ),
-            ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'Geben sie ihre E-Mailadresse ein',
+                ),
+                validator: _validateEmail,
+              ),
+              SizedBox(height: 10),
+              Container(
+                height: 120,
+                child: TextField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    labelText: 'Address',
+                    hintText: 'Geben Sie Ihre Adresse ein',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 5,
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: 300,
+                height: 65,
+                child: DropdownButton<String>(
+                  value: dropdownvalue,
+                  underline: Container(
+                    height: 1,
+                    color: Colors.black54,
+                  ),
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: items.map((String item) {
+                    return DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(
+                        item,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownvalue = newValue!;
+                    });
+                  },
+                ),
+              ),
 
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _submitForm,
-              child: Text('Aktualisieren'),
-            ),
-          ],
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('Aktualisieren'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
