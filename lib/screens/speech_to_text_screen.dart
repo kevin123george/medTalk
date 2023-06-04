@@ -2,9 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:provider/provider.dart';
+import 'package:medTalk/providers/font_provider.dart';
+
+import '../models/records.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({super.key});
@@ -14,8 +18,10 @@ class SpeechToTextScreen extends StatefulWidget {
 }
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
-  var text = "hold the button to start speaking";
+  var text = "Drück den Knopf um mit der Transkription zu starten";
+  var helperText = "Drück den Knopf um mit der Transkription zu starten";
   var isListening = false;
+  var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
 
   @override
@@ -29,62 +35,70 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
-            child: Text(text, style: textTheme.displaySmall),
-          ),
-        ),
-        floatingActionButton: AvatarGlow(
-          // onPressed: () {  },
-          // elevation: 10,
-
-          // endRadius: 75,
-          animate: isListening,
-          glowColor: Colors.blue,
-          endRadius: 90,
-          shape: BoxShape.rectangle,
-          child: GestureDetector(
-            onTapDown: (details) async {
-              print("object");
-              if (!isListening) {
-                var available = await speechToText.initialize();
-                print(available);
-                if (available) {
-                  setState(() {
-                    isListening = true;
-                    speechToText.listen(
-                      onResult: (result) {
-                        setState(() {
-                          print(result);
-                          print("###############");
-                          print(result.recognizedWords);
-                          print("###############");
-
-                          print("--------------------");
-                          text = result.recognizedWords;
-                          print(text);
-                        });
-                      },
-                      localeId: 'de-DE',
-                    );
-                  });
-                }
-              }
-            },
-            onTapUp: (details) {
-              setState(() {
-                isListening = false;
-                // text = "";
-              });
-              speechToText.stop();
-            },
-            child: Icon(
-              isListening ? Icons.mic : Icons.mic_none,
-              color: Colors.red,
+            child: Text(
+                text,
+                style: _getTextStyle(textTheme)
             ),
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            var available = await speechToText.initialize();
+            if (available) {
+              if (!isButtonPressed) {
+                print("the thing is available");
+                setState(() {
+                  isButtonPressed = true;
+                  isListening = true;
+                  speechToText.listen(
+                    onResult: (result) {
+                      setState(() {
+                        List<dynamic> alternates =
+                            result.toJson()["alternates"];
+                        List<String> recognizedWords = alternates
+                            .map((alternate) => alternate["recognizedWords"])
+                            .toList()
+                            .cast<String>();
+                        text = result.recognizedWords;
+                      });
+                    },
+                    localeId: 'de-DE',
+                  );
+                });
+              } else {
+                setState(() {
+                  isButtonPressed = false;
+                  isListening = false;
+                });
+                if(text != helperText){
+                  final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
+                  final generatedId = await DatabaseHelper.addRecord(recordEntry);
+                }
+                speechToText.stop();
+              }
+            } else {
+              setState(() {
+                isButtonPressed = false;
+                isListening = false;
+              });
+            }
+          },
+          child: Icon(
+            isListening ? Icons.mic : Icons.mic_none,
+            color: Colors.red,
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
+  }
+
+  TextStyle? _getTextStyle(TextTheme textTheme) {
+    double value = context.watch<FontProvider>().font_size;
+    return value == 0.0 ? textTheme.displaySmall
+              : value == 1.0 ? textTheme.displayMedium
+              : value == 2.0 ? textTheme.displayLarge
+              : textTheme.displayMedium;
   }
 }
 
