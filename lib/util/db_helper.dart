@@ -107,6 +107,18 @@ class DatabaseHelper {
 
   static Future<int> addRecord(Records record) async {
     final db = await _getDb();
+    Records? latestRecord = await fetchLatestRecord();
+    if (latestRecord != null) {
+      if (record.text == latestRecord.text || record.text.isEmpty || record.text.length ==0){
+        return 0;
+      }
+      if(latestRecord.text.split(" ").length +1 == record.text.split(" ").length){
+        print("there is a duplicate ");
+        await deleteRecord(latestRecord);
+        // Records records = Records(text: record.text, timestamp: record.timestamp, id: latestRecord.id);
+        // return updateRecord(records);
+      }
+    }
     return await db.insert("Records", record.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -132,7 +144,8 @@ class DatabaseHelper {
     List<Records> recordsList = <Records>[];
     final db = await _getDb();
     final List<Map<String, dynamic>> records = await db.query(
-        'Records'
+        'Records',
+        orderBy: 'id DESC',
     );
 
     for (Map<String, dynamic> item in records) {
@@ -166,6 +179,25 @@ class DatabaseHelper {
     }
 
     return recordsList;
+  }
+  static Future<Records?> fetchLatestRecord() async {
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+      'Records',
+      orderBy: 'id DESC',
+      limit: 1,
+    );
+
+    if (records.isNotEmpty) {
+      Map<String, dynamic> latestRecord = records.first;
+      return Records(
+        id: latestRecord['id'],
+        text: latestRecord['text'],
+        timestamp: latestRecord['timestamp'],
+      );
+    }
+
+    return null; // Return null if no records found
   }
 
 

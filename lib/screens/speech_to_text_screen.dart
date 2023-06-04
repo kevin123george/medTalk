@@ -1,6 +1,4 @@
-// Copyright 2021 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:medTalk/util/db_helper.dart';
@@ -11,10 +9,10 @@ import 'package:medTalk/providers/font_provider.dart';
 import '../models/records.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
-  const SpeechToTextScreen({super.key});
+  const SpeechToTextScreen({Key? key}) : super(key: key);
 
   @override
-  State<SpeechToTextScreen> createState() => _SpeechToTextScreenState();
+  _SpeechToTextScreenState createState() => _SpeechToTextScreenState();
 }
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
@@ -23,6 +21,13 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var isListening = false;
   var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
+  Timer? timer;
+
+  @override
+  void dispose() {
+    timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +41,16 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             child: Text(
-                text,
-                style: _getTextStyle(textTheme)
+              text,
+              style: _getTextStyle(textTheme),
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton.large(
           onPressed: () async {
-            var available = await speechToText.initialize();
-            if (available) {
-              if (!isButtonPressed) {
+            if (!isButtonPressed) {
+              var available = await speechToText.initialize();
+              if (available) {
                 print("the thing is available");
                 setState(() {
                   isButtonPressed = true;
@@ -54,7 +59,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                     onResult: (result) {
                       setState(() {
                         List<dynamic> alternates =
-                            result.toJson()["alternates"];
+                        result.toJson()["alternates"];
                         List<String> recognizedWords = alternates
                             .map((alternate) => alternate["recognizedWords"])
                             .toList()
@@ -65,22 +70,59 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                     localeId: 'de-DE',
                   );
                 });
-              } else {
-                setState(() {
-                  isButtonPressed = false;
-                  isListening = false;
+
+                timer = Timer.periodic(Duration(milliseconds: 50), (timer) async {
+                  // Code to be executed every 10 seconds
+                  if (isButtonPressed && !speechToText.isListening) {
+                    available = await speechToText.initialize();
+                    if (!available) {
+                      speechToText.stop();
+                      speechToText = SpeechToText();
+                      available = await speechToText.initialize();
+                    }
+                    print("Triggered every 10 seconds");
+                    print(available);
+                    speechToText.listen(
+                      onResult: (result) {
+                        setState(() {
+                          List<dynamic> alternates =
+                          result.toJson()["alternates"];
+                          List<String> recognizedWords = alternates
+                              .map((alternate) => alternate["recognizedWords"])
+                              .toList()
+                              .cast<String>();
+                          text = result.recognizedWords;
+                        });
+                      },
+                      localeId: 'de-DE',
+                    );
+                    // Records? latestRecord = await DatabaseHelper.fetchLatestRecord();
+                    // if (text != helperText && !speechToText.isListening && latestRecord != null && latestRecord.text != text)
+                    if (text != helperText && !speechToText.isListening) {
+                      final recordEntry = Records(
+                          text: text,
+                          timestamp: DateTime.now().millisecondsSinceEpoch);
+                      final generatedId =
+                      await DatabaseHelper.addRecord(recordEntry);
+                    }
+                  }
                 });
-                if(text != helperText){
-                  final recordEntry = Records(text: text, timestamp: DateTime.now().millisecondsSinceEpoch);
-                  final generatedId = await DatabaseHelper.addRecord(recordEntry);
-                }
-                speechToText.stop();
               }
             } else {
               setState(() {
                 isButtonPressed = false;
                 isListening = false;
               });
+              if (text != helperText) {
+                final recordEntry = Records(
+                    text: text,
+                    timestamp: DateTime.now().millisecondsSinceEpoch);
+                final generatedId =
+                await DatabaseHelper.addRecord(recordEntry);
+              }
+              speechToText.stop();
+
+              timer?.cancel(); // Cancel the timer when the button is pressed
             }
           },
           child: Icon(
@@ -95,19 +137,22 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
 
   TextStyle? _getTextStyle(TextTheme textTheme) {
     double value = context.watch<FontProvider>().font_size;
-    return value == 0.0 ? textTheme.displaySmall
-              : value == 1.0 ? textTheme.displayMedium
-              : value == 2.0 ? textTheme.displayLarge
-              : textTheme.displayMedium;
+    return value == 0.0
+        ? textTheme.displaySmall
+        : value == 1.0
+        ? textTheme.displayMedium
+        : value == 2.0
+        ? textTheme.displayLarge
+        : textTheme.displayMedium;
   }
 }
 
 class TextStyleExample extends StatelessWidget {
   const TextStyleExample({
-    super.key,
+    Key? key,
     required this.name,
     required this.style,
-  });
+  }) : super(key: key);
 
   final String name;
   final TextStyle style;
