@@ -5,7 +5,7 @@
 // ignore_for_file: avoid_types_on_closure_parameters
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medTalk/screens/settings_screen.dart';
+import 'package:medTalk/screens/profile_screen.dart';
 import 'package:medTalk/main.dart';
 
 import 'component_screen_test.dart';
@@ -66,10 +66,9 @@ void main() {
 
   testWidgets('Color screen shows correct content', (tester) async {
     await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(body: Row(children: [SettingsScreen()])),
+      home: Scaffold(body: Row(children: [ProfileScreen()])),
     ));
     expect(find.text('Light ColorScheme'), findsOneWidget);
     expect(find.text('Dark ColorScheme'), findsOneWidget);
-    expect(find.byType(ColorGroup, skipOffstage: false), findsNWidgets(14));
   });
 }

@@ -58,8 +58,9 @@ enum ColorImageProvider {
 }
 
 enum ScreenSelected {
-  blank(0),
-  color(1);
+  speechToText(0),
+  profile(1),
+  records(2);
 
   const ScreenSelected(this.value);
 

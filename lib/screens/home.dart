@@ -3,11 +3,16 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:provider/provider.dart';
+import 'package:medTalk/providers/font_provider.dart';
 
-import 'settings_screen.dart';
+import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -46,7 +51,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool showMediumSizeLayout = false;
   bool showLargeSizeLayout = false;
 
-  int screenIndex = ScreenSelected.blank.value;
+  int screenIndex = ScreenSelected.speechToText.value;
 
   @override
   initState() {
@@ -109,31 +114,34 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget createScreenFor(
       ScreenSelected screenSelected, bool showNavBarExample) {
     switch (screenSelected) {
-      case ScreenSelected.blank:
+      case ScreenSelected.speechToText:
         return const SpeechToTextScreen();
-      case ScreenSelected.color:
-        return const SettingsScreen();
+      case ScreenSelected.profile:
+        return const ProfileScreen();
+      case ScreenSelected.records:
+        return const RecordsScreen();
     }
   }
 
   PreferredSizeWidget createAppBar() {
     return AppBar(
-      title: Text('MedTalk'),
+      title: Text('MedTalk - Smart City Bamberg'),
+
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
               _BrightnessButton(
                 handleBrightnessChange: widget.handleBrightnessChange,
+                showLabels: false,
               ),
               _ColorSeedButton(
                 handleColorSelect: widget.handleColorSelect,
                 colorSelected: widget.colorSelected,
                 colorSelectionMethod: widget.colorSelectionMethod,
+                showLabels: false,
               ),
-              _ColorImageButton(
-                handleImageSelect: widget.handleImageSelect,
-                imageSelected: widget.imageSelected,
-                colorSelectionMethod: widget.colorSelectionMethod,
-              )
+              _FontSizeButton(
+                showLabels: false,
+              ),
             ]
           : [Container()],
     );
@@ -146,6 +154,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             child: _BrightnessButton(
               handleBrightnessChange: widget.handleBrightnessChange,
               showTooltipBelow: false,
+              showLabels: true,
             ),
           ),
           Flexible(
@@ -153,13 +162,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               handleColorSelect: widget.handleColorSelect,
               colorSelected: widget.colorSelected,
               colorSelectionMethod: widget.colorSelectionMethod,
+              showLabels: true,
             ),
           ),
           Flexible(
-            child: _ColorImageButton(
-              handleImageSelect: widget.handleImageSelect,
-              imageSelected: widget.imageSelected,
-              colorSelectionMethod: widget.colorSelectionMethod,
+            child: _FontSizeButton(
+              showLabels: true,
             ),
           ),
         ],
@@ -227,22 +235,38 @@ class _BrightnessButton extends StatelessWidget {
   const _BrightnessButton({
     required this.handleBrightnessChange,
     this.showTooltipBelow = true,
+    required this.showLabels
   });
 
   final Function handleBrightnessChange;
   final bool showTooltipBelow;
+  final bool showLabels;
 
   @override
   Widget build(BuildContext context) {
     final isBright = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       preferBelow: showTooltipBelow,
-      message: 'Toggle brightness',
-      child: IconButton(
-        icon: isBright
-            ? const Icon(Icons.dark_mode_outlined)
-            : const Icon(Icons.light_mode_outlined),
-        onPressed: () => handleBrightnessChange(!isBright),
+      message: 'Helligkeit umschalten',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: IconButton(
+              icon: isBright
+                  ? const Icon(Icons.dark_mode_outlined)
+                  : const Icon(Icons.light_mode_outlined),
+              onPressed: () => handleBrightnessChange(!isBright),
+            ),
+          ),
+          Visibility(
+            visible: showLabels,
+              child: Flexible(
+                  child: Text("Helligkeit")
+              )
+          )
+        ],
       ),
     );
   }
@@ -254,118 +278,166 @@ class _ColorSeedButton extends StatelessWidget {
     required this.handleColorSelect,
     required this.colorSelected,
     required this.colorSelectionMethod,
+    required this.showLabels
   });
 
   final void Function(int) handleColorSelect;
   final ColorSeed colorSelected;
   final ColorSelectionMethod colorSelectionMethod;
+  final bool showLabels;
+
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      icon: Icon(
-        Icons.palette_outlined,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      tooltip: 'Select a seed color',
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) {
-        return List.generate(ColorSeed.values.length, (index) {
-          ColorSeed currentColor = ColorSeed.values[index];
-
-          return PopupMenuItem(
-            value: index,
-            enabled: currentColor != colorSelected ||
-                colorSelectionMethod != ColorSelectionMethod.colorSeed,
-            child: Wrap(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: Icon(
-                    currentColor == colorSelected &&
-                            colorSelectionMethod != ColorSelectionMethod.image
-                        ? Icons.color_lens
-                        : Icons.color_lens_outlined,
-                    color: currentColor.color,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(currentColor.label),
-                ),
-              ],
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: PopupMenuButton(
+            icon: Icon(
+              Icons.palette_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          );
-        });
-      },
-      onSelected: handleColorSelect,
-    );
-  }
-}
+            tooltip: 'Wähle eine Farbe',
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            itemBuilder: (context) {
+              return List.generate(ColorSeed.values.length, (index) {
+                ColorSeed currentColor = ColorSeed.values[index];
 
-class _ColorImageButton extends StatelessWidget {
-  const _ColorImageButton({
-    required this.handleImageSelect,
-    required this.imageSelected,
-    required this.colorSelectionMethod,
-  });
-
-  final void Function(int) handleImageSelect;
-  final ColorImageProvider imageSelected;
-  final ColorSelectionMethod colorSelectionMethod;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton(
-      icon: Icon(
-        Icons.image_outlined,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      tooltip: 'Select a color extraction image',
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) {
-        return List.generate(ColorImageProvider.values.length, (index) {
-          ColorImageProvider currentImageProvider =
-              ColorImageProvider.values[index];
-
-          return PopupMenuItem(
-            value: index,
-            enabled: currentImageProvider != imageSelected ||
-                colorSelectionMethod != ColorSelectionMethod.image,
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 48),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image(
-                          image: NetworkImage(
-                              ColorImageProvider.values[index].url),
+                return PopupMenuItem(
+                  value: index,
+                  enabled: currentColor != colorSelected ||
+                      colorSelectionMethod != ColorSelectionMethod.colorSeed,
+                  child: Wrap(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Icon(
+                          currentColor == colorSelected &&
+                                  colorSelectionMethod != ColorSelectionMethod.image
+                              ? Icons.color_lens
+                              : Icons.color_lens_outlined,
+                          color: currentColor.color,
                         ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(currentColor.label),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(currentImageProvider.label),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-      onSelected: handleImageSelect,
+                );
+              });
+            },
+            onSelected: handleColorSelect,
+          ),
+        ),
+        Visibility(
+            visible: showLabels,
+            child: Flexible(
+                child: Text("Farbe")
+            )
+        )
+      ],
     );
   }
 }
 
-class _ExpandedTrailingActions extends StatelessWidget {
+class _FontSizeButton extends StatefulWidget {
+  const _FontSizeButton({
+    required this.showLabels
+  });
+  final bool showLabels;
+
+  @override
+  State<_FontSizeButton> createState() => _FontSizeButtonState(showLabels);
+
+}
+
+class _FontSizeButtonState extends State<_FontSizeButton> {
+
+  _FontSizeButtonState(this.showLabels);
+
+  final bool showLabels;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: PopupMenuButton(
+            icon: Icon(
+              Icons.format_size,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: 'Wähle eine Schriftgröße',
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            itemBuilder: (context){
+              return [
+                PopupMenuItem(
+                    child: Column(
+                      children: [
+                        Text("Schriftgröße"),
+                        StatefulBuilder(
+                          builder: (context, state){
+                            return SfSliderTheme(
+                              data: SfSliderThemeData(
+                                activeLabelStyle: theme.textTheme.bodySmall,
+                                inactiveLabelStyle: theme.textTheme.bodySmall,
+                              ),
+                              child: SfSlider.vertical(
+                                min: 0,
+                                max: 2,
+                                interval: 1,
+                                stepSize: 1,
+                                showLabels: true,
+                                showDividers: true,
+                                value: context.read<FontProvider>().font_size,
+                                labelFormatterCallback:
+                                    (dynamic actualValue, String formattedText) {
+                                  switch (actualValue) {
+                                    case 0:
+                                      return 'Klein';
+                                    case 1:
+                                      return 'Mittel';
+                                    case 2:
+                                      return 'Groß';
+                                  }
+                                  return actualValue.toString();
+                                },
+                                onChanged: (value) {
+                                  context.read<FontProvider>().change_font_size(value);
+                                  state((){
+                                  });
+                                  setState(() {
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ))
+              ];
+            }
+          ),
+        ),
+        Visibility(
+            visible: showLabels,
+            child: Flexible(
+                child: Text("Schrift")
+            )
+        )
+      ],
+    );
+  }
+}
+
+class _ExpandedTrailingActions extends StatefulWidget {
   const _ExpandedTrailingActions({
     required this.useLightMode,
     required this.handleBrightnessChange,
@@ -391,7 +463,14 @@ class _ExpandedTrailingActions extends StatelessWidget {
   final ColorSelectionMethod colorSelectionMethod;
 
   @override
+  State<_ExpandedTrailingActions> createState() => _ExpandedTrailingActionsState();
+}
+
+class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
+
+  @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
     final trailingActionsBody = Container(
       constraints: const BoxConstraints.tightFor(width: 250),
@@ -402,40 +481,61 @@ class _ExpandedTrailingActions extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('Brightness'),
+              const Text('Helligkeit'),
               Expanded(child: Container()),
               Switch(
-                  value: useLightMode,
+                  value: widget.useLightMode,
                   onChanged: (value) {
-                    handleBrightnessChange(value);
-                  })
-            ],
-          ),
-          Row(
-            children: [
-              useMaterial3
-                  ? const Text('Material 3')
-                  : const Text('Material 2'),
-              Expanded(child: Container()),
-              Switch(
-                  value: useMaterial3,
-                  onChanged: (_) {
-                    handleMaterialVersionChange();
+                    widget.handleBrightnessChange(value);
                   })
             ],
           ),
           const Divider(),
+          const Text('Farbe'),
           _ExpandedColorSeedAction(
-            handleColorSelect: handleColorSelect,
-            colorSelected: colorSelected,
-            colorSelectionMethod: colorSelectionMethod,
+            handleColorSelect: widget.handleColorSelect,
+            colorSelected: widget.colorSelected,
+            colorSelectionMethod: widget.colorSelectionMethod,
           ),
           const Divider(),
-          _ExpandedImageColorAction(
-            handleImageSelect: handleImageSelect,
-            imageSelected: imageSelected,
-            colorSelectionMethod: colorSelectionMethod,
-          ),
+          const Text('Schriftgröße'),
+          StatefulBuilder(
+            builder: (context, state){
+              return SfSliderTheme(
+                data: SfSliderThemeData(
+                  activeLabelStyle: theme.textTheme.bodyMedium,
+                  inactiveLabelStyle: theme.textTheme.bodyMedium,
+                ),
+                child: SfSlider(
+                min: 0,
+                max: 2,
+                interval: 1,
+                stepSize: 1,
+                showLabels: true,
+                showDividers: true,
+                value: context.read<FontProvider>().font_size,
+                labelFormatterCallback:
+                  (dynamic actualValue, String formattedText) {
+                    switch (actualValue) {
+                      case 0:
+                        return 'Klein';
+                      case 1:
+                        return 'Mittel';
+                      case 2:
+                        return 'Groß';
+                    }
+                  return actualValue.toString();
+                },
+                onChanged: (value) {
+                  context.read<FontProvider>().change_font_size(value);
+                  state((){
+                  });
+                  setState(() {
+                  });
+                },
+            ),
+              );
+          })
         ],
       ),
     );
@@ -473,57 +573,6 @@ class _ExpandedColorSeedAction extends StatelessWidget {
             onPressed: () {
               handleColorSelect(i);
             },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ExpandedImageColorAction extends StatelessWidget {
-  const _ExpandedImageColorAction({
-    required this.handleImageSelect,
-    required this.imageSelected,
-    required this.colorSelectionMethod,
-  });
-
-  final void Function(int) handleImageSelect;
-  final ColorImageProvider imageSelected;
-  final ColorSelectionMethod colorSelectionMethod;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxHeight: 150.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: GridView.count(
-          crossAxisCount: 3,
-          children: List.generate(
-            ColorImageProvider.values.length,
-            (i) => InkWell(
-              borderRadius: BorderRadius.circular(4.0),
-              onTap: () => handleImageSelect(i),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Material(
-                  borderRadius: BorderRadius.circular(4.0),
-                  elevation: imageSelected == ColorImageProvider.values[i] &&
-                          colorSelectionMethod == ColorSelectionMethod.image
-                      ? 3
-                      : 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4.0),
-                      child: Image(
-                        image: NetworkImage(ColorImageProvider.values[i].url),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ),
         ),
       ),
