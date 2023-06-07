@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:medTalk/providers/font_provider.dart';
+import 'package:medTalk/providers/language_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -17,6 +18,7 @@ void main() async {
     MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => FontProvider()),
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ],
         child:const App(),
     )

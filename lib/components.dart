@@ -739,19 +739,19 @@ const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.question_answer_outlined),
-    label: 'Chat',
+    label: 'chat_label',
     selectedIcon: Icon(Icons.question_answer),
   ),
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.account_circle_outlined),
-    label: 'Profil',
+    label: 'profile_label',
     selectedIcon: Icon(Icons.account_circle),
   ),
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.storage_outlined),
-    label: 'Aufzeichnungen',
+    label: 'records_label',
     selectedIcon: Icon(Icons.storage),
   )
 ];

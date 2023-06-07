@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/providers/language_provider.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -175,6 +176,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = context.watch<LanguageProvider>();
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
@@ -187,7 +189,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ScreenSelected.values[screenIndex], controller.value == 1),
           navigationRail: NavigationRail(
             extended: showLargeSizeLayout,
-            destinations: navRailDestinations,
+            destinations: navRailDestinations (languageProvider),
             selectedIndex: screenIndex,
             onDestinationSelected: (index) {
               setState(() {
@@ -231,7 +233,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 }
 
-class _BrightnessButton extends StatelessWidget {
+class _BrightnessButton extends StatefulWidget {
   const _BrightnessButton({
     required this.handleBrightnessChange,
     this.showTooltipBelow = true,
@@ -243,11 +245,17 @@ class _BrightnessButton extends StatelessWidget {
   final bool showLabels;
 
   @override
+  State<_BrightnessButton> createState() => _BrightnessButtonState();
+}
+
+class _BrightnessButtonState extends State<_BrightnessButton> {
+  @override
   Widget build(BuildContext context) {
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
     final isBright = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
-      preferBelow: showTooltipBelow,
-      message: 'Helligkeit umschalten',
+      preferBelow: widget.showTooltipBelow,
+      message: language['brightness_tooltip'],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
@@ -257,13 +265,13 @@ class _BrightnessButton extends StatelessWidget {
               icon: isBright
                   ? const Icon(Icons.dark_mode_outlined)
                   : const Icon(Icons.light_mode_outlined),
-              onPressed: () => handleBrightnessChange(!isBright),
+              onPressed: () => widget.handleBrightnessChange(!isBright),
             ),
           ),
           Visibility(
-            visible: showLabels,
+            visible: widget.showLabels,
               child: Flexible(
-                  child: Text("Helligkeit")
+                  child: Text(language['brightness']!)
               )
           )
         ],
@@ -271,7 +279,6 @@ class _BrightnessButton extends StatelessWidget {
     );
   }
 }
-
 
 class _ColorSeedButton extends StatelessWidget {
   const _ColorSeedButton({
@@ -289,6 +296,7 @@ class _ColorSeedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -299,7 +307,7 @@ class _ColorSeedButton extends StatelessWidget {
               Icons.palette_outlined,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            tooltip: 'Wähle eine Farbe',
+            tooltip: language['color_tooltip'],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context) {
               return List.generate(ColorSeed.values.length, (index) {
@@ -336,7 +344,7 @@ class _ColorSeedButton extends StatelessWidget {
         Visibility(
             visible: showLabels,
             child: Flexible(
-                child: Text("Farbe")
+                child: Text(language['color']!)
             )
         )
       ],
@@ -363,6 +371,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
     final ThemeData theme = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -374,14 +383,14 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
               Icons.format_size,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            tooltip: 'Wähle eine Schriftgröße',
+            tooltip: language['font_tooltip'],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context){
               return [
                 PopupMenuItem(
                     child: Column(
                       children: [
-                        Text("Schriftgröße"),
+                        Text(language['font_size']!),
                         StatefulBuilder(
                           builder: (context, state){
                             return SfSliderTheme(
@@ -401,11 +410,11 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
                                     (dynamic actualValue, String formattedText) {
                                   switch (actualValue) {
                                     case 0:
-                                      return 'Klein';
+                                      return language['font_small']!;
                                     case 1:
-                                      return 'Mittel';
+                                      return language['font_medium']!;
                                     case 2:
-                                      return 'Groß';
+                                      return language['font_large']!;
                                   }
                                   return actualValue.toString();
                                 },
@@ -429,7 +438,7 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
         Visibility(
             visible: showLabels,
             child: Flexible(
-                child: Text("Schrift")
+                child: Text(language['font']!)
             )
         )
       ],
@@ -470,6 +479,8 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = context.watch<LanguageProvider>();
+    Map<String, String> language = languageProvider.languageMap;
     final ThemeData theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
     final trailingActionsBody = Container(
@@ -481,7 +492,7 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
         children: [
           Row(
             children: [
-              const Text('Helligkeit'),
+              Text(language['brightness']!),
               Expanded(child: Container()),
               Switch(
                   value: widget.useLightMode,
@@ -490,15 +501,27 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                   })
             ],
           ),
+          Row(
+            children: [
+              Text(language['language']!),
+              Expanded(child: Container()),
+              Switch(
+                  value: languageProvider.language,
+                  onChanged: (value) {
+                    languageProvider.change_language(value ? 'German' : 'English');
+                  })
+            ],
+          ),
           const Divider(),
-          const Text('Farbe'),
+          Text(language['color']!),
+
           _ExpandedColorSeedAction(
             handleColorSelect: widget.handleColorSelect,
             colorSelected: widget.colorSelected,
             colorSelectionMethod: widget.colorSelectionMethod,
           ),
           const Divider(),
-          const Text('Schriftgröße'),
+          Text(language['font_size']!),
           StatefulBuilder(
             builder: (context, state){
               return SfSliderTheme(
@@ -518,11 +541,11 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                   (dynamic actualValue, String formattedText) {
                     switch (actualValue) {
                       case 0:
-                        return 'Klein';
+                        return language['font_small']!;
                       case 1:
-                        return 'Mittel';
+                        return language['font_medium']!;
                       case 2:
-                        return 'Groß';
+                        return language['font_large']!;
                     }
                   return actualValue.toString();
                 },
@@ -652,21 +675,20 @@ class _NavigationTransitionState extends State<NavigationTransition> {
   }
 }
 
-final List<NavigationRailDestination> navRailDestinations = appBarDestinations
-    .map(
-      (destination) => NavigationRailDestination(
-        icon: Tooltip(
-          message: destination.label,
-          child: destination.icon,
-        ),
-        selectedIcon: Tooltip(
-          message: destination.label,
-          child: destination.selectedIcon,
-        ),
-        label: Text(destination.label),
-      ),
-    )
-    .toList();
+List<NavigationRailDestination> navRailDestinations(LanguageProvider languageProvider){
+  return appBarDestinations.map((destination) => NavigationRailDestination(
+    icon: Tooltip(
+      message: languageProvider.languageMap[destination.label]!,
+      child: destination.icon,
+    ),
+    selectedIcon: Tooltip(
+      message: languageProvider.languageMap[destination.label]!,
+      child: destination.selectedIcon,
+    ),
+    label: Text(languageProvider.languageMap[destination.label]!),
+  )).toList();
+
+}
 
 class SizeAnimation extends CurvedAnimation {
   SizeAnimation(Animation<double> parent)
