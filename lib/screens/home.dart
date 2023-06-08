@@ -130,6 +130,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
+              _LanguageButton(
+                showLabels: false,
+              ),
+
               _BrightnessButton(
                 handleBrightnessChange: widget.handleBrightnessChange,
                 showLabels: false,
@@ -151,6 +155,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget _trailingActions() => Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Flexible(
+            child: _LanguageButton(
+              showLabels: true,
+            ),
+          ),
           Flexible(
             child: _BrightnessButton(
               handleBrightnessChange: widget.handleBrightnessChange,
@@ -345,6 +354,69 @@ class _ColorSeedButton extends StatelessWidget {
             visible: showLabels,
             child: Flexible(
                 child: Text(language['color']!)
+            )
+        )
+      ],
+    );
+  }
+}
+
+class _LanguageButton extends StatefulWidget {
+  const _LanguageButton({
+    required this.showLabels
+  });
+
+
+  final bool showLabels;
+
+  @override
+  State<_LanguageButton> createState() => _LanguageButtonState();
+}
+
+class _LanguageButtonState extends State<_LanguageButton> {
+  @override
+  Widget build(BuildContext context) {
+    final languageProvider = context.watch<LanguageProvider>();
+    Map<String, String> language = languageProvider.languageMap;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: PopupMenuButton(
+            icon: Icon(
+              Icons.language,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: language['language_tooltip'],
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            itemBuilder: (context) {
+              return List.generate(languageProvider.languageList.length, (index) {
+
+                return PopupMenuItem(
+                  value: languageProvider.languageList[index],
+                  child: Wrap(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text(languageProvider.languageList[index]),
+                      ),
+                    ],
+                  ),
+                );
+              });
+            },
+            onSelected: (value){
+              setState(() {
+                context.read<LanguageProvider>().change_language(value);
+              });
+            },
+          ),
+        ),
+        Visibility(
+            visible: widget.showLabels,
+            child: Flexible(
+                child: Text(language['language_label']!)
             )
         )
       ],

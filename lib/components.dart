@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:medTalk/providers/language_provider.dart';
+import 'package:provider/provider.dart';
 
 const rowDivider = SizedBox(width: 20);
 const colDivider = SizedBox(height: 10);
@@ -805,7 +807,7 @@ class _NavigationBarsState extends State<NavigationBars> {
           });
           if (!widget.isExampleBar) widget.onSelectItem!(index);
         },
-        destinations: appBarDestinations,
+        destinations: navDestinations(Provider.of<LanguageProvider>(context)),
       ),
     );
 
@@ -823,6 +825,13 @@ class _NavigationBarsState extends State<NavigationBars> {
 
     return navigationBar;
   }
+}
+List<NavigationDestination> navDestinations(LanguageProvider languageProvider){
+  return appBarDestinations.map((destination) => NavigationDestination(
+    icon: destination.icon,
+    selectedIcon: destination.icon,
+    label: languageProvider.languageMap[destination.label]!,
+  )).toList();
 }
 
 class IconToggleButtons extends StatefulWidget {
