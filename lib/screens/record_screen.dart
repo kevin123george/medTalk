@@ -1,7 +1,3 @@
-// Copyright 2021 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,14 +12,13 @@ const Widget divider = SizedBox(height: 10);
 const double narrowScreenWidthThreshold = 400;
 
 class RecordsScreen extends StatefulWidget {
-  const RecordsScreen({super.key});
+  const RecordsScreen({Key? key}) : super(key: key);
 
   @override
   State<RecordsScreen> createState() => _RecordsScreenState();
 }
 
 class _RecordsScreenState extends State<RecordsScreen> {
-
   List<Records> records = [];
   DateTime endDate = DateTime.now();
   DateTime startDate = DateTime.now().subtract(Duration(days: 7));
@@ -69,11 +64,59 @@ class _RecordsScreenState extends State<RecordsScreen> {
     return formattedDateTime;
   }
 
+  Future<void> confirmDeleteRecord(Records record) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning,
+                color: Colors.red,
+              ),
+              const SizedBox(width: 10),
+              const Text('Löschung bestätigen'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(record.timestamp)} löschen möchten?',
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Abbrechen'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Löschen'),
+              onPressed: () async {
+                final deletedRows = await DatabaseHelper.deleteRecord(record);
+                if (deletedRows > 0) {
+                  setState(() {
+                    records.remove(record); // Remove the deleted record from the list
+                  });
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context)
-        .textTheme
-        .apply(displayColor: Theme.of(context).colorScheme.onSurface);
+    final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
     return Expanded(
       child: Scaffold(
         body: Container(
@@ -87,24 +130,19 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 child: ListTile(
                   title: Text(
                     getFormattedTimestamp(record.timestamp),
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () async {
-                      final deletedRows = await DatabaseHelper.deleteRecord(record);
-                      if (deletedRows > 0) {
-                        setState(() {
-                          records.remove(record); // Remove the deleted record from the list
-                        });
-                      }
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      confirmDeleteRecord(record);
                     },
                   ),
                   subtitle: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       record.text,
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
