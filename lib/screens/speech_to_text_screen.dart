@@ -129,6 +129,8 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             isListening ? Icons.mic : Icons.mic_none,
             color: Colors.red,
           ),
+          elevation: isButtonPressed ? 20 : 0,
+          backgroundColor: isButtonPressed ? Colors.green : null,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
