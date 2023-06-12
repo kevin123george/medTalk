@@ -4,15 +4,31 @@
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:logger/logger.dart';
 import 'package:medTalk/providers/font_provider.dart';
+import 'package:medTalk/util/db_helper.dart';
 import 'package:provider/provider.dart';
 
 
 import 'constants.dart';
+import 'models/records.dart';
 import 'screens/home.dart';
 
 void main() async {
   await GetStorage.init();
+  final logger = Logger();
+
+  // Assuming you have a list of Records called "records"
+  try{
+    logger.i("deleting older records ");
+    final List<Records> fetchedRecords = await DatabaseHelper.fetchAllRecords();
+    DatabaseHelper().deleteOlderThanSixMonths(fetchedRecords);
+    logger.i("deleted older records ");
+  }
+  catch(e){
+  logger.e("unable to delete older records ");
+  }
+  // Call your function here after initializing GetStorage
   runApp(
     MultiProvider(
         providers: [
