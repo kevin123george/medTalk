@@ -25,7 +25,14 @@ class LanguageProvider with ChangeNotifier {
      'helper_text': 'Drück den Knopf um die Transkiption zu starten',
      'chat_label': 'Chat',
      'profile_label': 'Profil',
-     'records_label': 'Aufzeichnungen'
+     'records_label': 'Aufzeichnungen',
+     'name': 'Ihr Name',
+     'name_hint': 'Bitte geben Sie Ihren Namen ein',
+     'email': 'Email',
+     'email_hint': 'Bitte geben Sie Ihre Email ein',
+     'address': 'Adresse',
+     'address_hint': 'Bitte geben Sie Ihre Adresse ein',
+     'update': 'Aktualisieren'
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -45,7 +52,14 @@ class LanguageProvider with ChangeNotifier {
      'helper_text': 'Push the button to start the transcription',
      'chat_label': 'Chat',
      'profile_label': 'Profile',
-     'records_label': 'Records'
+     'records_label': 'Records',
+     'name': 'Your name',
+     'name_hint': 'Please enter your name',
+     'email': 'Email',
+     'email_hint': 'Please enter your email adress',
+     'address': 'Address',
+     'address_hint': 'Please enter your address',
+     'update': 'Update'
    };
 
    List<String> get languageList => _languageList;
