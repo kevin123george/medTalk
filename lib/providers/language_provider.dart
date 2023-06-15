@@ -32,7 +32,10 @@ class LanguageProvider with ChangeNotifier {
      'email_hint': 'Bitte geben Sie Ihre Email ein',
      'address': 'Adresse',
      'address_hint': 'Bitte geben Sie Ihre Adresse ein',
-     'update': 'Aktualisieren'
+     'update': 'Aktualisieren',
+     'items_select': 'Auswählen',
+     'items_patient': 'Patient',
+     'items_doctor': 'Doktor'
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -59,12 +62,20 @@ class LanguageProvider with ChangeNotifier {
      'email_hint': 'Please enter your email adress',
      'address': 'Address',
      'address_hint': 'Please enter your address',
-     'update': 'Update'
+     'update': 'Update',
+     'items_select': 'Select',
+     'items_patient': 'Patient',
+     'items_doctor': 'Doctor'
+
    };
 
    List<String> get languageList => _languageList;
    Map<String, String> get languageMap => _language == 'English' ? _english : _german;
    bool get language => _language == 'English' ? false : true;
+
+   String? getTranslatedItem(String item) {
+     return _language == 'English' ? _english[item] : _german[item];
+   }
 
   void change_language(language) => {
     this._language = language,

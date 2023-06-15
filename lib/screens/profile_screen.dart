@@ -44,11 +44,7 @@ class _ProfileFormState extends State<ProfileForm> {
   String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
   // List of items in our dropdown menu
-  var items = [
-    'Select',
-    'Patient',
-    'Doctor',
-  ];
+  List<String> items = [];
   User? _user;
 
   @override
@@ -67,7 +63,8 @@ class _ProfileFormState extends State<ProfileForm> {
       final email = _emailController.text;
       final address = _addressController.text;
       final userType =
-      dropdownvalue == 'Select' ? UserType.Patient : _getUserTypeFromValue(dropdownvalue);
+      dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'  ? UserType.Patient
+          : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
         id: _user?.id,
@@ -135,6 +132,7 @@ class _ProfileFormState extends State<ProfileForm> {
       case 'Patient':
         return UserType.Patient;
       case 'Doctor':
+      case 'Doktor':
         return UserType.Doctor;
       default:
         return UserType.Patient;
@@ -150,9 +148,29 @@ class _ProfileFormState extends State<ProfileForm> {
     super.dispose();
   }
 
+  String getDropDownvalue(String dropdownvalue) {
+    switch(dropdownvalue){
+      case 'Select':
+      case 'Auswählen':
+        return items[0];
+      case 'Doctor':
+      case 'Doktor':
+        return items[2];
+      default:
+        return items[1];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    items = [
+      language['items_select'].toString(),
+      language['items_patient'].toString(),
+      language['items_doctor'].toString()
+    ];
+    dropdownvalue = getDropDownvalue(dropdownvalue);
+
     return SingleChildScrollView( // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
