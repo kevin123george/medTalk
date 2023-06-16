@@ -200,6 +200,16 @@ class DatabaseHelper {
     return null; // Return null if no records found
   }
 
+  void deleteOlderThanSixMonths(List<Records> recordsList) {
+    final now = DateTime.now();
+    final sixMonthsAgo = now.subtract(const Duration(days: 30 * 6));
+
+    recordsList.removeWhere((record) {
+      final recordDate = DateTime.fromMillisecondsSinceEpoch(record.timestamp * 1000);
+      return recordDate.isBefore(sixMonthsAgo);
+    });
+  }
+
 
 }
 
