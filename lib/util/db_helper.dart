@@ -145,7 +145,7 @@ class DatabaseHelper {
     final db = await _getDb();
     final List<Map<String, dynamic>> records = await db.query(
         'Records',
-        orderBy: 'id DESC',
+        orderBy: 'timestamp DESC',
     );
 
     for (Map<String, dynamic> item in records) {
@@ -167,6 +167,7 @@ class DatabaseHelper {
       'Records',
       where: 'timestamp >= ? AND timestamp <= ?',
       whereArgs: [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+      orderBy: 'timestamp DESC',
     );
 
     for (Map<String, dynamic> item in records) {
