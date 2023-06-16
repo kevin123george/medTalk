@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 
 import '../models/records.dart';
+import '../providers/language_provider.dart';
 
 class SpeechToTextScreen extends StatefulWidget {
   const SpeechToTextScreen({Key? key}) : super(key: key);
@@ -16,8 +17,8 @@ class SpeechToTextScreen extends StatefulWidget {
 }
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
-  var text = "Drück den Knopf um mit der Transkription zu starten";
-  var helperText = "Drück den Knopf um mit der Transkription zu starten";
+  var text;
+  var helperText;
   var isListening = false;
   var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
@@ -31,6 +32,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    text = language['intro_text']!;
+    helperText = language['helper_text']!;
     final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
