@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/user.dart';
+import '../providers/language_provider.dart';
 import '../util/db_helper.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -42,11 +44,7 @@ class _ProfileFormState extends State<ProfileForm> {
   String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
   // List of items in our dropdown menu
-  var items = [
-    'Select',
-    'Patient',
-    'Doctor',
-  ];
+  List<String> items = [];
   User? _user;
 
   @override
@@ -65,7 +63,8 @@ class _ProfileFormState extends State<ProfileForm> {
       final email = _emailController.text;
       final address = _addressController.text;
       final userType =
-      dropdownvalue == 'Select' ? UserType.Patient : _getUserTypeFromValue(dropdownvalue);
+      dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'  ? UserType.Patient
+          : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
         id: _user?.id,
@@ -133,6 +132,7 @@ class _ProfileFormState extends State<ProfileForm> {
       case 'Patient':
         return UserType.Patient;
       case 'Doctor':
+      case 'Doktor':
         return UserType.Doctor;
       default:
         return UserType.Patient;
@@ -148,8 +148,29 @@ class _ProfileFormState extends State<ProfileForm> {
     super.dispose();
   }
 
+  String getDropDownvalue(String dropdownvalue) {
+    switch(dropdownvalue){
+      case 'Select':
+      case 'Auswählen':
+        return items[0];
+      case 'Doctor':
+      case 'Doktor':
+        return items[2];
+      default:
+        return items[1];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    items = [
+      language['items_select'].toString(),
+      language['items_patient'].toString(),
+      language['items_doctor'].toString()
+    ];
+    dropdownvalue = getDropDownvalue(dropdownvalue);
+
     return SingleChildScrollView( // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
@@ -172,12 +193,12 @@ class _ProfileFormState extends State<ProfileForm> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Ihre Name',
-                  hintText: 'Gib deinen Namen ein',
+                  labelText: language['name'],
+                  hintText: language['name_hint'],
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Bitte geben Sie Ihren Namen ein';
+                    return language['name_hint'];
                   }
                   return null;
                 },
@@ -186,8 +207,8 @@ class _ProfileFormState extends State<ProfileForm> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Geben sie ihre E-Mailadresse ein',
+                  labelText: language['email'],
+                  hintText: language['email_hint'],
                 ),
                 validator: _validateEmail,
               ),
@@ -197,8 +218,8 @@ class _ProfileFormState extends State<ProfileForm> {
                 child: TextField(
                   controller: _addressController,
                   decoration: InputDecoration(
-                    labelText: 'Address',
-                    hintText: 'Geben Sie Ihre Adresse ein',
+                    labelText: language['address'],
+                    hintText: language['address_hint'],
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 5,
@@ -234,7 +255,7 @@ class _ProfileFormState extends State<ProfileForm> {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _submitForm,
-                child: Text('Aktualisieren'),
+                child: Text(language['update']!),
               ),
             ],
           ),
