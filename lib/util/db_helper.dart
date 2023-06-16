@@ -201,6 +201,28 @@ class DatabaseHelper {
   }
 
 
+
+  static Future<Records?> fetchRecordById(int id) async {
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+      'Records',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (records.isNotEmpty) {
+      Map<String, dynamic> item = records.first;
+      Records record = Records(
+        id: item['id'],
+        text: item['text'],
+        timestamp: item['timestamp'],
+      );
+      return record;
+    }
+
+    return null; // Return null if record with the given ID is not found
+  }
+
 }
 
 

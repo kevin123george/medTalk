@@ -9,7 +9,6 @@ const Widget divider = SizedBox(height: 10);
 // If screen content width is greater or equal to this value, the light and dark
 // color schemes will be displayed in a column. Otherwise, they will
 // be displayed in a row.
-const double narrowScreenWidthThreshold = 400;
 
 class RecordsScreen extends StatefulWidget {
   const RecordsScreen({super.key});
@@ -20,6 +19,7 @@ class RecordsScreen extends StatefulWidget {
 
 class _RecordsScreenState extends State<RecordsScreen> {
   List<Records> records = [];
+  bool isDeleteConfirmed = false;
   DateTime endDate = DateTime.now();
   DateTime startDate = DateTime.now().subtract(Duration(days: 7));
 
@@ -67,7 +67,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
   Future<void> confirmDeleteRecord(Records record) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Row(
@@ -99,19 +99,76 @@ class _RecordsScreenState extends State<RecordsScreen> {
             TextButton(
               child: const Text('Löschen'),
               onPressed: () async {
-                final deletedRows = await DatabaseHelper.deleteRecord(record);
-                if (deletedRows > 0) {
+                await DatabaseHelper.deleteRecord(record);
                   setState(() {
-                    records.remove(record); // Remove the deleted record from the list
+                    fetchRecords();
+                      Navigator.pop(context);
                   });
-                }
-                Navigator.of(context).pop();
               },
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> openRecordDetailsModal(Records record) async {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double modalHeight = screenHeight * 0.5;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              height: modalHeight,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text(
+                      getFormattedTimestamp(record.timestamp),
+                      // style: TextStyle(fontSize: 20),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () async {
+                        setState(){
+                          isDeleteConfirmed = false;
+                        }
+                        var data = confirmDeleteRecord(record);
+                        int idValue = record.id!;
+                        await Future.delayed(const Duration(seconds: 1), (){});
+
+                        Records? value = await DatabaseHelper.fetchRecordById(idValue);
+                        if(value == null ){
+                          Navigator.pop(context);
+                        }
+                      },
+
+
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      record.text,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      // Refresh the record list after closing the modal
+      fetchRecords();
+    });
   }
 
   @override
@@ -126,23 +183,28 @@ class _RecordsScreenState extends State<RecordsScreen> {
             itemCount: records.length,
             itemBuilder: (context, index) {
               final record = records[index];
-              return Card(
-                child: ListTile(
-                  title: Text(
-                    getFormattedTimestamp(record.timestamp),
-                    style:TextStyle(fontSize: 20),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      confirmDeleteRecord(record);
-                    },
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      record.text,
-                      style:TextStyle(fontSize: 16),
+              return InkWell(
+                onTap: () {
+                  openRecordDetailsModal(record);
+                },
+                child: Card(
+                  child: ListTile(
+                    title: Text(
+                      getFormattedTimestamp(record.timestamp),
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        confirmDeleteRecord(record);
+                      },
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        record.text,
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
                 ),
