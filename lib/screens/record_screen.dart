@@ -12,7 +12,7 @@ const Widget divider = SizedBox(height: 10);
 const double narrowScreenWidthThreshold = 400;
 
 class RecordsScreen extends StatefulWidget {
-  const RecordsScreen({Key? key}) : super(key: key);
+  const RecordsScreen({super.key});
 
   @override
   State<RecordsScreen> createState() => _RecordsScreenState();
@@ -130,7 +130,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 child: ListTile(
                   title: Text(
                     getFormattedTimestamp(record.timestamp),
-                    style: const TextStyle(fontSize: 20),
+                    style:TextStyle(fontSize: 20),
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
@@ -142,7 +142,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       record.text,
-                      style: const TextStyle(fontSize: 16),
+                      style:TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
