@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/user.dart';
 import '../util/db_helper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -37,7 +42,6 @@ class _ProfileFormState extends State<ProfileForm> {
   late final _nameController;
   late final _emailController;
   late final _addressController;
-  late final _profileUrlController;
   late final _userTypeController;
   String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
@@ -49,23 +53,42 @@ class _ProfileFormState extends State<ProfileForm> {
   ];
   User? _user;
 
+  XFile? imgFile;
+  final ImagePicker imagePicker = ImagePicker();
+  String? profileImagePath;
+  String? savedImageFilename;
+
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _addressController = TextEditingController();
-    _profileUrlController = TextEditingController();
+    _userTypeController = TextEditingController();
     _fetchUserData();
+  }
+
+  getImageFromGallery() async {
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        profileImagePath = pickedFile.path;
+        savedImageFilename = path.basename(pickedFile.path);
+      });
+    }
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      await _saveImageToLocalPath();
+
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
-      final userType =
-      dropdownvalue == 'Select' ? UserType.Patient : _getUserTypeFromValue(dropdownvalue);
+      final userType = dropdownvalue == 'Select'
+          ? UserType.Patient
+          : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
         id: _user?.id,
@@ -73,6 +96,7 @@ class _ProfileFormState extends State<ProfileForm> {
         email: email.isNotEmpty ? email : null,
         address: address.isNotEmpty ? address : null,
         userType: userType,
+        profileImagePath: profileImagePath ?? _user?.profileImagePath,
       );
 
       try {
@@ -99,20 +123,18 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
-
   Future<void> _fetchUserData() async {
     _user = await DatabaseHelper.fetchUser();
-
-    // Update the input field values if the user exists
+    print('Fetched user: $_user'); // Add this line
     if (_user != null) {
       _nameController.text = _user!.name ?? '';
       _emailController.text = _user!.email ?? '';
       _addressController.text = _user!.address ?? '';
+
       setState(() {
         dropdownvalue = _user!.userType.toString().split('.').last;
+        profileImagePath = _user!.profileImagePath;
       });
-
-      // _profileUrlController.text = _user!.profileUrl ?? '';
     }
   }
 
@@ -139,18 +161,29 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
+  Future<void> _saveImageToLocalPath() async {
+    if (profileImagePath != null) {
+      final dir = await getApplicationDocumentsDirectory();
+      final targetPath = path.join(dir.path, savedImageFilename!);
+      final File file = File(profileImagePath!);
+      await file.copy(targetPath);
+      profileImagePath = targetPath;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _addressController.dispose();
-    _profileUrlController.dispose();
+    _userTypeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // Wrap the form with SingleChildScrollView
+    return SingleChildScrollView(
+      // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
         child: Form(
@@ -162,18 +195,38 @@ class _ProfileFormState extends State<ProfileForm> {
                 radius: 115,
                 backgroundColor: Theme.of(context).colorScheme.onSurface,
                 child: Center(
-                  child: CircleAvatar(
-                    foregroundImage: NetworkImage(
-                        "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
-                    radius: 110,
+                  child: GestureDetector(
+                    onTap: () {
+                      getImageFromGallery();
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: MediaQuery.of(context).size.width * 0.29,
+                          backgroundColor: Colors.white,
+                          backgroundImage: profileImagePath != null
+                              ? FileImage(File(profileImagePath!))
+                              : null,
+                        ),
+
+
+                      if (profileImagePath == null)
+                          Icon(
+                          Icons.add_a_photo_outlined,
+                          color: Colors.grey,
+                          size: MediaQuery.of(context).size.width * 0.20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Ihre Name',
-                  hintText: 'Gib deinen Namen ein',
+                  labelText: 'Ihr Name',
+                  hintText: 'Geben Sie Ihren Namen ein',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -187,7 +240,7 @@ class _ProfileFormState extends State<ProfileForm> {
                 controller: _emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  hintText: 'Geben sie ihre E-Mailadresse ein',
+                  hintText: 'Geben Sie Ihre E-Mail-Adresse ein',
                 ),
                 validator: _validateEmail,
               ),
@@ -197,7 +250,7 @@ class _ProfileFormState extends State<ProfileForm> {
                 child: TextField(
                   controller: _addressController,
                   decoration: InputDecoration(
-                    labelText: 'Address',
+                    labelText: 'Adresse',
                     hintText: 'Geben Sie Ihre Adresse ein',
                     border: OutlineInputBorder(),
                   ),
@@ -230,10 +283,12 @@ class _ProfileFormState extends State<ProfileForm> {
                   },
                 ),
               ),
-
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: () {
+                  _submitForm();
+
+                },
                 child: Text('Aktualisieren'),
               ),
             ],
@@ -243,4 +298,3 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 }
-
