@@ -17,6 +17,8 @@ class SpeechToTextScreen extends StatefulWidget {
   _SpeechToTextScreenState createState() => _SpeechToTextScreenState();
 }
 
+
+
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var text;
   var helperText;
@@ -26,6 +28,15 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   Timer? timer;
 
   @override
+  void initState() {
+    super.initState();
+    final language = context.read<LanguageProvider>().languageMap;
+    text = language['intro_text']!;
+    helperText = language['helper_text']!;
+  }
+
+
+  @override
   void dispose() {
     timer?.cancel(); // Cancel the timer when the widget is disposed
     super.dispose();
@@ -33,9 +44,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
-    text = language['intro_text']!;
-    helperText = language['helper_text']!;
+    // Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    // text = language['intro_text']!;
+    // helperText = language['helper_text']!;
     final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
