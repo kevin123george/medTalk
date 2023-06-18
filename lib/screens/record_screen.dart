@@ -131,7 +131,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   ListTile(
                     title: Text(
                       getFormattedTimestamp(record.timestamp),
-                      // style: TextStyle(fontSize: 20),
+
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
@@ -153,7 +153,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       record.text,
-                      style: TextStyle(fontSize: 16),
+
                     ),
                   ),
                 ],
@@ -188,7 +188,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   child: ListTile(
                     title: Text(
                       getFormattedTimestamp(record.timestamp),
-                      style: TextStyle(fontSize: 20),
+
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
@@ -200,7 +200,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         record.text,
-                        style: TextStyle(fontSize: 16),
+
                       ),
                     ),
                   ),
