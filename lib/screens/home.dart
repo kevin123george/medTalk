@@ -3,16 +3,22 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/dialogs/terms_dialog.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 
+import '../dialogs/policy_dialog.dart';
 import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+
+import 'package:animations/animations.dart';
+import 'package:flutter/gestures.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -65,6 +71,98 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       parent: controller,
       curve: const Interval(0.5, 1.0),
     );
+
+    _landingDialogCheck();
+  }
+
+  Future<void> _landingDialogCheck() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? termsPreference = prefs.getBool('termsPreference');
+    bool? policyPreference = prefs.getBool('policyPreference');
+
+    if (termsPreference == false || termsPreference == null) {
+      _landingTermsPage();
+    } else if (policyPreference == false || policyPreference == null) {
+      _landingPolicyPage();
+    }
+  }
+
+  void _landingTermsPage() async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return TermsDialog(
+            mdFileName: 'terms_and_conditions.md',
+          );
+        },
+      );
+
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: "By creating your profile, you are agreeing to our\n",
+          style: Theme.of(context).textTheme.bodyText1,
+          children: [
+            TextSpan(
+              text: "Terms & Conditions ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  showModal(
+                    context: context,
+                    configuration: FadeScaleTransitionConfiguration(),
+                    builder: (context) {
+                      return TermsDialog(
+                        mdFileName: 'terms_and_conditions.md',
+                      );
+                    },
+                  );
+                },
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  void _landingPolicyPage() async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return PolicyDialog(
+            mdFileName: 'privacy_policy.md',
+          );
+        },
+      );
+
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: "By creating your profile, you are agreeing to our\n",
+          style: Theme.of(context).textTheme.bodyText1,
+          children: [
+            TextSpan(
+              text: "Privacy Policy",
+              style: TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  showModal(
+                    context: context,
+                    configuration: FadeScaleTransitionConfiguration(),
+                    builder: (context) {
+                      return PolicyDialog(
+                        mdFileName: 'privacy_policy.md',
+                      );
+                    },
+                  );
+                },
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -126,7 +224,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   PreferredSizeWidget createAppBar() {
     return AppBar(
       title: Text('MedTalk - Smart City Bamberg'),
-
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
               _BrightnessButton(
@@ -232,11 +329,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 }
 
 class _BrightnessButton extends StatelessWidget {
-  const _BrightnessButton({
-    required this.handleBrightnessChange,
-    this.showTooltipBelow = true,
-    required this.showLabels
-  });
+  const _BrightnessButton(
+      {required this.handleBrightnessChange,
+      this.showTooltipBelow = true,
+      required this.showLabels});
 
   final Function handleBrightnessChange;
   final bool showTooltipBelow;
@@ -261,31 +357,24 @@ class _BrightnessButton extends StatelessWidget {
             ),
           ),
           Visibility(
-            visible: showLabels,
-              child: Flexible(
-                  child: Text("Helligkeit")
-              )
-          )
+              visible: showLabels, child: Flexible(child: Text("Helligkeit")))
         ],
       ),
     );
   }
 }
 
-
 class _ColorSeedButton extends StatelessWidget {
-  const _ColorSeedButton({
-    required this.handleColorSelect,
-    required this.colorSelected,
-    required this.colorSelectionMethod,
-    required this.showLabels
-  });
+  const _ColorSeedButton(
+      {required this.handleColorSelect,
+      required this.colorSelected,
+      required this.colorSelectionMethod,
+      required this.showLabels});
 
   final void Function(int) handleColorSelect;
   final ColorSeed colorSelected;
   final ColorSelectionMethod colorSelectionMethod;
   final bool showLabels;
-
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +389,8 @@ class _ColorSeedButton extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             tooltip: 'Wähle eine Farbe',
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context) {
               return List.generate(ColorSeed.values.length, (index) {
                 ColorSeed currentColor = ColorSeed.values[index];
@@ -315,7 +405,8 @@ class _ColorSeedButton extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 10),
                         child: Icon(
                           currentColor == colorSelected &&
-                                  colorSelectionMethod != ColorSelectionMethod.image
+                                  colorSelectionMethod !=
+                                      ColorSelectionMethod.image
                               ? Icons.color_lens
                               : Icons.color_lens_outlined,
                           color: currentColor.color,
@@ -333,30 +424,21 @@ class _ColorSeedButton extends StatelessWidget {
             onSelected: handleColorSelect,
           ),
         ),
-        Visibility(
-            visible: showLabels,
-            child: Flexible(
-                child: Text("Farbe")
-            )
-        )
+        Visibility(visible: showLabels, child: Flexible(child: Text("Farbe")))
       ],
     );
   }
 }
 
 class _FontSizeButton extends StatefulWidget {
-  const _FontSizeButton({
-    required this.showLabels
-  });
+  const _FontSizeButton({required this.showLabels});
   final bool showLabels;
 
   @override
   State<_FontSizeButton> createState() => _FontSizeButtonState(showLabels);
-
 }
 
 class _FontSizeButtonState extends State<_FontSizeButton> {
-
   _FontSizeButtonState(this.showLabels);
 
   final bool showLabels;
@@ -370,68 +452,63 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
       children: [
         Flexible(
           child: PopupMenuButton(
-            icon: Icon(
-              Icons.format_size,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            tooltip: 'Wähle eine Schriftgröße',
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            itemBuilder: (context){
-              return [
-                PopupMenuItem(
-                    child: Column(
-                      children: [
-                        Text("Schriftgröße"),
-                        StatefulBuilder(
-                          builder: (context, state){
-                            return SfSliderTheme(
-                              data: SfSliderThemeData(
-                                activeLabelStyle: theme.textTheme.bodySmall,
-                                inactiveLabelStyle: theme.textTheme.bodySmall,
-                              ),
-                              child: SfSlider.vertical(
-                                min: 0,
-                                max: 2,
-                                interval: 1,
-                                stepSize: 1,
-                                showLabels: true,
-                                showDividers: true,
-                                value: context.read<FontProvider>().font_size,
-                                labelFormatterCallback:
-                                    (dynamic actualValue, String formattedText) {
-                                  switch (actualValue) {
-                                    case 0:
-                                      return 'Klein';
-                                    case 1:
-                                      return 'Mittel';
-                                    case 2:
-                                      return 'Groß';
-                                  }
-                                  return actualValue.toString();
-                                },
-                                onChanged: (value) {
-                                  context.read<FontProvider>().change_font_size(value);
-                                  state((){
-                                  });
-                                  setState(() {
-                                  });
-                                },
-                              ),
-                            );
-                          },
-                        )
-                      ],
-                    ))
-              ];
-            }
-          ),
+              icon: Icon(
+                Icons.format_size,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              tooltip: 'Wähle eine Schriftgröße',
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                      child: Column(
+                    children: [
+                      Text("Schriftgröße"),
+                      StatefulBuilder(
+                        builder: (context, state) {
+                          return SfSliderTheme(
+                            data: SfSliderThemeData(
+                              activeLabelStyle: theme.textTheme.bodySmall,
+                              inactiveLabelStyle: theme.textTheme.bodySmall,
+                            ),
+                            child: SfSlider.vertical(
+                              min: 0,
+                              max: 2,
+                              interval: 1,
+                              stepSize: 1,
+                              showLabels: true,
+                              showDividers: true,
+                              value: context.read<FontProvider>().font_size,
+                              labelFormatterCallback:
+                                  (dynamic actualValue, String formattedText) {
+                                switch (actualValue) {
+                                  case 0:
+                                    return 'Klein';
+                                  case 1:
+                                    return 'Mittel';
+                                  case 2:
+                                    return 'Groß';
+                                }
+                                return actualValue.toString();
+                              },
+                              onChanged: (value) {
+                                context
+                                    .read<FontProvider>()
+                                    .change_font_size(value);
+                                state(() {});
+                                setState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      )
+                    ],
+                  ))
+                ];
+              }),
         ),
-        Visibility(
-            visible: showLabels,
-            child: Flexible(
-                child: Text("Schrift")
-            )
-        )
+        Visibility(visible: showLabels, child: Flexible(child: Text("Schrift")))
       ],
     );
   }
@@ -463,11 +540,11 @@ class _ExpandedTrailingActions extends StatefulWidget {
   final ColorSelectionMethod colorSelectionMethod;
 
   @override
-  State<_ExpandedTrailingActions> createState() => _ExpandedTrailingActionsState();
+  State<_ExpandedTrailingActions> createState() =>
+      _ExpandedTrailingActionsState();
 }
 
 class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -499,14 +576,13 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
           ),
           const Divider(),
           const Text('Schriftgröße'),
-          StatefulBuilder(
-            builder: (context, state){
-              return SfSliderTheme(
-                data: SfSliderThemeData(
-                  activeLabelStyle: theme.textTheme.bodyMedium,
-                  inactiveLabelStyle: theme.textTheme.bodyMedium,
-                ),
-                child: SfSlider(
+          StatefulBuilder(builder: (context, state) {
+            return SfSliderTheme(
+              data: SfSliderThemeData(
+                activeLabelStyle: theme.textTheme.bodyMedium,
+                inactiveLabelStyle: theme.textTheme.bodyMedium,
+              ),
+              child: SfSlider(
                 min: 0,
                 max: 2,
                 interval: 1,
@@ -515,26 +591,24 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                 showDividers: true,
                 value: context.read<FontProvider>().font_size,
                 labelFormatterCallback:
-                  (dynamic actualValue, String formattedText) {
-                    switch (actualValue) {
-                      case 0:
-                        return 'Klein';
-                      case 1:
-                        return 'Mittel';
-                      case 2:
-                        return 'Groß';
-                    }
+                    (dynamic actualValue, String formattedText) {
+                  switch (actualValue) {
+                    case 0:
+                      return 'Klein';
+                    case 1:
+                      return 'Mittel';
+                    case 2:
+                      return 'Groß';
+                  }
                   return actualValue.toString();
                 },
                 onChanged: (value) {
                   context.read<FontProvider>().change_font_size(value);
-                  state((){
-                  });
-                  setState(() {
-                  });
+                  state(() {});
+                  setState(() {});
                 },
-            ),
-              );
+              ),
+            );
           })
         ],
       ),

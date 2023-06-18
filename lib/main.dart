@@ -7,20 +7,18 @@ import 'package:get_storage/get_storage.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'package:provider/provider.dart';
 
-
 import 'constants.dart';
 import 'screens/home.dart';
 
 void main() async {
   await GetStorage.init();
-  runApp(
-    MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => FontProvider()),
-        ],
-        child:const App(),
-    )
-  );
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => FontProvider()),
+    ],
+    child: const App(),
+  ));
 }
 
 class App extends StatefulWidget {

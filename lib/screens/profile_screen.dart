@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:animations/animations.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../dialogs/policy_dialog.dart';
 import '../models/user.dart';
 import '../util/db_helper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -194,12 +197,9 @@ class _ProfileFormState extends State<ProfileForm> {
                           ? Icon(
                               Icons.add_a_photo_outlined,
                               color: Colors.grey,
-                              size: MediaQuery.of(context).size.width * 0.20,
+                              size: 80,
                             )
                           : null,
-                      // foregroundImage: NetworkImage(
-                      //     "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
-                      // radius: 110,
                     ),
                   ),
                 ),

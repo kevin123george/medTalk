@@ -30,6 +30,11 @@ dependencies:
   get_storage:
   provider: ^6.0.5
 
+  flutter_markdown: ^0.6.15
+  animations: ^2.0.7
+  shared_preferences: ^2.1.2
+
+
 dev_dependencies:
 #  analysis_defaults:
 #    path: ../analysis_defaults
@@ -40,3 +45,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
