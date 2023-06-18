@@ -138,11 +138,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Biometric Authentication'),
-          content: const Text('Would you like to use biometric authentication in this app?'),
+          title: const Text('Biometrische Authentifizierung'),
+          content: const Text('Möchten Sie in dieser App die biometrische Authentifizierung verwenden?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Reject'),
+              child: const Text('Ablehnen'),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 print("User rejected biometric authentication");
@@ -151,7 +151,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               },
             ),
             TextButton(
-              child: const Text('Accept'),
+              child: const Text('Akzeptieren'),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 print("User accepted biometric authentication");
