@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import '../models/user.dart';
+import '../providers/language_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../util/db_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
@@ -46,11 +48,7 @@ class _ProfileFormState extends State<ProfileForm> {
   String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
   // List of items in our dropdown menu
-  var items = [
-    'Select',
-    'Patient',
-    'Doctor',
-  ];
+  List<String> items = [];
   User? _user;
 
   XFile? imgFile;
@@ -81,13 +79,14 @@ class _ProfileFormState extends State<ProfileForm> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      await _saveImageToLocalPath();
+      if (profileImagePath != null && savedImageFilename != null) {
+        await _saveImageToLocalPath();
+      }
 
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
-      final userType = dropdownvalue == 'Select'
-          ? UserType.Patient
+      final userType = dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'  ? UserType.Patient
           : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
@@ -124,17 +123,26 @@ class _ProfileFormState extends State<ProfileForm> {
   }
 
   Future<void> _fetchUserData() async {
-    _user = await DatabaseHelper.fetchUser();
-    print('Fetched user: $_user'); // Add this line
-    if (_user != null) {
-      _nameController.text = _user!.name ?? '';
-      _emailController.text = _user!.email ?? '';
-      _addressController.text = _user!.address ?? '';
+    try {
+      _user = await DatabaseHelper.fetchUser();
+      print('Fetched user: $_user');
+      if (_user != null) {
+        _nameController.text = _user!.name ?? '';
+        _emailController.text = _user!.email ?? '';
+        _addressController.text = _user!.address ?? '';
 
-      setState(() {
-        dropdownvalue = _user!.userType.toString().split('.').last;
-        profileImagePath = _user!.profileImagePath;
-      });
+        setState(() {
+          dropdownvalue = getDropDownvalue(_user!
+              .userType
+              .toString()
+              .split('.')
+              .last);
+          profileImagePath = _user!.profileImagePath;
+        });
+      }
+    }catch (e) {
+      print('Error fetching user data: $e');
+      // Handle the error accordingly
     }
   }
 
@@ -150,11 +158,13 @@ class _ProfileFormState extends State<ProfileForm> {
     return null;
   }
 
+
   UserType _getUserTypeFromValue(String value) {
     switch (value) {
       case 'Patient':
         return UserType.Patient;
       case 'Doctor':
+      case 'Doktor':
         return UserType.Doctor;
       default:
         return UserType.Patient;
@@ -180,10 +190,33 @@ class _ProfileFormState extends State<ProfileForm> {
     super.dispose();
   }
 
+  String getDropDownvalue(String dropdownvalue) {
+    switch(dropdownvalue){
+      case 'Select':
+      case 'Auswählen':
+        return items[0];
+      case 'Patient':
+        return items[1];
+      case 'Doctor':
+      case 'Doktor':
+        return items[2];
+      default:
+        return items[1];
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      // Wrap the form with SingleChildScrollView
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    items = [
+      language['items_select'].toString(),
+      language['items_patient'].toString(),
+      language['items_doctor'].toString(),
+
+    ];
+    //dropdownvalue = _user == null ? items[0] : getDropDownvalue(_user!.userType.toString().split('.').last);
+    return SingleChildScrollView( // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
         child: Form(
@@ -225,12 +258,12 @@ class _ProfileFormState extends State<ProfileForm> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Ihr Name',
-                  hintText: 'Geben Sie Ihren Namen ein',
+                  labelText: language['name'],
+                  hintText: language['name_hint'],
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Bitte geben Sie Ihren Namen ein';
+                    return language['name_hint'];
                   }
                   return null;
                 },
@@ -239,8 +272,8 @@ class _ProfileFormState extends State<ProfileForm> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Geben Sie Ihre E-Mail-Adresse ein',
+                  labelText: language['email'],
+                  hintText: language['email_hint'],
                 ),
                 validator: _validateEmail,
               ),
@@ -250,8 +283,8 @@ class _ProfileFormState extends State<ProfileForm> {
                 child: TextField(
                   controller: _addressController,
                   decoration: InputDecoration(
-                    labelText: 'Adresse',
-                    hintText: 'Geben Sie Ihre Adresse ein',
+                    labelText: language['address'],
+                    hintText: language['address_hint'],
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 5,
@@ -277,6 +310,7 @@ class _ProfileFormState extends State<ProfileForm> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
+                    print("onChanged: $newValue");
                     setState(() {
                       dropdownvalue = newValue!;
                     });
@@ -285,11 +319,8 @@ class _ProfileFormState extends State<ProfileForm> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
-                  _submitForm();
-
-                },
-                child: Text('Aktualisieren'),
+                onPressed: _submitForm,
+                child: Text(language['update']!),
               ),
             ],
           ),
