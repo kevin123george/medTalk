@@ -24,7 +24,6 @@ dependencies:
 
 
 
-
   intl: ^0.18.0
   cupertino_icons: ^1.0.2
   url_launcher: ^6.1.8
@@ -48,5 +47,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
   assets:
-    - assets/images/
+    - assets/
