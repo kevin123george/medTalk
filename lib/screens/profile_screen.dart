@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:animations/animations.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../dialogs/policy_dialog.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/language_provider.dart';
@@ -86,7 +89,8 @@ class _ProfileFormState extends State<ProfileForm> {
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
-      final userType = dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'  ? UserType.Patient
+      final userType = dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'
+          ? UserType.Patient
           : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
@@ -191,7 +195,7 @@ class _ProfileFormState extends State<ProfileForm> {
   }
 
   String getDropDownvalue(String dropdownvalue) {
-    switch(dropdownvalue){
+    switch (dropdownvalue) {
       case 'Select':
       case 'Auswählen':
         return items[0];
@@ -208,15 +212,15 @@ class _ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    Map<String, String> language =
+        context.watch<LanguageProvider>().languageMap;
     items = [
       language['items_select'].toString(),
       language['items_patient'].toString(),
       language['items_doctor'].toString(),
 
-    ];
-    //dropdownvalue = _user == null ? items[0] : getDropDownvalue(_user!.userType.toString().split('.').last);
-    return SingleChildScrollView( // Wrap the form with SingleChildScrollView
+    return SingleChildScrollView(
+      // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
         child: Form(
