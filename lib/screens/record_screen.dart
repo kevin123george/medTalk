@@ -1,7 +1,3 @@
-// Copyright 2021 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -116,12 +112,113 @@ class _RecordsScreenState extends State<RecordsScreen> {
     });
     fetchRecords();
   }
+  Future<void> confirmDeleteRecord(Records record) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning,
+                color: Colors.red,
+              ),
+              const SizedBox(width: 10),
+              const Text('Löschung bestätigen'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(record.timestamp)} löschen möchten?',
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Abbrechen'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Löschen'),
+              onPressed: () async {
+                await DatabaseHelper.deleteRecord(record);
+                  setState(() {
+                    fetchRecords();
+                      Navigator.pop(context);
+                  });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> openRecordDetailsModal(Records record) async {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double modalHeight = screenHeight * 0.5;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              height: modalHeight,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text(
+                      getFormattedTimestamp(record.timestamp),
+
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () async {
+
+                        var data = confirmDeleteRecord(record);
+                        int idValue = record.id!;
+                        await Future.delayed(const Duration(seconds: 1), (){});
+                        Records? value = await DatabaseHelper.fetchRecordById(idValue);
+                        if(value == null ){
+                          Navigator.pop(context);
+                        }
+                      },
+
+
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      record.text,
+
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((value) {
+      // Refresh the record list after closing the modal
+      fetchRecords();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context)
-        .textTheme
-        .apply(displayColor: Theme.of(context).colorScheme.onSurface);
+    final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
     return Expanded(
       child: Scaffold(
         body: Container(
@@ -185,28 +282,34 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   itemCount: records.length,
                   itemBuilder: (context, index) {
                     final record = records[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          getFormattedTimestamp(record.timestamp),
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () async {
-                            final deletedRows = await DatabaseHelper.deleteRecord(record);
-                            if (deletedRows > 0) {
-                              setState(() {
-                                records.remove(record);
-                              });
-                            }
-                          },
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            record.text,
-                            style: TextStyle(fontSize: 16),
+                    return InkWell(
+                      onTap: () {
+                        openRecordDetailsModal(record);
+                      },
+
+                      child: Card(
+                        child: ListTile(
+                          title: Text(
+                            getFormattedTimestamp(record.timestamp),
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () async {
+                              final deletedRows = await DatabaseHelper.deleteRecord(record);
+                              if (deletedRows > 0) {
+                                setState(() {
+                                  records.remove(record);
+                                });
+                              }
+                            },
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              record.text,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
                         ),
                       ),
