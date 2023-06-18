@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../models/records.dart';
+import '../providers/font_provider.dart';
 import '../util/db_helper.dart';
 
 const Widget divider = SizedBox(height: 10);
@@ -160,7 +162,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
     );
   }
 
-  Future<void> openRecordDetailsModal(Records record) async {
+  Future<void> openRecordDetailsModal(Records record, double fontSize) async {
     final double screenHeight = MediaQuery.of(context).size.height;
     final double modalHeight = screenHeight * 0.5;
 
@@ -201,7 +203,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       record.text,
-
+                      style: TextStyle(fontSize: fontSize),
                     ),
                   ),
                 ],
@@ -219,6 +221,16 @@ class _RecordsScreenState extends State<RecordsScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
+    double fontSize = context.watch<FontProvider>().font_size;
+    if (fontSize == 0.0){
+      fontSize = 16;
+    }else if(fontSize == 1.0){
+      fontSize = 24;
+    }
+    else if(fontSize == 2.0){
+      fontSize = 30;
+    }
+
     return Expanded(
       child: Scaffold(
         body: Container(
@@ -284,7 +296,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     final record = records[index];
                     return InkWell(
                       onTap: () {
-                        openRecordDetailsModal(record);
+                        openRecordDetailsModal(record, fontSize);
                       },
 
                       child: Card(
@@ -308,7 +320,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
                               record.text,
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: fontSize),
                             ),
                           ),
                         ),
