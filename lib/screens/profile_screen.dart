@@ -1,8 +1,14 @@
+import 'dart:io';
+
+import 'package:animations/animations.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../dialogs/policy_dialog.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/language_provider.dart';
 import '../util/db_helper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -15,8 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme.apply(
-      displayColor: Theme.of(context).colorScheme.onSurface,
-    );
+          displayColor: Theme.of(context).colorScheme.onSurface,
+        );
     return Expanded(
       child: Scaffold(
         body: Center(
@@ -47,6 +53,9 @@ class _ProfileFormState extends State<ProfileForm> {
   List<String> items = [];
   User? _user;
 
+  XFile? imgFile;
+  final ImagePicker imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -57,13 +66,21 @@ class _ProfileFormState extends State<ProfileForm> {
     _fetchUserData();
   }
 
+  getImageFromGallery() async {
+    imgFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      imgFile;
+    });
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
-      final userType =
-      dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'  ? UserType.Patient
+      final userType = dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'
+          ? UserType.Patient
           : _getUserTypeFromValue(dropdownvalue);
 
       final updatedUser = User(
@@ -92,12 +109,12 @@ class _ProfileFormState extends State<ProfileForm> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
+          SnackBar(
+              content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
     }
   }
-
 
   Future<void> _fetchUserData() async {
     _user = await DatabaseHelper.fetchUser();
@@ -149,7 +166,7 @@ class _ProfileFormState extends State<ProfileForm> {
   }
 
   String getDropDownvalue(String dropdownvalue) {
-    switch(dropdownvalue){
+    switch (dropdownvalue) {
       case 'Select':
       case 'Auswählen':
         return items[0];
@@ -163,7 +180,8 @@ class _ProfileFormState extends State<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    Map<String, String> language =
+        context.watch<LanguageProvider>().languageMap;
     items = [
       language['items_select'].toString(),
       language['items_patient'].toString(),
@@ -171,7 +189,8 @@ class _ProfileFormState extends State<ProfileForm> {
     ];
     dropdownvalue = getDropDownvalue(dropdownvalue);
 
-    return SingleChildScrollView( // Wrap the form with SingleChildScrollView
+    return SingleChildScrollView(
+      // Wrap the form with SingleChildScrollView
       child: SizedBox(
         width: 300,
         child: Form(
@@ -183,10 +202,26 @@ class _ProfileFormState extends State<ProfileForm> {
                 radius: 115,
                 backgroundColor: Theme.of(context).colorScheme.onSurface,
                 child: Center(
-                  child: CircleAvatar(
-                    foregroundImage: NetworkImage(
-                        "https://cdn-icons-png.flaticon.com/512/727/727399.png?w=740&t=st=1685613822~exp=1685614422~hmac=1ce2ebe58c69cdeb7239355ef9a5ed555e21343888c887db3886afddcc292a45"),
-                    radius: 110,
+                  child: GestureDetector(
+                    onTap: () {
+                      getImageFromGallery();
+                    },
+                    child: CircleAvatar(
+                      radius: MediaQuery.of(context).size.width * 0.29,
+                      backgroundColor: Colors.white,
+                      backgroundImage: imgFile == null
+                          ? null
+                          : FileImage(
+                              File(imgFile!.path),
+                            ),
+                      child: imgFile == null
+                          ? Icon(
+                              Icons.add_a_photo_outlined,
+                              color: Colors.grey,
+                              size: 80,
+                            )
+                          : null,
+                    ),
                   ),
                 ),
               ),
@@ -251,7 +286,6 @@ class _ProfileFormState extends State<ProfileForm> {
                   },
                 ),
               ),
-
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _submitForm,
@@ -264,4 +298,3 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 }
-
