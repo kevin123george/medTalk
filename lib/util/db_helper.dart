@@ -14,7 +14,7 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
-    return await openDatabase(
+    final database = await openDatabase(
       path,
       onCreate: (db, version) async {
         await db.execute('''
@@ -24,6 +24,7 @@ class DatabaseHelper {
             email TEXT,
             address TEXT,
             userType TEXT NOT NULL
+            profileImagePath TEXT
           )
         ''');
 
@@ -35,8 +36,25 @@ class DatabaseHelper {
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < newVersion) {
+          await db.execute('''
+          ALTER TABLE Users ADD COLUMN profileImagePath TEXT
+        ''');
+        }
+        await db.execute('PRAGMA user_version = $newVersion');
+      },
       version: _version,
     );
+    final columns = await database.rawQuery("PRAGMA table_info(Users)");
+    final hasProfileImagePathColumn = columns.any((column) => column['name'] == 'profileImagePath');
+
+    if (!hasProfileImagePathColumn) {
+      await database.execute('ALTER TABLE Users ADD COLUMN profileImagePath TEXT');
+    }
+
+    return database;
+
   }
   // User table operations
 
@@ -51,6 +69,8 @@ class DatabaseHelper {
 
   static Future<int> updateUser(User user) async {
     final db = await _getDb();
+    print('user submit db ist ' );
+    print(user.profileImagePath);
     return await db.update(
       'Users',
       user.toMap(),
@@ -89,6 +109,7 @@ class DatabaseHelper {
         email: userData['email'] as String?,
         address: userData['address'] as String?,
         userType: userType,
+        profileImagePath: userData['profileImagePath'] as String?,
       );
     } else {
       // User doesn't exist in the database, return a new empty user
@@ -98,9 +119,11 @@ class DatabaseHelper {
         email: null,
         address: null,
         userType: UserType.Patient,
+        profileImagePath: null,
       );
     }
   }
+
 
 
   // Records table operations

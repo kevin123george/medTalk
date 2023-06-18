@@ -10,6 +10,7 @@ class User {
   String? email;
   String? address;
   UserType userType;
+  String? profileImagePath;
 
   User({
     this.id,
@@ -17,8 +18,12 @@ class User {
     this.email,
     this.address,
     this.userType = UserType.Patient,
+    this.profileImagePath,
   });
-
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name, email: $email, address: $address, userType: $userType, profileImagePath: $profileImagePath}';
+  }
   Map<String, dynamic> toMap() {
 
     return {
@@ -27,6 +32,7 @@ class User {
       'email': email,
       'address': address,
       'userType': userType.toString().split('.').last,
+      'profileImagePath': profileImagePath,
     };
   }
 

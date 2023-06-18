@@ -20,6 +20,9 @@ dependencies:
   path: ^1.8.3
   syncfusion_flutter_datepicker: ^21.2.10
   logger:
+  image_picker: ^0.8.8
+
+
 
 
   intl: ^0.18.0
@@ -29,6 +32,11 @@ dependencies:
   syncfusion_flutter_core: ^21.2.6
   get_storage:
   provider: ^6.0.5
+
+  flutter_markdown: ^0.6.15
+  animations: ^2.0.7
+  shared_preferences: ^2.1.2
+
 
 dev_dependencies:
 #  analysis_defaults:
@@ -40,3 +48,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/

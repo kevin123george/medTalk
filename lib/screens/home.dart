@@ -3,17 +3,23 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:medTalk/dialogs/terms_dialog.dart';
 import 'package:medTalk/providers/language_provider.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 
+import '../dialogs/policy_dialog.dart';
 import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+
+import 'package:animations/animations.dart';
+import 'package:flutter/gestures.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -66,6 +72,98 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       parent: controller,
       curve: const Interval(0.5, 1.0),
     );
+
+    _landingDialogCheck();
+  }
+
+  Future<void> _landingDialogCheck() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? termsPreference = prefs.getBool('termsPreference');
+    bool? policyPreference = prefs.getBool('policyPreference');
+
+    if (termsPreference == false || termsPreference == null) {
+      _landingTermsPage();
+    } else if (policyPreference == false || policyPreference == null) {
+      _landingPolicyPage();
+    }
+  }
+
+  void _landingTermsPage() async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return TermsDialog(
+            mdFileName: 'terms_and_conditions.md',
+          );
+        },
+      );
+
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: "By creating your profile, you are agreeing to our\n",
+          style: Theme.of(context).textTheme.bodyText1,
+          children: [
+            TextSpan(
+              text: "Terms & Conditions ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  showModal(
+                    context: context,
+                    configuration: FadeScaleTransitionConfiguration(),
+                    builder: (context) {
+                      return TermsDialog(
+                        mdFileName: 'terms_and_conditions.md',
+                      );
+                    },
+                  );
+                },
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  void _landingPolicyPage() async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return PolicyDialog(
+            mdFileName: 'privacy_policy.md',
+          );
+        },
+      );
+
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: "By creating your profile, you are agreeing to our\n",
+          style: Theme.of(context).textTheme.bodyText1,
+          children: [
+            TextSpan(
+              text: "Privacy Policy",
+              style: TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  showModal(
+                    context: context,
+                    configuration: FadeScaleTransitionConfiguration(),
+                    builder: (context) {
+                      return PolicyDialog(
+                        mdFileName: 'privacy_policy.md',
+                      );
+                    },
+                  );
+                },
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -127,13 +225,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   PreferredSizeWidget createAppBar() {
     return AppBar(
       title: Text('MedTalk - Smart City Bamberg'),
-
       actions: !showMediumSizeLayout && !showLargeSizeLayout
           ? [
               _LanguageButton(
                 showLabels: false,
               ),
-
               _BrightnessButton(
                 handleBrightnessChange: widget.handleBrightnessChange,
                 showLabels: false,
@@ -198,7 +294,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ScreenSelected.values[screenIndex], controller.value == 1),
           navigationRail: NavigationRail(
             extended: showLargeSizeLayout,
-            destinations: navRailDestinations (languageProvider),
+            destinations: navRailDestinations(languageProvider),
             selectedIndex: screenIndex,
             onDestinationSelected: (index) {
               setState(() {
@@ -243,11 +339,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 }
 
 class _BrightnessButton extends StatefulWidget {
-  const _BrightnessButton({
-    required this.handleBrightnessChange,
-    this.showTooltipBelow = true,
-    required this.showLabels
-  });
+  const _BrightnessButton(
+      {required this.handleBrightnessChange,
+      this.showTooltipBelow = true,
+      required this.showLabels});
 
   final Function handleBrightnessChange;
   final bool showTooltipBelow;
@@ -260,7 +355,8 @@ class _BrightnessButton extends StatefulWidget {
 class _BrightnessButtonState extends State<_BrightnessButton> {
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    Map<String, String> language =
+        context.watch<LanguageProvider>().languageMap;
     final isBright = Theme.of(context).brightness == Brightness.light;
     return Tooltip(
       preferBelow: widget.showTooltipBelow,
@@ -278,11 +374,8 @@ class _BrightnessButtonState extends State<_BrightnessButton> {
             ),
           ),
           Visibility(
-            visible: widget.showLabels,
-              child: Flexible(
-                  child: Text(language['brightness']!)
-              )
-          )
+              visible: widget.showLabels,
+              child: Flexible(child: Text(language['brightness']!)))
         ],
       ),
     );
@@ -290,22 +383,21 @@ class _BrightnessButtonState extends State<_BrightnessButton> {
 }
 
 class _ColorSeedButton extends StatelessWidget {
-  const _ColorSeedButton({
-    required this.handleColorSelect,
-    required this.colorSelected,
-    required this.colorSelectionMethod,
-    required this.showLabels
-  });
+  const _ColorSeedButton(
+      {required this.handleColorSelect,
+      required this.colorSelected,
+      required this.colorSelectionMethod,
+      required this.showLabels});
 
   final void Function(int) handleColorSelect;
   final ColorSeed colorSelected;
   final ColorSelectionMethod colorSelectionMethod;
   final bool showLabels;
 
-
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    Map<String, String> language =
+        context.watch<LanguageProvider>().languageMap;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -317,7 +409,8 @@ class _ColorSeedButton extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             tooltip: language['color_tooltip'],
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context) {
               return List.generate(ColorSeed.values.length, (index) {
                 ColorSeed currentColor = ColorSeed.values[index];
@@ -332,7 +425,8 @@ class _ColorSeedButton extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 10),
                         child: Icon(
                           currentColor == colorSelected &&
-                                  colorSelectionMethod != ColorSelectionMethod.image
+                                  colorSelectionMethod !=
+                                      ColorSelectionMethod.image
                               ? Icons.color_lens
                               : Icons.color_lens_outlined,
                           color: currentColor.color,
@@ -352,20 +446,14 @@ class _ColorSeedButton extends StatelessWidget {
         ),
         Visibility(
             visible: showLabels,
-            child: Flexible(
-                child: Text(language['color']!)
-            )
-        )
+            child: Flexible(child: Text(language['color']!)))
       ],
     );
   }
 }
 
 class _LanguageButton extends StatefulWidget {
-  const _LanguageButton({
-    required this.showLabels
-  });
-
+  const _LanguageButton({required this.showLabels});
 
   final bool showLabels;
 
@@ -389,10 +477,11 @@ class _LanguageButtonState extends State<_LanguageButton> {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             tooltip: language['language_tooltip'],
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             itemBuilder: (context) {
-              return List.generate(languageProvider.languageList.length, (index) {
-
+              return List.generate(languageProvider.languageList.length,
+                  (index) {
                 return PopupMenuItem(
                   value: languageProvider.languageList[index],
                   child: Wrap(
@@ -406,7 +495,7 @@ class _LanguageButtonState extends State<_LanguageButton> {
                 );
               });
             },
-            onSelected: (value){
+            onSelected: (value) {
               setState(() {
                 context.read<LanguageProvider>().change_language(value);
               });
@@ -415,35 +504,29 @@ class _LanguageButtonState extends State<_LanguageButton> {
         ),
         Visibility(
             visible: widget.showLabels,
-            child: Flexible(
-                child: Text(language['language_label']!)
-            )
-        )
+            child: Flexible(child: Text(language['language_label']!)))
       ],
     );
   }
 }
 
 class _FontSizeButton extends StatefulWidget {
-  const _FontSizeButton({
-    required this.showLabels
-  });
+  const _FontSizeButton({required this.showLabels});
   final bool showLabels;
 
   @override
   State<_FontSizeButton> createState() => _FontSizeButtonState(showLabels);
-
 }
 
 class _FontSizeButtonState extends State<_FontSizeButton> {
-
   _FontSizeButtonState(this.showLabels);
 
   final bool showLabels;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    Map<String, String> language =
+        context.watch<LanguageProvider>().languageMap;
     final ThemeData theme = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -451,68 +534,65 @@ class _FontSizeButtonState extends State<_FontSizeButton> {
       children: [
         Flexible(
           child: PopupMenuButton(
-            icon: Icon(
-              Icons.format_size,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            tooltip: language['font_tooltip'],
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            itemBuilder: (context){
-              return [
-                PopupMenuItem(
-                    child: Column(
-                      children: [
-                        Text(language['font_size']!),
-                        StatefulBuilder(
-                          builder: (context, state){
-                            return SfSliderTheme(
-                              data: SfSliderThemeData(
-                                activeLabelStyle: theme.textTheme.bodySmall,
-                                inactiveLabelStyle: theme.textTheme.bodySmall,
-                              ),
-                              child: SfSlider.vertical(
-                                min: 0,
-                                max: 2,
-                                interval: 1,
-                                stepSize: 1,
-                                showLabels: true,
-                                showDividers: true,
-                                value: context.read<FontProvider>().font_size,
-                                labelFormatterCallback:
-                                    (dynamic actualValue, String formattedText) {
-                                  switch (actualValue) {
-                                    case 0:
-                                      return language['font_small']!;
-                                    case 1:
-                                      return language['font_medium']!;
-                                    case 2:
-                                      return language['font_large']!;
-                                  }
-                                  return actualValue.toString();
-                                },
-                                onChanged: (value) {
-                                  context.read<FontProvider>().change_font_size(value);
-                                  state((){
-                                  });
-                                  setState(() {
-                                  });
-                                },
-                              ),
-                            );
-                          },
-                        )
-                      ],
-                    ))
-              ];
-            }
-          ),
+              icon: Icon(
+                Icons.format_size,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              tooltip: language['font_tooltip'],
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                      child: Column(
+                    children: [
+                      Text(language['font_size']!),
+                      StatefulBuilder(
+                        builder: (context, state) {
+                          return SfSliderTheme(
+                            data: SfSliderThemeData(
+                              activeLabelStyle: theme.textTheme.bodySmall,
+                              inactiveLabelStyle: theme.textTheme.bodySmall,
+                            ),
+                            child: SfSlider.vertical(
+                              min: 0,
+                              max: 2,
+                              interval: 1,
+                              stepSize: 1,
+                              showLabels: true,
+                              showDividers: true,
+                              value: context.read<FontProvider>().font_size,
+                              labelFormatterCallback:
+                                  (dynamic actualValue, String formattedText) {
+                                switch (actualValue) {
+                                  case 0:
+                                    return language['font_small']!;
+                                  case 1:
+                                    return language['font_medium']!;
+                                  case 2:
+                                    return language['font_large']!;
+                                }
+                                return actualValue.toString();
+                              },
+                              onChanged: (value) {
+                                context
+                                    .read<FontProvider>()
+                                    .change_font_size(value);
+                                state(() {});
+                                setState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      )
+                    ],
+                  ))
+                ];
+              }),
         ),
         Visibility(
             visible: showLabels,
-            child: Flexible(
-                child: Text(language['font']!)
-            )
-        )
+            child: Flexible(child: Text(language['font']!)))
       ],
     );
   }
@@ -544,11 +624,11 @@ class _ExpandedTrailingActions extends StatefulWidget {
   final ColorSelectionMethod colorSelectionMethod;
 
   @override
-  State<_ExpandedTrailingActions> createState() => _ExpandedTrailingActionsState();
+  State<_ExpandedTrailingActions> createState() =>
+      _ExpandedTrailingActionsState();
 }
 
 class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
-
   @override
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
@@ -580,13 +660,13 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
               Switch(
                   value: languageProvider.language,
                   onChanged: (value) {
-                    languageProvider.change_language(value ? 'German' : 'English');
+                    languageProvider
+                        .change_language(value ? 'German' : 'English');
                   })
             ],
           ),
           const Divider(),
           Text(language['color']!),
-
           _ExpandedColorSeedAction(
             handleColorSelect: widget.handleColorSelect,
             colorSelected: widget.colorSelected,
@@ -594,14 +674,13 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
           ),
           const Divider(),
           Text(language['font_size']!),
-          StatefulBuilder(
-            builder: (context, state){
-              return SfSliderTheme(
-                data: SfSliderThemeData(
-                  activeLabelStyle: theme.textTheme.bodyMedium,
-                  inactiveLabelStyle: theme.textTheme.bodyMedium,
-                ),
-                child: SfSlider(
+          StatefulBuilder(builder: (context, state) {
+            return SfSliderTheme(
+              data: SfSliderThemeData(
+                activeLabelStyle: theme.textTheme.bodyMedium,
+                inactiveLabelStyle: theme.textTheme.bodyMedium,
+              ),
+              child: SfSlider(
                 min: 0,
                 max: 2,
                 interval: 1,
@@ -610,26 +689,24 @@ class _ExpandedTrailingActionsState extends State<_ExpandedTrailingActions> {
                 showDividers: true,
                 value: context.read<FontProvider>().font_size,
                 labelFormatterCallback:
-                  (dynamic actualValue, String formattedText) {
-                    switch (actualValue) {
-                      case 0:
-                        return language['font_small']!;
-                      case 1:
-                        return language['font_medium']!;
-                      case 2:
-                        return language['font_large']!;
-                    }
+                    (dynamic actualValue, String formattedText) {
+                  switch (actualValue) {
+                    case 0:
+                      return language['font_small']!;
+                    case 1:
+                      return language['font_medium']!;
+                    case 2:
+                      return language['font_large']!;
+                  }
                   return actualValue.toString();
                 },
                 onChanged: (value) {
                   context.read<FontProvider>().change_font_size(value);
-                  state((){
-                  });
-                  setState(() {
-                  });
+                  state(() {});
+                  setState(() {});
                 },
-            ),
-              );
+              ),
+            );
           })
         ],
       ),
@@ -747,19 +824,21 @@ class _NavigationTransitionState extends State<NavigationTransition> {
   }
 }
 
-List<NavigationRailDestination> navRailDestinations(LanguageProvider languageProvider){
-  return appBarDestinations.map((destination) => NavigationRailDestination(
-    icon: Tooltip(
-      message: languageProvider.languageMap[destination.label]!,
-      child: destination.icon,
-    ),
-    selectedIcon: Tooltip(
-      message: languageProvider.languageMap[destination.label]!,
-      child: destination.selectedIcon,
-    ),
-    label: Text(languageProvider.languageMap[destination.label]!),
-  )).toList();
-
+List<NavigationRailDestination> navRailDestinations(
+    LanguageProvider languageProvider) {
+  return appBarDestinations
+      .map((destination) => NavigationRailDestination(
+            icon: Tooltip(
+              message: languageProvider.languageMap[destination.label]!,
+              child: destination.icon,
+            ),
+            selectedIcon: Tooltip(
+              message: languageProvider.languageMap[destination.label]!,
+              child: destination.selectedIcon,
+            ),
+            label: Text(languageProvider.languageMap[destination.label]!),
+          ))
+      .toList();
 }
 
 class SizeAnimation extends CurvedAnimation {
