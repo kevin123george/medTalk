@@ -21,6 +21,7 @@ class SpeechToTextScreen extends StatefulWidget {
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var text;
+  var resultText = '';
   var helperText;
   var isListening = false;
   var isButtonPressed = false;
@@ -44,9 +45,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Map<String, String> language = context.watch<LanguageProvider>().languageMap;
-    // text = language['intro_text']!;
-    // helperText = language['helper_text']!;
+    Map<String, String> language = context.watch<LanguageProvider>().languageMap;
+    text = language['intro_text']!;
+    helperText = language['helper_text']!;
     final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
@@ -57,7 +58,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             child: Text(
-              text,
+              resultText.isNotEmpty ? resultText : text,
               style: _getTextStyle(textTheme),
             ),
           ),
@@ -91,7 +92,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                               .map((alternate) => alternate["recognizedWords"])
                               .toList()
                               .cast<String>();
-                          text = result.recognizedWords;
+                          resultText = result.recognizedWords;
                         });
                       },
                       localeId: 'de-DE',
@@ -120,16 +121,16 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                             alternate["recognizedWords"])
                                 .toList()
                                 .cast<String>();
-                            text = result.recognizedWords;
+                            resultText = result.recognizedWords;
                           });
                         },
                         localeId: 'de-DE',
                       );
                       // Records? latestRecord = await DatabaseHelper.fetchLatestRecord();
                       // if (text != helperText && !speechToText.isListening && latestRecord != null && latestRecord.text != text)
-                      if (text != helperText && !speechToText.isListening) {
+                      if (resultText != helperText && !speechToText.isListening) {
                         final recordEntry = Records(
-                            text: text,
+                            text: resultText,
                             timestamp:
                             DateTime.now().millisecondsSinceEpoch);
                         final generatedId =
@@ -143,9 +144,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                   isButtonPressed = false;
                   isListening = false;
                 });
-                if (text != helperText) {
+                if (resultText != helperText) {
                   final recordEntry = Records(
-                      text: text,
+                      text: resultText,
                       timestamp: DateTime.now().millisecondsSinceEpoch);
                   final generatedId =
                   await DatabaseHelper.addRecord(recordEntry);
