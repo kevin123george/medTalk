@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:medTalk/providers/language_provider.dart';
+import 'package:provider/provider.dart';
 
 const rowDivider = SizedBox(width: 20);
 const colDivider = SizedBox(height: 10);
@@ -739,19 +741,19 @@ const List<NavigationDestination> appBarDestinations = [
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.question_answer_outlined),
-    label: 'Chat',
+    label: 'chat_label',
     selectedIcon: Icon(Icons.question_answer),
   ),
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.account_circle_outlined),
-    label: 'Profil',
+    label: 'profile_label',
     selectedIcon: Icon(Icons.account_circle),
   ),
   NavigationDestination(
     tooltip: '',
     icon: Icon(Icons.storage_outlined),
-    label: 'Aufzeichnungen',
+    label: 'records_label',
     selectedIcon: Icon(Icons.storage),
   )
 ];
@@ -805,7 +807,7 @@ class _NavigationBarsState extends State<NavigationBars> {
           });
           if (!widget.isExampleBar) widget.onSelectItem!(index);
         },
-        destinations: appBarDestinations,
+        destinations: navDestinations(Provider.of<LanguageProvider>(context)),
       ),
     );
 
@@ -823,6 +825,13 @@ class _NavigationBarsState extends State<NavigationBars> {
 
     return navigationBar;
   }
+}
+List<NavigationDestination> navDestinations(LanguageProvider languageProvider){
+  return appBarDestinations.map((destination) => NavigationDestination(
+    icon: destination.icon,
+    selectedIcon: destination.icon,
+    label: languageProvider.languageMap[destination.label]!,
+  )).toList();
 }
 
 class IconToggleButtons extends StatefulWidget {
