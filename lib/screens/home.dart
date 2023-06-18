@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:medTalk/dialogs/terms_dialog.dart';
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:medTalk/providers/language_provider.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
@@ -11,6 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui';
+
 
 import '../dialogs/policy_dialog.dart';
 import 'profile_screen.dart';
@@ -59,10 +64,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool showLargeSizeLayout = false;
 
   int screenIndex = ScreenSelected.speechToText.value;
+  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   initState() {
     super.initState();
+    _printStoredPreference();
+    _checkBiometricAuth();
     controller = AnimationController(
       duration: Duration(milliseconds: transitionLength.toInt() * 2),
       value: 0,
@@ -164,8 +172,99 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
       );
     });
+
+  }
+  Future<void> _printStoredPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? isBiometricAuth = prefs.getBool('biometricAuth');
+
+    if (isBiometricAuth == null) {
+      print("No stored preference found");
+    } else if (isBiometricAuth) {
+      print("Stored preference: User accepted biometric authentication");
+    } else {
+      print("Stored preference: User rejected biometric authentication");
+    }
+  }
+  void _checkBiometricAuth() async {
+    bool canCheckBiometrics;
+
+    try {
+      canCheckBiometrics = await auth.canCheckBiometrics;
+    } catch (e) {
+      print("Error checking biometrics: $e");
+      canCheckBiometrics = false;
+    }
+    if(canCheckBiometrics){
+      print("Device supports biometric authentication");
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool? isBiometricAuth = prefs.getBool('biometricAuth');
+        if (isBiometricAuth == true) {
+          bool authenticated = await _authenticate();
+          if (!authenticated) {
+            SystemNavigator.pop(animated: false);
+          }
+        } else {
+          _showBiometricDialog();
+        }
+      });
+    } else {
+      print("Device doesn't support biometric authentication");
+    }
+  }
+  Future<bool> _authenticate() async {
+    bool authenticated = false;
+    try {
+      authenticated = await auth.authenticate(
+        localizedReason: 'Scan your fingerprint to authenticate',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+    } catch (e) {
+      print("Error authenticating: $e");
+    }
+    return authenticated;
   }
 
+
+  void _showBiometricDialog(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Biometrische Authentifizierung'),
+          content: const Text('Möchten Sie in dieser App die biometrische Authentifizierung verwenden?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ablehnen'),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                print("User rejected biometric authentication");
+                prefs.setBool('biometricAuth', false);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Akzeptieren'),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                print("User accepted biometric authentication");
+                prefs.setBool('biometricAuth', true);
+                Navigator.of(context).pop();
+                bool authenticated = await _authenticate();
+                if (!authenticated) {
+                  SystemNavigator.pop(animated: false);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   void dispose() {
     controller.dispose();
