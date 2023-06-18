@@ -19,7 +19,7 @@ class RecordsScreen extends StatefulWidget {
 
 class _RecordsScreenState extends State<RecordsScreen> {
   List<Records> records = [];
-  bool isDeleteConfirmed = false;
+
   DateTime endDate = DateTime.now();
   DateTime startDate = DateTime.now().subtract(Duration(days: 7));
 
@@ -136,13 +136,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () async {
-                        setState(){
-                          isDeleteConfirmed = false;
-                        }
+
                         var data = confirmDeleteRecord(record);
                         int idValue = record.id!;
                         await Future.delayed(const Duration(seconds: 1), (){});
-
                         Records? value = await DatabaseHelper.fetchRecordById(idValue);
                         if(value == null ){
                           Navigator.pop(context);
