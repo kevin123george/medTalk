@@ -35,7 +35,8 @@ class LanguageProvider with ChangeNotifier {
      'update': 'Aktualisieren',
      'items_select': 'Auswählen',
      'items_patient': 'Patient',
-     'items_doctor': 'Doktor'
+     'items_doctor': 'Doktor',
+     'locale-id':'de-DE'
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -65,7 +66,8 @@ class LanguageProvider with ChangeNotifier {
      'update': 'Update',
      'items_select': 'Select',
      'items_patient': 'Patient',
-     'items_doctor': 'Doctor'
+     'items_doctor': 'Doctor',
+     'locale-id':'en-EN'
 
    };
 
