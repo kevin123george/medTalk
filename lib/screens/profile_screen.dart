@@ -218,7 +218,7 @@ class _ProfileFormState extends State<ProfileForm> {
       language['items_select'].toString(),
       language['items_patient'].toString(),
       language['items_doctor'].toString(),
-
+    ];
     return SingleChildScrollView(
       // Wrap the form with SingleChildScrollView
       child: SizedBox(
