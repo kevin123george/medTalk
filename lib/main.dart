@@ -22,7 +22,9 @@ void main() async {
   try {
     logger.i("deleting older records ");
     final List<Records> fetchedRecords = await DatabaseHelper.fetchAllRecords();
-    DatabaseHelper().deleteOlderThanSixMonths(fetchedRecords);
+    if(fetchedRecords.length > 0  ){
+      DatabaseHelper().deleteOlderThanSixMonths(fetchedRecords);
+    }
     logger.i("deleted older records ");
   } catch (e) {
     logger.e("unable to delete older records ");

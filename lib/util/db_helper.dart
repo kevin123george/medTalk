@@ -23,7 +23,7 @@ class DatabaseHelper {
             name TEXT NOT NULL,
             email TEXT,
             address TEXT,
-            userType TEXT NOT NULL
+            userType TEXT NOT NULL,
             profileImagePath TEXT
           )
         ''');
