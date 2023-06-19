@@ -20,7 +20,9 @@ class SpeechToTextScreen extends StatefulWidget {
 
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
+  var initPressed = false;
   var text;
+  var locationId;
   var resultText = '';
   var helperText;
   var isListening = false;
@@ -48,6 +50,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
     Map<String, String> language = context.watch<LanguageProvider>().languageMap;
     text = language['intro_text']!;
     helperText = language['helper_text']!;
+    locationId = language['locale-id']!;
     final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
@@ -58,7 +61,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             child: Text(
-              resultText.isNotEmpty ? resultText : text,
+              initPressed ? resultText : text,
               style: _getTextStyle(textTheme),
             ),
           ),
@@ -76,6 +79,9 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             elevation: isButtonPressed ? 20 : 0, // Set elevation based on button state
             // backgroundColor: isButtonPressed ? Colors.green : null, // Set background color based on button state
             onPressed: () async {
+              setState(() {
+                initPressed = true;
+              });
               if (!isButtonPressed) {
                 var available = await speechToText.initialize();
                 if (available) {
@@ -95,7 +101,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                           resultText = result.recognizedWords;
                         });
                       },
-                      localeId: 'de-DE',
+                      localeId: locationId,
                     );
                   });
 
