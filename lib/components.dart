@@ -755,6 +755,12 @@ const List<NavigationDestination> appBarDestinations = [
     icon: Icon(Icons.storage_outlined),
     label: 'records_label',
     selectedIcon: Icon(Icons.storage),
+  ),
+  NavigationDestination(
+    tooltip: '',
+    icon: Icon(Icons.calendar_today_outlined),
+    label: 'calender_label',
+    selectedIcon: Icon(Icons.calendar_today),
   )
 ];
 

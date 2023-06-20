@@ -7,6 +7,7 @@ import 'package:medTalk/dialogs/terms_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:medTalk/providers/language_provider.dart';
+import 'package:medTalk/screens/calender_screen.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -318,6 +319,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         return const ProfileScreen();
       case ScreenSelected.records:
         return const RecordsScreen();
+      case ScreenSelected.calender:
+        return const CalenderScreen();
     }
   }
 
