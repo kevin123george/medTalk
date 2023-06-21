@@ -29,7 +29,7 @@ class Schedulers {
     this.body,
     this.reminderType = ScheduleType.GeneralReminder,
     this.repeatType = RepeatType.Daily,
-    this.isRecurrent = false,
+    this.isRecurrent = false, required DateTime reminderTime, required DateTime repeatEndDate,
   });
 
   @override

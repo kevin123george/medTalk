@@ -3,6 +3,8 @@ import 'package:medTalk/models/user.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../models/schedulers.dart';
+
 class DatabaseHelper {
   static const int _version = 1;
   static const String _dbName = "Medtalk.db";
@@ -33,6 +35,21 @@ class DatabaseHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
             timestamp INTEGER NOT NULL
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE schedulers(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            startDateTime TEXT,
+            endDateTime TEXT,
+            reminderTime TEXT,
+            body TEXT,
+            reminderType TEXT,
+            repeatType TEXT,
+            repeatEndDate TEXT,
+            isRecurrent BOOLEAN
           )
         ''');
       },
@@ -255,6 +272,76 @@ class DatabaseHelper {
     }
 
     return null; // Return null if record with the given ID is not found
+  }
+
+  // Schedulers table operations
+
+  Future<int> insertScheduler(Schedulers scheduler) async {
+    final Database db = await _getDb();;
+    return await db.insert('schedulers', scheduler.toMap());
+  }
+
+  Future<List<Schedulers>> getAllSchedulers() async {
+    final Database db = await _getDb();;
+    final List<Map<String, dynamic>> maps = await db.query('schedulers');
+    return List.generate(maps.length, (index) {
+      return Schedulers(
+        id: maps[index]['id'],
+        title: maps[index]['title'],
+        startDateTime: DateTime.parse(maps[index]['startDateTime']),
+        endDateTime: DateTime.parse(maps[index]['endDateTime']),
+        reminderTime: DateTime.parse(maps[index]['reminderTime']),
+        body: maps[index]['body'],
+        reminderType: getScheduleTypeFromString(maps[index]['reminderType']),
+        repeatType: getRepeatTypeFromString(maps[index]['repeatType']),
+        repeatEndDate: DateTime.parse(maps[index]['repeatEndDate']),
+        isRecurrent: maps[index]['isRecurrent'] == 1 ? true : false,
+      );
+    });
+  }
+
+  Future<int> updateScheduler(Schedulers scheduler) async {
+    final Database db = await _getDb();;
+    return await db.update(
+      'schedulers',
+      scheduler.toMap(),
+      where: 'id = ?',
+      whereArgs: [scheduler.id],
+    );
+  }
+
+  Future<int> deleteScheduler(int id) async {
+    final Database db = await _getDb();;
+    return await db.delete(
+      'schedulers',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+
+  ScheduleType getScheduleTypeFromString(String type) {
+    switch (type) {
+      case 'Appointment':
+        return ScheduleType.Appointment;
+      case 'GeneralReminder':
+        return ScheduleType.GeneralReminder;
+      default:
+        return ScheduleType.GeneralReminder;
+    }
+  }
+
+  RepeatType getRepeatTypeFromString(String type) {
+    switch (type) {
+      case 'Daily':
+        return RepeatType.Daily;
+      case 'Weekly':
+        return RepeatType.Weekly;
+      case 'Monthly':
+        return RepeatType.Monthly;
+      default:
+        return RepeatType.Daily;
+    }
   }
 
 }
