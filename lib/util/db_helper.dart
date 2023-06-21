@@ -35,6 +35,21 @@ class DatabaseHelper {
             timestamp INTEGER NOT NULL
           )
         ''');
+
+        await db.execute('''
+          CREATE TABLE schedulers(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            startDateTime TEXT,
+            endDateTime TEXT,
+            reminderTime TEXT,
+            body TEXT,
+            reminderType TEXT,
+            repeatType TEXT,
+            repeatEndDate TEXT,
+            isRecurrent BOOLEAN
+          )
+        ''');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < newVersion) {
