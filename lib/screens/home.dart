@@ -13,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui';
 
 
@@ -469,7 +468,9 @@ class _BrightnessButtonState extends State<_BrightnessButton> {
               icon: isBright
                   ? const Icon(Icons.dark_mode_outlined)
                   : const Icon(Icons.light_mode_outlined),
-              onPressed: () => widget.handleBrightnessChange(!isBright),
+              onPressed: () {
+                widget.handleBrightnessChange(!isBright);
+            }
             ),
           ),
           Visibility(

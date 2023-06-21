@@ -48,8 +48,8 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   bool useMaterial3 = true;
-  ThemeMode themeMode = ThemeMode.system;
-  ColorSeed colorSelected = ColorSeed.baseColor;
+  late ThemeMode themeMode;
+  late ColorSeed colorSelected;
   ColorImageProvider imageSelected = ColorImageProvider.leaves;
   ColorScheme? imageColorScheme = const ColorScheme.light();
   ColorSelectionMethod colorSelectionMethod = ColorSelectionMethod.colorSeed;
@@ -70,6 +70,27 @@ class _AppState extends State<App> {
     setState(() {
       themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark;
     });
+    storeBrightnessChange(useLightMode);
+  }
+
+  void storeBrightnessChange(bool useLightMode) {
+    if(useLightMode){
+      GetStorage().write('themeMode', 'light');
+    }else{
+      GetStorage().write('themeMode', 'dark');
+    }
+  }
+
+  ThemeMode getThemeModeFromStorage(){
+    String theme = GetStorage().read('themeMode') != null
+        ?  GetStorage().read('themeMode') : 'system';
+    if(theme == 'light'){
+      return ThemeMode.light;
+    }
+    if(theme == 'dark'){
+      return ThemeMode.dark;
+    }
+    return ThemeMode.system;
   }
 
   void handleMaterialVersionChange() {
@@ -78,11 +99,21 @@ class _AppState extends State<App> {
     });
   }
 
+  int getColorFromStorage(){
+    return GetStorage().read('colorSeed') != null
+        ?  GetStorage().read('colorSeed') : 0;
+  }
+
   void handleColorSelect(int value) {
     setState(() {
       colorSelectionMethod = ColorSelectionMethod.colorSeed;
       colorSelected = ColorSeed.values[value];
     });
+    storeColorChange(value);
+  }
+
+  void storeColorChange(value){
+    GetStorage().write('colorSeed', value);
   }
 
   void handleImageSelect(int value) {
@@ -99,6 +130,8 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    themeMode = getThemeModeFromStorage();
+    colorSelected = ColorSeed.values[getColorFromStorage()];
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MedTalk',
