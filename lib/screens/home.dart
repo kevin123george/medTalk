@@ -16,8 +16,6 @@ import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'dart:ui';
 
-
-import '../dialogs/policy_dialog.dart';
 import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
@@ -87,12 +85,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Future<void> _landingDialogCheck() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? termsPreference = prefs.getBool('termsPreference');
-    bool? policyPreference = prefs.getBool('policyPreference');
 
     if (termsPreference == false || termsPreference == null) {
       _landingTermsPage();
-    } else if (policyPreference == false || policyPreference == null) {
-      _landingPolicyPage();
     }
   }
 
@@ -102,7 +97,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         context: context,
         builder: (BuildContext context) {
           return TermsDialog(
-            mdFileName: 'terms_and_conditions.md',
           );
         },
       );
@@ -123,7 +117,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     configuration: FadeScaleTransitionConfiguration(),
                     builder: (context) {
                       return TermsDialog(
-                        mdFileName: 'terms_and_conditions.md',
                       );
                     },
                   );
@@ -135,45 +128,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _landingPolicyPage() async {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return PolicyDialog(
-            mdFileName: 'privacy_policy.md',
-          );
-        },
-      );
 
-      RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          text: "By creating your profile, you are agreeing to our\n",
-          style: Theme.of(context).textTheme.bodyText1,
-          children: [
-            TextSpan(
-              text: "Privacy Policy",
-              style: TextStyle(fontWeight: FontWeight.bold),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  showModal(
-                    context: context,
-                    configuration: FadeScaleTransitionConfiguration(),
-                    builder: (context) {
-                      return PolicyDialog(
-                        mdFileName: 'privacy_policy.md',
-                      );
-                    },
-                  );
-                },
-            ),
-          ],
-        ),
-      );
-    });
-
-  }
   Future<void> _printStoredPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isBiometricAuth = prefs.getBool('biometricAuth');

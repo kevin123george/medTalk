@@ -37,7 +37,10 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Auswählen',
      'items_patient': 'Patient',
      'items_doctor': 'Doktor',
-     'locale-id':'de-DE'
+     'locale-id':'de-DE',
+     'accept': 'Annehmen',
+     'decline': 'Ablehnen',
+     'mdFileName': 'terms_and_conditions_german.md'
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -69,7 +72,10 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Select',
      'items_patient': 'Patient',
      'items_doctor': 'Doctor',
-     'locale-id':'en-EN'
+     'locale-id':'en-EN',
+     'accept': 'Accept',
+     'decline': 'Declare',
+     'mdFileName': 'terms_and_conditions.md'
 
    };
 
