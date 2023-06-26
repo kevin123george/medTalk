@@ -186,15 +186,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
 
   void _showBiometricDialog(){
+    Map<String, String> language =
+        context.read<LanguageProvider>().languageMap;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Biometrische Authentifizierung'),
-          content: const Text('Möchten Sie in dieser App die biometrische Authentifizierung verwenden?'),
+          title: Text(language['bio_auth']!),
+          content: Text(language['auth_text']!),
           actions: <Widget>[
             TextButton(
-              child: const Text('Ablehnen'),
+              child: Text(language['decline']!),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 print("User rejected biometric authentication");
@@ -203,7 +205,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               },
             ),
             TextButton(
-              child: const Text('Akzeptieren'),
+              child: Text(language['accept']!),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 print("User accepted biometric authentication");
