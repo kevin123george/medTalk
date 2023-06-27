@@ -20,6 +20,8 @@ Medtalk ensures that all user data, including transcriptions, is stored exclusiv
 Users bear sole responsibility for the content of their transcriptions and any actions taken based on the accuracy or reliability of the transcriptions. The BlueByte team and the Medtalk app shall not be held liable for any consequences arising from the use of the app, including errors, inaccuracies, or any loss or damage incurred.
 By using the Medtalk app, you acknowledge and agree to the terms outlined above. If you do not agree with any part of this disclaimer, we kindly request that you refrain from using the app.
 
+_
+
 Please note that this disclaimer may be subject to updates or modifications as deemed necessary by the BlueByte team. We recommend periodically reviewing the disclaimer for any changes.
 
-Thank you for choosing Medtalk, brought to you by the BlueByte Team!
+Thank you for choosing Medtalk, brought to you by the BlueByte!

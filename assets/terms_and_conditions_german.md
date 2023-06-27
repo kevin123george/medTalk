@@ -1,6 +1,6 @@
 ## Allgemeine Geschäftsbedingungen (AGB)
 
-BlueByte, ein Team von Studenten, präsentiert Medtalk, eine App, die speziell entwickelt wurde, um Menschen mit Hörproblemen bei ihren medizinischen Interaktionen zu unterstützen. Wir möchten Ihnen wichtige Informationen zur App geben:
+BlueByte, ein Team von Studenten, präsentiert Medtalk, eine App, die speziell entwickelt wurde, um Menschen mit Hörproblemen bei ihren medizinischen Interaktionen zu unterstützen. Bitte beachten Sie die folgenden Informationen:
 
 **Genauigkeit der Spracherkennung**
 
@@ -19,8 +19,10 @@ Medtalk stellt sicher, dass alle Benutzerdaten, einschließlich Transkriptionen,
 
 Benutzer tragen die alleinige Verantwortung für den Inhalt ihrer Transkriptionen und für jegliche Maßnahmen, die aufgrund der Genauigkeit oder Zuverlässigkeit der Transkriptionen getroffen werden. Das BlueByte-Team und die Medtalk-App haften nicht für etwaige Konsequenzen aus der Nutzung der App, einschließlich Fehler, Ungenauigkeiten oder etwaigen Verlusten oder Schäden.
 
+_
+
 Durch die Nutzung der Medtalk-App erkennen Sie die oben genannten Bedingungen an und stimmen ihnen zu. Wenn Sie mit Teilen dieser Vereinbarung nicht einverstanden sind, bitten wir Sie, von der Nutzung der App abzusehen.
 
-Bitte beachten Sie, dass diese AGB von Zeit zu Zeit aktualisiert oder geändert werden können, wenn das BlueByte-Team dies für erforderlich hält. Es wird empfohlen, die AGB regelmäßig auf Änderungen zu überprüfen.
+Bitte beachten Sie, dass diese AGB von Zeit zu Zeit aktualisiert oder geändert werden können, wenn wir dies für erforderlich hält. Es wird empfohlen, die AGB regelmäßig auf Änderungen zu überprüfen.
 
-Vielen Dank, dass Sie sich für Medtalk entschieden haben - entwickelt vom BlueByte-Team!
+Vielen Dank, dass Sie sich für Medtalk entschieden haben - entwickelt vom BlueByte!
