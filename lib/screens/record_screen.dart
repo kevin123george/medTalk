@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-
 import '../models/records.dart';
 import '../providers/font_provider.dart';
 import '../util/db_helper.dart';
@@ -15,62 +14,62 @@ const Widget divider = SizedBox(height: 10);
 const double narrowScreenWidthThreshold = 400;
 
 class RecordsScreen extends StatefulWidget {
-  const RecordsScreen({super.key});
+  const RecordsScreen({Key? key}) : super(key: key);
 
   @override
   State<RecordsScreen> createState() => _RecordsScreenState();
 }
 
 class _RecordsScreenState extends State<RecordsScreen> {
-
   List<Records> records = [];
-  DateRangePickerController _dateRangePickerController = DateRangePickerController();
+  DateRangePickerController _dateRangePickerController =
+  DateRangePickerController();
   late PickerDateRange selectedDateRange;
   DateTime? startDate;
   DateTime? endDate;
   bool toggle = false;
-
+  String? searchQuery;
   @override
   void initState() {
     super.initState();
-    //createDummyRecords();
+
     fetchRecords();
   }
 
-  Future<void> createDummyRecords() async {
-    try {
-      DateTime time = DateTime(2023, 6, 16, 12, 30, 0);
-      int timestampInMilliseconds = time.millisecondsSinceEpoch;
-      await DatabaseHelper.addRecord(
-        new Records(
-          text: "Hallo, Ich heiße Dr. John Doe.",
-          timestamp: timestampInMilliseconds,
-        ),
-      );
-      time = DateTime(2023, 5, 31, 12, 30, 0);
-      timestampInMilliseconds = time.millisecondsSinceEpoch;
-      await DatabaseHelper.addRecord(
-        new Records(
-          text: "Hallo, Ich heiße Dr. Jane Doe.",
-          timestamp: timestampInMilliseconds,
-        ),
-      );
-    } catch (e) {
-      print("An error occurred while creating dummy records: $e");
-    }
+  void _onSearch(String q) {
+    setState(() {
+      searchQuery = q;
+    });
+    fetchRecords();
   }
 
   Future<void> fetchRecords() async {
     if (startDate != null && endDate != null) {
       DateTime endDateRounded = roundEndDate(endDate!);
       final List<Records> fetchedRecords =
-      await DatabaseHelper.fetchAllRecordsInTimeRange(startDate!, endDateRounded);
+      await DatabaseHelper.fetchAllRecordsInTimeRange(
+          startDate!, endDateRounded);
       setState(() {
         records = fetchedRecords;
       });
     }
     else {
-      final List<Records> fetchedRecords = await DatabaseHelper.fetchAllRecords();
+      final List<Records> fetchedRecords =
+      await DatabaseHelper.fetchAllRecords();
+      setState(() {
+        records = fetchedRecords;
+      });
+    }
+    if (searchQuery != null && searchQuery!.isNotEmpty) {
+      final List<Records> fetchedRecords =
+      await DatabaseHelper.searchRecords(searchQuery!);
+      setState(() {
+        records = fetchedRecords;
+      });
+    }
+    else {
+      final List<Records> fetchedRecords =
+      await DatabaseHelper.fetchAllRecords();
       setState(() {
         records = fetchedRecords;
       });
@@ -82,18 +81,24 @@ class _RecordsScreenState extends State<RecordsScreen> {
         originalDateTime.year,
         originalDateTime.month,
         originalDateTime.day,
-        23, 59, 59);
+        23,
+        59,
+        59);
     return newDateTime;
   }
 
   String getFormattedTimestamp(int timestampInMilliseconds) {
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestampInMilliseconds);
-    String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+    DateTime dateTime =
+    DateTime.fromMillisecondsSinceEpoch(timestampInMilliseconds);
+    String formattedDateTime =
+    DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
     return formattedDateTime;
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    if (args.value != null && args.value.startDate != null && args.value.endDate != null) {
+    if (args.value != null &&
+        args.value.startDate != null &&
+        args.value.endDate != null) {
       setState(() {
         selectedDateRange = args.value!;
         startDate = selectedDateRange.startDate;
@@ -114,6 +119,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
     });
     fetchRecords();
   }
+
   Future<void> confirmDeleteRecord(Records record) async {
     return showDialog<void>(
       context: context,
@@ -134,7 +140,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
             child: ListBody(
               children: <Widget>[
                 Text(
-                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(record.timestamp)} löschen möchten?',
+                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(
+                      record.timestamp)} löschen möchten?',
                 ),
               ],
             ),
@@ -150,10 +157,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
               child: const Text('Löschen'),
               onPressed: () async {
                 await DatabaseHelper.deleteRecord(record);
-                  setState(() {
-                    fetchRecords();
-                      Navigator.pop(context);
-                  });
+                setState(() {
+                  fetchRecords();
+                  Navigator.pop(context);
+                });
               },
             ),
           ],
@@ -162,8 +169,90 @@ class _RecordsScreenState extends State<RecordsScreen> {
     );
   }
 
+  Future<void> editRecord(Records record) async {
+    final double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final double modalHeight = screenHeight * 0.75;
+    TextEditingController titleController =
+    TextEditingController(text: record.title);
+    TextEditingController nameController =
+    TextEditingController(text: record.name);
+    TextEditingController textController =
+    TextEditingController(text: record.text);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            height: modalHeight,
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: Text(
+                    getFormattedTimestamp(record.timestamp),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Geben Sie den Titel des Rezepts ein',
+                  ),
+                ),
+
+                SizedBox(height: 10),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Geben Sie den Namen des Arztes ein',
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: textController,
+                    onChanged: (value) {
+                      record.text = value;
+                    },
+                    maxLines: null, // or omit maxLines property
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 50),
+                ElevatedButton(
+                  onPressed: () async {
+                    record.title = titleController.text;
+                    record.name = nameController.text;
+                    await DatabaseHelper.updateRecord(record);
+                    Navigator.pop(context);
+                    fetchRecords();
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((value) {
+      // Refresh the record list after closing the modal
+      fetchRecords();
+    });
+  }
+
   Future<void> openRecordDetailsModal(Records record, double fontSize) async {
-    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
     final double modalHeight = screenHeight * 0.5;
 
     showModalBottomSheet(
@@ -186,17 +275,36 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () async {
-
                         var data = confirmDeleteRecord(record);
                         int idValue = record.id!;
-                        await Future.delayed(const Duration(seconds: 1), (){});
-                        Records? value = await DatabaseHelper.fetchRecordById(idValue);
-                        if(value == null ){
+                        await Future.delayed(const Duration(seconds: 1), () {});
+                        Records? value = await DatabaseHelper.fetchRecordById(
+                            idValue);
+                        if (value == null) {
                           Navigator.pop(context);
                         }
                       },
 
 
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      record.title?.isEmpty ?? true ? 'Ärztliches Verordnung' : record
+                          .title!,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      record.name?.isEmpty ?? true ? 'Ärzt' : record.name!,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Padding(
@@ -220,17 +328,23 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
-    double fontSize = context.watch<FontProvider>().font_size;
-    if (fontSize == 0.0){
+    final textTheme = Theme
+        .of(context)
+        .textTheme
+        .apply(displayColor: Theme
+        .of(context)
+        .colorScheme
+        .onSurface);
+    double fontSize = context
+        .watch<FontProvider>()
+        .font_size;
+    if (fontSize == 0.0) {
       fontSize = 16;
-    }else if(fontSize == 1.0){
+    } else if (fontSize == 1.0) {
       fontSize = 24;
-    }
-    else if(fontSize == 2.0){
+    } else if (fontSize == 2.0) {
       fontSize = 30;
     }
-
     return Expanded(
       child: Scaffold(
         body: Container(
@@ -239,8 +353,27 @@ class _RecordsScreenState extends State<RecordsScreen> {
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  Expanded(
+                    child: SearchBar(
+                        leading: Icon(Icons.search),
+                        hintText: "Nach ärztlicher Verordnung oder Arztnamen suchen",
+                        // controller: searchController,
+                        onChanged: (value) async {
+                          if (value.length >= 3) {
+                            _onSearch(value);
+                          } else {
+                            final List<Records> fetchedRecords =
+                            await DatabaseHelper.fetchAllRecords();
+                            setState(() {
+                              records = fetchedRecords;
+                            });
+                          }
+                        }
+                    ), // mainAxisAlignment: MainAxisAlignment.end
+                  ),
+                  SizedBox(width: 8.0),
+
                   Tooltip(
                     message: 'Filter',
                     child: IconButton(
@@ -251,15 +384,24 @@ class _RecordsScreenState extends State<RecordsScreen> {
                           builder: (BuildContext context) {
                             return Dialog(
                               child: Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                height: MediaQuery.of(context).size.height * 0.8,
+                                width:
+                                MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.8,
+                                height:
+                                MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.8,
                                 child: Column(
                                   children: [
                                     Expanded(
                                       child: Stack(
                                         children: [
                                           SfDateRangePicker(
-                                            controller: _dateRangePickerController,
+                                            controller:
+                                            _dateRangePickerController,
                                             showTodayButton: true,
                                             showActionButtons: true,
                                             onSubmit: (Object? val) {
@@ -268,10 +410,12 @@ class _RecordsScreenState extends State<RecordsScreen> {
                                             },
                                             onCancel: () {
                                               _onClear();
-                                              _dateRangePickerController.selectedRange = null;
+                                              _dateRangePickerController
+                                                  .selectedRange = null;
                                               Navigator.pop(context);
                                             },
-                                            selectionMode: DateRangePickerSelectionMode.range,
+                                            selectionMode: DateRangePickerSelectionMode
+                                                .range,
                                             onSelectionChanged: _onSelectionChanged,
                                           ),
                                         ],
@@ -298,30 +442,75 @@ class _RecordsScreenState extends State<RecordsScreen> {
                       onTap: () {
                         openRecordDetailsModal(record, fontSize);
                       },
-
                       child: Card(
                         child: ListTile(
-                          title: Text(
-                            getFormattedTimestamp(record.timestamp),
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () async {
-                              final deletedRows = await DatabaseHelper.deleteRecord(record);
-                              if (deletedRows > 0) {
-                                setState(() {
-                                  records.remove(record);
-                                });
-                              }
-                            },
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                          title: Align(
+                            alignment: Alignment.topCenter,
                             child: Text(
-                              record.text,
-                              style: TextStyle(fontSize: fontSize),
+                              record.title?.isEmpty ?? true
+                                  ? 'Ärztliches Verordnung '
+                                  : record.title!,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
+                          ),
+
+
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  // Handle edit button press
+                                  editRecord(record);
+                                },
+                              ),
+                               IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () async {
+                                  final deletedRows = await DatabaseHelper.deleteRecord(record);
+                                  if (deletedRows > 0) {
+                                    setState(() {
+                                      records.remove(record);
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                record.name?.isEmpty ?? true ? 'Ärzt' : record
+                                    .name!,
+                                style: TextStyle(fontSize: fontSize,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+
+                                  getFormattedTimestamp(record.timestamp),
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Padding(
+
+
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      record.text,
+                                      style: TextStyle(
+                                          fontSize: fontSize),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),

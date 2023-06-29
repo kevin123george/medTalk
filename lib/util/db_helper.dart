@@ -31,8 +31,12 @@ class DatabaseHelper {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS Records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
             text TEXT NOT NULL,
-            timestamp INTEGER NOT NULL
+            timestamp INTEGER NOT NULL,
+            title TEXT
+            
+
           )
         ''');
       },
@@ -161,8 +165,30 @@ class DatabaseHelper {
       whereArgs: [record.id],
     );
   }
+  static Future<List<Records>> searchRecords(String searchQuery) async {
+    List<Records> recordsList = <Records>[];
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.rawQuery(
+      '''
+      SELECT * FROM Records
+      WHERE name LIKE '%$searchQuery%' OR title LIKE '%$searchQuery%'
+      ORDER BY timestamp DESC
+      ''',
+    );
 
+    for (Map<String, dynamic> item in records) {
+      Records record = new Records(
+        id: item['id'],
+        text: item['text'],
+        name: item['name'],
+        title: item['title'],
+        timestamp: item['timestamp'],
+      );
+      recordsList.add(record);
+    }
 
+    return recordsList;
+  }
   static Future<List<Records>> fetchAllRecords() async {
     List<Records> recordsList = <Records>[];
     final db = await _getDb();
@@ -175,6 +201,8 @@ class DatabaseHelper {
       Records record = new Records(
         id: item['id'],
         text: item['text'],
+        name: item['name'],
+        title: item['title'],
         timestamp: item['timestamp'],
       );
       recordsList.add(record);
@@ -198,6 +226,8 @@ class DatabaseHelper {
         id: item['id'],
         text: item['text'],
         timestamp: item['timestamp'],
+          title: item['title'],
+        name: item['name'],
       );
       recordsList.add(record);
     }
@@ -218,6 +248,8 @@ class DatabaseHelper {
         id: latestRecord['id'],
         text: latestRecord['text'],
         timestamp: latestRecord['timestamp'],
+        title:latestRecord['title'],
+        name:latestRecord['name'],
       );
     }
 
@@ -249,6 +281,8 @@ class DatabaseHelper {
       Records record = Records(
         id: item['id'],
         text: item['text'],
+        title: item['title'],
+        name: item['name'],
         timestamp: item['timestamp'],
       );
       return record;
