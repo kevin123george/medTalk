@@ -14,7 +14,7 @@ const Widget divider = SizedBox(height: 10);
 const double narrowScreenWidthThreshold = 400;
 
 class RecordsScreen extends StatefulWidget {
-  const RecordsScreen({Key? key}) : super(key: key);
+  const RecordsScreen({super.key});
 
   @override
   State<RecordsScreen> createState() => _RecordsScreenState();
@@ -22,8 +22,7 @@ class RecordsScreen extends StatefulWidget {
 
 class _RecordsScreenState extends State<RecordsScreen> {
   List<Records> records = [];
-  DateRangePickerController _dateRangePickerController =
-  DateRangePickerController();
+  DateRangePickerController _dateRangePickerController = DateRangePickerController();
   late PickerDateRange selectedDateRange;
   DateTime? startDate;
   DateTime? endDate;
@@ -47,15 +46,13 @@ class _RecordsScreenState extends State<RecordsScreen> {
     if (startDate != null && endDate != null) {
       DateTime endDateRounded = roundEndDate(endDate!);
       final List<Records> fetchedRecords =
-      await DatabaseHelper.fetchAllRecordsInTimeRange(
-          startDate!, endDateRounded);
+      await DatabaseHelper.fetchAllRecordsInTimeRange(startDate!, endDateRounded);
       setState(() {
         records = fetchedRecords;
       });
     }
     else {
-      final List<Records> fetchedRecords =
-      await DatabaseHelper.fetchAllRecords();
+      final List<Records> fetchedRecords = await DatabaseHelper.fetchAllRecords();
       setState(() {
         records = fetchedRecords;
       });
@@ -81,24 +78,18 @@ class _RecordsScreenState extends State<RecordsScreen> {
         originalDateTime.year,
         originalDateTime.month,
         originalDateTime.day,
-        23,
-        59,
-        59);
+        23, 59, 59);
     return newDateTime;
   }
 
   String getFormattedTimestamp(int timestampInMilliseconds) {
-    DateTime dateTime =
-    DateTime.fromMillisecondsSinceEpoch(timestampInMilliseconds);
-    String formattedDateTime =
-    DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestampInMilliseconds);
+    String formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
     return formattedDateTime;
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    if (args.value != null &&
-        args.value.startDate != null &&
-        args.value.endDate != null) {
+    if (args.value != null && args.value.startDate != null && args.value.endDate != null) {
       setState(() {
         selectedDateRange = args.value!;
         startDate = selectedDateRange.startDate;
@@ -119,7 +110,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
     });
     fetchRecords();
   }
-
   Future<void> confirmDeleteRecord(Records record) async {
     return showDialog<void>(
       context: context,
@@ -140,8 +130,9 @@ class _RecordsScreenState extends State<RecordsScreen> {
             child: ListBody(
               children: <Widget>[
                 Text(
-                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(
-                      record.timestamp)} löschen möchten?',
+                  'Sind Sie sicher, dass Sie den Eintrag vom ${getFormattedTimestamp(record.timestamp)} '
+                      'löschen möchten?',
+
                 ),
               ],
             ),
@@ -157,9 +148,9 @@ class _RecordsScreenState extends State<RecordsScreen> {
               child: const Text('Löschen'),
               onPressed: () async {
                 await DatabaseHelper.deleteRecord(record);
-                setState(() {
-                  fetchRecords();
-                  Navigator.pop(context);
+                  setState(() {
+                   fetchRecords();
+                    Navigator.pop(context);
                 });
               },
             ),
@@ -249,10 +240,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> openRecordDetailsModal(Records record, double fontSize) async {
-    final double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final double screenHeight = MediaQuery.of(context).size.height;
     final double modalHeight = screenHeight * 0.5;
 
     showModalBottomSheet(
@@ -278,8 +266,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                         var data = confirmDeleteRecord(record);
                         int idValue = record.id!;
                         await Future.delayed(const Duration(seconds: 1), () {});
-                        Records? value = await DatabaseHelper.fetchRecordById(
-                            idValue);
+                        Records? value = await DatabaseHelper.fetchRecordById(idValue);
                         if (value == null) {
                           Navigator.pop(context);
                         }
@@ -328,21 +315,15 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme
-        .apply(displayColor: Theme
-        .of(context)
-        .colorScheme
-        .onSurface);
-    double fontSize = context
-        .watch<FontProvider>()
-        .font_size;
+    final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
+    double fontSize = context.watch<FontProvider>().font_size;
     if (fontSize == 0.0) {
       fontSize = 16;
-    } else if (fontSize == 1.0) {
+    }
+    else if (fontSize == 1.0) {
       fontSize = 24;
-    } else if (fontSize == 2.0) {
+    }
+    else if (fontSize == 2.0) {
       fontSize = 30;
     }
     return Expanded(
@@ -385,23 +366,16 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             return Dialog(
                               child: Container(
                                 width:
-                                MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.8,
+                                MediaQuery.of(context).size.width * 0.8,
                                 height:
-                                MediaQuery
-                                    .of(context)
-                                    .size
-                                    .height * 0.8,
+                                MediaQuery.of(context).size.height * 0.8,
                                 child: Column(
                                   children: [
                                     Expanded(
                                       child: Stack(
                                         children: [
                                           SfDateRangePicker(
-                                            controller:
-                                            _dateRangePickerController,
+                                            controller: _dateRangePickerController,
                                             showTodayButton: true,
                                             showActionButtons: true,
                                             onSubmit: (Object? val) {
@@ -410,8 +384,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                                             },
                                             onCancel: () {
                                               _onClear();
-                                              _dateRangePickerController
-                                                  .selectedRange = null;
+                                              _dateRangePickerController.selectedRange = null;
                                               Navigator.pop(context);
                                             },
                                             selectionMode: DateRangePickerSelectionMode
