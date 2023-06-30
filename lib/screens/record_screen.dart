@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medTalk/providers/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../models/records.dart';
@@ -21,6 +22,11 @@ class RecordsScreen extends StatefulWidget {
 }
 
 class _RecordsScreenState extends State<RecordsScreen> {
+  var editDoctorNameLabel;
+  var editRecordTitleLabel;
+  var saveLabel;
+
+
   List<Records> records = [];
   DateRangePickerController _dateRangePickerController = DateRangePickerController();
   late PickerDateRange selectedDateRange;
@@ -28,11 +34,35 @@ class _RecordsScreenState extends State<RecordsScreen> {
   DateTime? endDate;
   bool toggle = false;
   String? searchQuery;
+
   @override
   void initState() {
-    super.initState();
 
+    super.initState();
+  //createDummyRecords();
     fetchRecords();
+  }
+  Future<void> createDummyRecords() async {
+    try {
+      DateTime time = DateTime(2023, 6, 16, 12, 30, 0);
+      int timestampInMilliseconds = time.millisecondsSinceEpoch;
+      await DatabaseHelper.addRecord(
+        new Records(
+          text: "Hallo, Ich heiße Dr. John Doe.",
+          timestamp: timestampInMilliseconds,
+        ),
+      );
+      time = DateTime(2023, 5, 31, 12, 30, 0);
+      timestampInMilliseconds = time.millisecondsSinceEpoch;
+      await DatabaseHelper.addRecord(
+        new Records(
+          text: "Hallo, Ich heiße Dr. Jane Doe.",
+          timestamp: timestampInMilliseconds,
+        ),
+      );
+    } catch (e) {
+      print("An error occurred while creating dummy records: $e");
+    }
   }
 
   void _onSearch(String q) {
@@ -161,10 +191,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> editRecord(Records record) async {
-    final double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+
+    final double screenHeight = MediaQuery.of(context).size.height;
     final double modalHeight = screenHeight * 0.75;
     TextEditingController titleController =
     TextEditingController(text: record.title);
@@ -172,9 +200,13 @@ class _RecordsScreenState extends State<RecordsScreen> {
     TextEditingController(text: record.name);
     TextEditingController textController =
     TextEditingController(text: record.text);
-
-    showModalBottomSheet(
-      context: context,
+    final language = context.read<LanguageProvider>().languageMap;
+    editDoctorNameLabel = language['edit_docname']!;
+    editRecordTitleLabel = language['edit_recordtitle']!;
+    saveLabel = language['save']!;
+    // Map<String, String> language =
+    //     context.watch<LanguageProvider>().languageMap;
+    showModalBottomSheet(context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return SingleChildScrollView(
@@ -193,7 +225,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
-                    labelText: 'Geben Sie den Titel des Rezepts ein',
+                    // labelText: language['edit_docname'],
+                    labelText: editRecordTitleLabel,
                   ),
                 ),
 
@@ -201,7 +234,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 TextField(
                   controller: nameController,
                   decoration: InputDecoration(
-                    labelText: 'Geben Sie den Namen des Arztes ein',
+                    labelText: editDoctorNameLabel,
                   ),
                 ),
                 Padding(
@@ -226,7 +259,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     Navigator.pop(context);
                     fetchRecords();
                   },
-                  child: Text('Save'),
+                    child: Text(saveLabel)
                 ),
               ],
             ),
@@ -277,7 +310,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   ),
                   ListTile(
                     title: Text(
-                      record.title?.isEmpty ?? true ? 'Ärztliches Verordnung' : record
+                      record.title?.isEmpty ?? true ? '' : record
                           .title!,
                       style: TextStyle(
                         fontSize: 18,
@@ -315,8 +348,15 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final language = context.read<LanguageProvider>().languageMap;
+    editDoctorNameLabel = language['edit_docname']!;
+    editRecordTitleLabel = language['edit_recordtitle']!;
+
     final textTheme = Theme.of(context).textTheme.apply(displayColor: Theme.of(context).colorScheme.onSurface);
     double fontSize = context.watch<FontProvider>().font_size;
+    // Map<String, String> language =
+    //     context.watch<LanguageProvider>().languageMap;
+
     if (fontSize == 0.0) {
       fontSize = 16;
     }
@@ -338,7 +378,9 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   Expanded(
                     child: SearchBar(
                         leading: Icon(Icons.search),
-                        hintText: "Nach ärztlicher Verordnung oder Arztnamen suchen",
+                        hintText:language['search'],
+
+
                         // controller: searchController,
                         onChanged: (value) async {
                           if (value.length >= 3) {
@@ -418,10 +460,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
                       child: Card(
                         child: ListTile(
                           title: Align(
-                            alignment: Alignment.topCenter,
+                            alignment: Alignment.topLeft,
                             child: Text(
                               record.title?.isEmpty ?? true
-                                  ? 'Ärztliches Verordnung '
+                                  ? ' '
                                   : record.title!,
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
@@ -455,11 +497,23 @@ class _RecordsScreenState extends State<RecordsScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                record.name?.isEmpty ?? true ? 'Ärzt' : record
-                                    .name!,
-                                style: TextStyle(fontSize: fontSize,
-                                    fontWeight: FontWeight.bold),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Doctor: ',
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    record.name?.isEmpty ?? true ? 'Ärzt' : record.name!,
+                                    style: TextStyle(
+                                      fontSize: fontSize,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Align(
                                 alignment: Alignment.topLeft,

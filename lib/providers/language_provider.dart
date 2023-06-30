@@ -37,6 +37,12 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Auswählen',
      'items_patient': 'Patient',
      'items_doctor': 'Doktor',
+     'doc_name':'Ärzt',
+     'search':'Nach ärztlicher Verordnung oder Arztnamen suchen',
+     'record_title':'Ärztliches Verordnung',
+     'save':'Speichern',
+     'edit_docname':'Geben Sie den Namen des Arztes ein',
+     'edit_recordtitle':'Geben Sie den Titel des Rezepts ein',
      'locale-id':'de-DE'
    };
    Map<String, String> _english = {
@@ -69,8 +75,13 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Select',
      'items_patient': 'Patient',
      'items_doctor': 'Doctor',
+     'search':'Search by  prescription tile or  name of doctor',
+     'doc_name':'Doctor name',
+     'record_title':'Medical Prescription',
+     'save':'save',
+     'edit_docname':'Enter the name of Doctor',
+     'edit_recordtitle':'Enter the Title for medical prescription',
      'locale-id':'en-EN'
-
    };
 
    List<String> get languageList => _languageList;

@@ -168,14 +168,12 @@ class DatabaseHelper {
   static Future<List<Records>> searchRecords(String searchQuery) async {
     List<Records> recordsList = <Records>[];
     final db = await _getDb();
-    final List<Map<String, dynamic>> records = await db.rawQuery(
-      '''
-      SELECT * FROM Records
-      WHERE name LIKE '%$searchQuery%' OR title LIKE '%$searchQuery%'
-      ORDER BY timestamp DESC
-      ''',
-    );
-
+    final List<Map<String, dynamic>> records = await db.rawQuery('''
+  SELECT * FROM Records
+  WHERE LOWER(name) LIKE '%${searchQuery.toLowerCase()}%' 
+     OR LOWER(title) LIKE '%${searchQuery.toLowerCase()}%'
+  ORDER BY timestamp DESC
+''');
     for (Map<String, dynamic> item in records) {
       Records record = new Records(
         id: item['id'],
