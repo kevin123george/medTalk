@@ -81,7 +81,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> fetchRecords() async {
+    print("sdsdsdsdsd");
+    print(startDate);
     if (startDate != null && endDate != null) {
+      print("inside if");
       DateTime endDateRounded = roundEndDate(endDate!);
       final List<Records> fetchedRecords =
           await DatabaseHelper.fetchAllRecordsInTimeRange(
@@ -102,7 +105,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
       setState(() {
         records = fetchedRecords;
       });
-    } else {
+    } else if(!(searchQuery != null && searchQuery!.isNotEmpty) && !(startDate != null && endDate != null)) {
+
       final List<Records> fetchedRecords =
           await DatabaseHelper.fetchAllRecords();
       setState(() {
