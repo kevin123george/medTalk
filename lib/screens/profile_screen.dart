@@ -87,7 +87,7 @@ class _ProfileFormState extends State<ProfileForm> {
       }
 
       final name = _nameController.text;
-      final email = _emailController.text;
+      final email = _emailController.text.trim();
       final address = _addressController.text;
       final userType = dropdownvalue == 'Select' || dropdownvalue == 'Auswählen'
           ? UserType.Patient
@@ -151,16 +151,21 @@ class _ProfileFormState extends State<ProfileForm> {
   }
 
   String? _validateEmail(String? value) {
-    if (value != null && value.isNotEmpty) {
-      final emailRegExp = RegExp(
-        r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$',
-      );
-      if (!emailRegExp.hasMatch(value)) {
-        return 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+    if (value != null) {
+      final trimmedValue = value.trim(); // Trim leading and trailing spaces
+
+      if (trimmedValue.isNotEmpty) {
+        final emailRegExp = RegExp(
+          r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$',
+        );
+        if (!emailRegExp.hasMatch(trimmedValue)) {
+          return 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+        }
       }
     }
     return null;
   }
+
 
 
   UserType _getUserTypeFromValue(String value) {
