@@ -37,7 +37,12 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Auswählen',
      'items_patient': 'Patient',
      'items_doctor': 'Doktor',
-     'locale-id':'de-DE'
+     'locale-id':'de-DE',
+     'accept': 'Annehmen',
+     'decline': 'Ablehnen',
+     'mdFileName': 'terms_and_conditions_german.md',
+     'bio_auth': 'Biometrische Authentifizierung',
+     'auth_text': 'Möchten Sie in dieser App die biometrische Authentifizierung verwenden?'
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -69,7 +74,12 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Select',
      'items_patient': 'Patient',
      'items_doctor': 'Doctor',
-     'locale-id':'en-EN'
+     'locale-id':'en-EN',
+     'accept': 'Accept',
+     'decline': 'Declare',
+     'mdFileName': 'terms_and_conditions.md',
+     'bio_auth': 'Biometric Authentification',
+     'auth_text': 'Do you want to use biometric authentication?'
 
    };
 
