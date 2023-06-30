@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:medTalk/components.dart';
 import 'package:medTalk/providers/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -24,10 +28,12 @@ class RecordsScreen extends StatefulWidget {
 class _RecordsScreenState extends State<RecordsScreen> {
   var editDoctorNameLabel;
   var editRecordTitleLabel;
+  var dictionaryTitle;
   var author;
   var saveLabel;
 
   List<Records> records = [];
+  var jsonData;
   DateRangePickerController _dateRangePickerController =
       DateRangePickerController();
   late PickerDateRange selectedDateRange;
@@ -41,6 +47,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
     super.initState();
     //createDummyRecords();
     fetchRecords();
+    readJsonData();
   }
 
   Future<void> createDummyRecords() async {
@@ -102,6 +109,39 @@ class _RecordsScreenState extends State<RecordsScreen> {
         records = fetchedRecords;
       });
     }
+  }
+
+  Future<void> readJsonData() async {
+    String jsonString = await rootBundle
+        .loadString('assets/combined_medical_data_dict_lower.json');
+    setState(() {
+      jsonData = json.decode(jsonString);
+    });
+    print(jsonData);
+  }
+
+  String medDictLookUp(String userInput) {
+    RegExp wordPattern = RegExp(r'\b\w+\b');
+    List<String?> preprocessedWords = wordPattern.allMatches(userInput.toLowerCase()).map((match) => match.group(0)).toList();
+    List<String> combinations = [];
+
+    for (int i = 0; i < preprocessedWords.length; i++) {
+      for (int j = i + 1; j < preprocessedWords.length + 1; j++) {
+        String phrase = preprocessedWords.sublist(i, j).join(' ');
+        combinations.add(phrase);
+      }
+    }
+
+    String output = '';
+
+    for (String phrase in combinations) {
+      if (jsonData.containsKey(phrase.toLowerCase())) {
+        String definition = jsonData[phrase.toLowerCase()]["Definition"];
+        output += '$phrase: $definition\n';
+      }
+    }
+
+    return output;
   }
 
   DateTime roundEndDate(DateTime originalDateTime) {
@@ -204,6 +244,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
     final language = context.read<LanguageProvider>().languageMap;
     editDoctorNameLabel = language['edit_docname']!;
     editRecordTitleLabel = language['edit_recordtitle']!;
+    dictionaryTitle = language['dictionary_title']!;
     author = language['author']!;
     saveLabel = language['save']!;
     // Map<String, String> language =
@@ -284,7 +325,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
-              height: modalHeight,
+              // height: modalHeight,
               padding: EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -320,25 +361,49 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     title: Text(
                       record.title?.isEmpty ?? true ? '' : record.title!,
                       style: TextStyle(
-                        fontSize: fontSize * 1.5,
+                        fontSize: fontSize ,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  ListTile(
-                    title: Text(
-                      record.name?.isEmpty ?? true ? '' : record.name!,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      record.text,
-                      style: TextStyle(fontSize: fontSize),
+                  Divider(),
+
+                  SingleChildScrollView(
+                    child: ListBody(
+                      children: [
+                        Text(
+                          record.name?.isEmpty ?? true ? '' : record.name!,
+                          style: TextStyle(
+                            fontSize: fontSize ,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Divider(),
+
+                        Text(
+                          record.text,
+                          style: TextStyle(fontSize: fontSize),
+                        ),
+                        Divider(height:fontSize,color: Colors.cyan,),
+                        Text(
+                          dictionaryTitle,
+                          style: TextStyle(fontSize: fontSize),
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            style: TextStyle(fontSize: fontSize * 0.9),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: medDictLookUp(record.text),
+                                style: TextStyle(
+                                  fontSize: fontSize * 0.7,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -358,6 +423,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
     final language = context.read<LanguageProvider>().languageMap;
     editDoctorNameLabel = language['edit_docname']!;
     editRecordTitleLabel = language['edit_recordtitle']!;
+    dictionaryTitle = language['dictionary_title']!;
     author = language['author']!;
 
     final textTheme = Theme.of(context)
@@ -474,7 +540,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                                   ? ' '
                                   : record.title!,
                               style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                                  fontSize: fontSize, fontWeight: FontWeight.bold),
                             ),
                           ),
                           trailing: Row(

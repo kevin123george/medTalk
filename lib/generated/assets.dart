@@ -2,7 +2,9 @@
 class Assets {
   Assets._();
 
+  static const String assetsCombinedMedicalDataDictLower = 'assets/combined_medical_data_dict_lower.json';
   static const String assetsPrivacyPolicy = 'assets/privacy_policy.md';
   static const String assetsTermsAndConditions = 'assets/terms_and_conditions.md';
+  static const String assetsTermsAndConditionsGerman = 'assets/terms_and_conditions_german.md';
 
 }

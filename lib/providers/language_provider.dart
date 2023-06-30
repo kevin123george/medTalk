@@ -50,6 +50,7 @@ class LanguageProvider with ChangeNotifier {
      'edit_docname':'Geben Sie den Namen des Arztes ein',
      'edit_recordtitle':'Geben Sie den Titel des Rezepts ein',
      'author':'Autorin',
+     'dictionary_title':'Medizinisches Wörterbuch',
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -94,6 +95,7 @@ class LanguageProvider with ChangeNotifier {
      'edit_docname':'Enter the name of Doctor',
      'edit_recordtitle':'Enter the Title for medical prescription',
      'author':'Author',
+     'dictionary_title':'Medical Dictionary',
    };
 
    List<String> get languageList => _languageList;
