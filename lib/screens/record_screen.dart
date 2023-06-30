@@ -293,7 +293,19 @@ class _RecordsScreenState extends State<RecordsScreen> {
                       getFormattedTimestamp(record.timestamp),
 
                     ),
-                    trailing: IconButton(
+
+                    trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                    IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                    // Handle edit button press
+                    editRecord(record);
+                    },
+                    ),
+                    IconButton(
+
                       icon: const Icon(Icons.delete),
                       onPressed: () async {
                         var data = confirmDeleteRecord(record);
@@ -307,6 +319,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
 
                     ),
+               ]
+                    )
                   ),
                   ListTile(
                     title: Text(
