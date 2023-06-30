@@ -42,7 +42,14 @@ class LanguageProvider with ChangeNotifier {
      'decline': 'Ablehnen',
      'mdFileName': 'terms_and_conditions_german.md',
      'bio_auth': 'Biometrische Authentifizierung',
-     'auth_text': 'Möchten Sie in dieser App die biometrische Authentifizierung verwenden?'
+     'auth_text': 'Möchten Sie in dieser App die biometrische Authentifizierung verwenden?',
+     'doc_name':'Ärzt',
+     'search':'Nach ärztlicher Verordnung oder Arztnamen suchen',
+     'record_title':'Ärztliches Verordnung',
+     'save':'Speichern',
+     'edit_docname':'Geben Sie den Namen des Arztes ein',
+     'edit_recordtitle':'Geben Sie den Titel des Rezepts ein',
+     'author':'Autorin',
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -79,8 +86,14 @@ class LanguageProvider with ChangeNotifier {
      'decline': 'Declare',
      'mdFileName': 'terms_and_conditions.md',
      'bio_auth': 'Biometric Authentification',
-     'auth_text': 'Do you want to use biometric authentication?'
-
+     'auth_text': 'Do you want to use biometric authentication?',
+     'search':'Search by  prescription tile or  name of doctor',
+     'doc_name':'Doctor name',
+     'record_title':'Medical Prescription',
+     'save':'save',
+     'edit_docname':'Enter the name of Doctor',
+     'edit_recordtitle':'Enter the Title for medical prescription',
+     'author':'Author',
    };
 
    List<String> get languageList => _languageList;
