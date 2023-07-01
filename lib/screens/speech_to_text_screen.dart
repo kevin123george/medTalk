@@ -5,6 +5,7 @@ import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 
 import '../models/records.dart';
 import '../providers/language_provider.dart';
@@ -16,13 +17,27 @@ class SpeechToTextScreen extends StatefulWidget {
   _SpeechToTextScreenState createState() => _SpeechToTextScreenState();
 }
 
+
+
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
+  var initPressed = false;
   var text;
+  var locationId;
+  var resultText = '';
   var helperText;
   var isListening = false;
   var isButtonPressed = false;
   SpeechToText speechToText = SpeechToText();
   Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    final language = context.read<LanguageProvider>().languageMap;
+    text = language['intro_text']!;
+    helperText = language['helper_text']!;
+  }
+
 
   @override
   void dispose() {
@@ -35,6 +50,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
     Map<String, String> language = context.watch<LanguageProvider>().languageMap;
     text = language['intro_text']!;
     helperText = language['helper_text']!;
+    locationId = language['locale-id']!;
     final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
@@ -45,47 +61,34 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             child: Text(
-              text,
+              initPressed ? resultText : text,
               style: _getTextStyle(textTheme),
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton.large(
-          onPressed: () async {
-            if (!isButtonPressed) {
-              var available = await speechToText.initialize();
-              if (available) {
-                print("the thing is available");
-                setState(() {
-                  isButtonPressed = true;
-                  isListening = true;
-                  speechToText.listen(
-                    onResult: (result) {
-                      setState(() {
-                        List<dynamic> alternates =
-                        result.toJson()["alternates"];
-                        List<String> recognizedWords = alternates
-                            .map((alternate) => alternate["recognizedWords"])
-                            .toList()
-                            .cast<String>();
-                        text = result.recognizedWords;
-                      });
-                    },
-                    localeId: 'de-DE',
-                  );
-                });
-
-                timer = Timer.periodic(Duration(milliseconds: 50), (timer) async {
-                  // Code to be executed every 10 seconds
-                  if (isButtonPressed && !speechToText.isListening) {
-                    available = await speechToText.initialize();
-                    if (!available) {
-                      speechToText.stop();
-                      speechToText = SpeechToText();
-                      available = await speechToText.initialize();
-                    }
-                    print("Triggered every 10 seconds");
-                    print(available);
+        floatingActionButton: AvatarGlow(
+          animate: isButtonPressed,
+          shape: BoxShape.rectangle,
+          glowColor: Colors.red, // Customize the glow color
+          endRadius: 100.0,
+          duration: const Duration(milliseconds: 2000),
+          repeat: true,
+          showTwoGlows: true,
+          repeatPauseDuration: const Duration(milliseconds: 10),
+          child: FloatingActionButton.large(
+            elevation: isButtonPressed ? 20 : 0, // Set elevation based on button state
+            // backgroundColor: isButtonPressed ? Colors.green : null, // Set background color based on button state
+            onPressed: () async {
+              setState(() {
+                initPressed = true;
+              });
+              if (!isButtonPressed) {
+                var available = await speechToText.initialize();
+                if (available) {
+                  print("the thing is available");
+                  setState(() {
+                    isButtonPressed = true;
+                    isListening = true;
                     speechToText.listen(
                       onResult: (result) {
                         setState(() {
@@ -95,43 +98,74 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                               .map((alternate) => alternate["recognizedWords"])
                               .toList()
                               .cast<String>();
-                          text = result.recognizedWords;
+                          resultText = result.recognizedWords;
                         });
                       },
-                      localeId: 'de-DE',
+                      localeId: locationId,
                     );
-                    // Records? latestRecord = await DatabaseHelper.fetchLatestRecord();
-                    // if (text != helperText && !speechToText.isListening && latestRecord != null && latestRecord.text != text)
-                    if (text != helperText && !speechToText.isListening) {
-                      final recordEntry = Records(
-                          text: text,
-                          timestamp: DateTime.now().millisecondsSinceEpoch);
-                      final generatedId =
-                      await DatabaseHelper.addRecord(recordEntry);
-                    }
-                  }
-                });
-              }
-            } else {
-              setState(() {
-                isButtonPressed = false;
-                isListening = false;
-              });
-              if (text != helperText) {
-                final recordEntry = Records(
-                    text: text,
-                    timestamp: DateTime.now().millisecondsSinceEpoch);
-                final generatedId =
-                await DatabaseHelper.addRecord(recordEntry);
-              }
-              speechToText.stop();
+                  });
 
-              timer?.cancel(); // Cancel the timer when the button is pressed
-            }
-          },
-          child: Icon(
-            isListening ? Icons.mic : Icons.mic_none,
-            color: Colors.red,
+                  timer = Timer.periodic(
+                      Duration(milliseconds: 50), (timer) async {
+                    // Code to be executed every 10 seconds
+                    if (isButtonPressed && !speechToText.isListening) {
+                      available = await speechToText.initialize();
+                      if (!available) {
+                        speechToText.stop();
+                        speechToText = SpeechToText();
+                        available = await speechToText.initialize();
+                      }
+                      print("Triggered every 10 seconds");
+                      print(available);
+                      speechToText.listen(
+                        onResult: (result) {
+                          setState(() {
+                            List<dynamic> alternates =
+                            result.toJson()["alternates"];
+                            List<String> recognizedWords = alternates
+                                .map((alternate) =>
+                            alternate["recognizedWords"])
+                                .toList()
+                                .cast<String>();
+                            resultText = result.recognizedWords;
+                          });
+                        },
+                        localeId: 'de-DE',
+                      );
+                      // Records? latestRecord = await DatabaseHelper.fetchLatestRecord();
+                      // if (text != helperText && !speechToText.isListening && latestRecord != null && latestRecord.text != text)
+                      if (resultText != helperText && !speechToText.isListening) {
+                        final recordEntry = Records(
+                            text: resultText,
+                            timestamp:
+                            DateTime.now().millisecondsSinceEpoch);
+                        final generatedId =
+                        await DatabaseHelper.addRecord(recordEntry);
+                      }
+                    }
+                  });
+                }
+              } else {
+                setState(() {
+                  isButtonPressed = false;
+                  isListening = false;
+                });
+                if (resultText != helperText) {
+                  final recordEntry = Records(
+                      text: resultText,
+                      timestamp: DateTime.now().millisecondsSinceEpoch);
+                  final generatedId =
+                  await DatabaseHelper.addRecord(recordEntry);
+                }
+                speechToText.stop();
+
+                timer?.cancel(); // Cancel the timer when the button is pressed
+              }
+            },
+            child: Icon(
+              isListening ? Icons.mic : Icons.mic_none,
+              color: Colors.red,
+            ),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

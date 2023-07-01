@@ -25,6 +25,7 @@ class LanguageProvider with ChangeNotifier {
      'helper_text': 'Drück den Knopf um die Transkiption zu starten',
      'chat_label': 'Chat',
      'profile_label': 'Profil',
+     'calender_label': 'Calender',
      'records_label': 'Aufzeichnungen',
      'name': 'Ihr Name',
      'name_hint': 'Bitte geben Sie Ihren Namen ein',
@@ -35,7 +36,21 @@ class LanguageProvider with ChangeNotifier {
      'update': 'Aktualisieren',
      'items_select': 'Auswählen',
      'items_patient': 'Patient',
-     'items_doctor': 'Doktor'
+     'items_doctor': 'Doktor',
+     'locale-id':'de-DE',
+     'accept': 'Annehmen',
+     'decline': 'Ablehnen',
+     'mdFileName': 'terms_and_conditions_german.md',
+     'bio_auth': 'Biometrische Authentifizierung',
+     'auth_text': 'Möchten Sie in dieser App die biometrische Authentifizierung verwenden?',
+     'doc_name':'Ärzt',
+     'search':'Nach ärztlicher Verordnung oder Arztnamen suchen',
+     'record_title':'Ärztliches Verordnung',
+     'save':'Speichern',
+     'edit_docname':'Geben Sie den Namen des Arztes ein',
+     'edit_recordtitle':'Geben Sie den Titel des Rezepts ein',
+     'author':'Autorin',
+     'dictionary_title':'Medizinisches Wörterbuch',
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -55,6 +70,7 @@ class LanguageProvider with ChangeNotifier {
      'helper_text': 'Push the button to start the transcription',
      'chat_label': 'Chat',
      'profile_label': 'Profile',
+     'calender_label': 'Calender',
      'records_label': 'Records',
      'name': 'Your name',
      'name_hint': 'Please enter your name',
@@ -65,8 +81,21 @@ class LanguageProvider with ChangeNotifier {
      'update': 'Update',
      'items_select': 'Select',
      'items_patient': 'Patient',
-     'items_doctor': 'Doctor'
-
+     'items_doctor': 'Doctor',
+     'locale-id':'en-EN',
+     'accept': 'Accept',
+     'decline': 'Declare',
+     'mdFileName': 'terms_and_conditions.md',
+     'bio_auth': 'Biometric Authentification',
+     'auth_text': 'Do you want to use biometric authentication?',
+     'search':'Search by  prescription tile or  name of doctor',
+     'doc_name':'Doctor name',
+     'record_title':'Medical Prescription',
+     'save':'save',
+     'edit_docname':'Enter the name of Doctor',
+     'edit_recordtitle':'Enter the Title for medical prescription',
+     'author':'Author',
+     'dictionary_title':'Medical Dictionary',
    };
 
    List<String> get languageList => _languageList;

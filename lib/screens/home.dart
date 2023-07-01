@@ -4,15 +4,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:medTalk/dialogs/terms_dialog.dart';
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:medTalk/providers/language_provider.dart';
+import 'package:medTalk/screens/calender_screen.dart';
 import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
+import 'dart:ui';
 
-import '../dialogs/policy_dialog.dart';
 import 'profile_screen.dart';
 import '../components.dart';
 import '../constants.dart';
@@ -59,10 +62,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool showLargeSizeLayout = false;
 
   int screenIndex = ScreenSelected.speechToText.value;
+  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   initState() {
     super.initState();
+    _printStoredPreference();
+    _checkBiometricAuth();
     controller = AnimationController(
       duration: Duration(milliseconds: transitionLength.toInt() * 2),
       value: 0,
@@ -79,24 +85,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Future<void> _landingDialogCheck() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? termsPreference = prefs.getBool('termsPreference');
-    bool? policyPreference = prefs.getBool('policyPreference');
 
     if (termsPreference == false || termsPreference == null) {
       _landingTermsPage();
-    } else if (policyPreference == false || policyPreference == null) {
-      _landingPolicyPage();
     }
   }
 
   void _landingTermsPage() async {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       showDialog(
-        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
-          return TermsDialog(
-            mdFileName: 'terms_and_conditions.md',
-          );
+          return TermsDialog();
         },
       );
 
@@ -115,9 +115,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     context: context,
                     configuration: FadeScaleTransitionConfiguration(),
                     builder: (context) {
-                      return TermsDialog(
-                        mdFileName: 'terms_and_conditions.md',
-                      );
+                      return TermsDialog();
                     },
                   );
                 },
@@ -128,44 +126,98 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
   }
 
-  void _landingPolicyPage() async {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return PolicyDialog(
-            mdFileName: 'privacy_policy.md',
-          );
-        },
-      );
+  Future<void> _printStoredPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? isBiometricAuth = prefs.getBool('biometricAuth');
 
-      RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          text: "By creating your profile, you are agreeing to our\n",
-          style: Theme.of(context).textTheme.bodyText1,
-          children: [
-            TextSpan(
-              text: "Privacy Policy",
-              style: TextStyle(fontWeight: FontWeight.bold),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  showModal(
-                    context: context,
-                    configuration: FadeScaleTransitionConfiguration(),
-                    builder: (context) {
-                      return PolicyDialog(
-                        mdFileName: 'privacy_policy.md',
-                      );
-                    },
-                  );
-                },
-            ),
-          ],
+    if (isBiometricAuth == null) {
+      print("No stored preference found");
+    } else if (isBiometricAuth) {
+      print("Stored preference: User accepted biometric authentication");
+    } else {
+      print("Stored preference: User rejected biometric authentication");
+    }
+  }
+
+  void _checkBiometricAuth() async {
+    bool canCheckBiometrics;
+
+    try {
+      canCheckBiometrics = await auth.canCheckBiometrics;
+    } catch (e) {
+      print("Error checking biometrics: $e");
+      canCheckBiometrics = false;
+    }
+    if (canCheckBiometrics) {
+      print("Device supports biometric authentication");
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool? isBiometricAuth = prefs.getBool('biometricAuth');
+        if (isBiometricAuth == true) {
+          bool authenticated = await _authenticate();
+          if (!authenticated) {
+            SystemNavigator.pop(animated: false);
+          }
+        } else {
+          _showBiometricDialog();
+        }
+      });
+    } else {
+      print("Device doesn't support biometric authentication");
+    }
+  }
+
+  Future<bool> _authenticate() async {
+    bool authenticated = false;
+    try {
+      authenticated = await auth.authenticate(
+        localizedReason: 'Scan your fingerprint to authenticate',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
         ),
       );
-    });
+    } catch (e) {
+      print("Error authenticating: $e");
+    }
+    return authenticated;
+  }
+
+  void _showBiometricDialog() {
+    Map<String, String> language = context.read<LanguageProvider>().languageMap;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(language['bio_auth']!),
+          content: Text(language['auth_text']!),
+          actions: <Widget>[
+            TextButton(
+              child: Text(language['decline']!),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                print("User rejected biometric authentication");
+                prefs.setBool('biometricAuth', false);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(language['accept']!),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                print("User accepted biometric authentication");
+                prefs.setBool('biometricAuth', true);
+                Navigator.of(context).pop();
+                bool authenticated = await _authenticate();
+                if (!authenticated) {
+                  SystemNavigator.pop(animated: false);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -221,6 +273,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         return const ProfileScreen();
       case ScreenSelected.records:
         return const RecordsScreen();
+      case ScreenSelected.calender:
+        return const CalenderScreen();
     }
   }
 
@@ -369,11 +423,12 @@ class _BrightnessButtonState extends State<_BrightnessButton> {
         children: [
           Flexible(
             child: IconButton(
-              icon: isBright
-                  ? const Icon(Icons.dark_mode_outlined)
-                  : const Icon(Icons.light_mode_outlined),
-              onPressed: () => widget.handleBrightnessChange(!isBright),
-            ),
+                icon: isBright
+                    ? const Icon(Icons.dark_mode_outlined)
+                    : const Icon(Icons.light_mode_outlined),
+                onPressed: () {
+                  widget.handleBrightnessChange(!isBright);
+                }),
           ),
           Visibility(
               visible: widget.showLabels,

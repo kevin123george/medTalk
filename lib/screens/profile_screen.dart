@@ -7,8 +7,10 @@ import '../dialogs/policy_dialog.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/language_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import '../util/db_helper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -21,8 +23,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme.apply(
-          displayColor: Theme.of(context).colorScheme.onSurface,
-        );
+      displayColor: Theme.of(context).colorScheme.onSurface,
+    );
     return Expanded(
       child: Scaffold(
         body: Center(
@@ -45,7 +47,6 @@ class _ProfileFormState extends State<ProfileForm> {
   late final _nameController;
   late final _emailController;
   late final _addressController;
-  late final _profileUrlController;
   late final _userTypeController;
   String dropdownvalue = 'Patient'; // Declaration of dropdownvalue variable
 
@@ -55,6 +56,8 @@ class _ProfileFormState extends State<ProfileForm> {
 
   XFile? imgFile;
   final ImagePicker imagePicker = ImagePicker();
+  String? profileImagePath;
+  String? savedImageFilename;
 
   @override
   void initState() {
@@ -62,20 +65,27 @@ class _ProfileFormState extends State<ProfileForm> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _addressController = TextEditingController();
-    _profileUrlController = TextEditingController();
+    _userTypeController = TextEditingController();
     _fetchUserData();
   }
 
   getImageFromGallery() async {
-    imgFile = await imagePicker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      imgFile;
-    });
+    if (pickedFile != null) {
+      setState(() {
+        profileImagePath = pickedFile.path;
+        savedImageFilename = path.basename(pickedFile.path);
+      });
+    }
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (profileImagePath != null && savedImageFilename != null) {
+        await _saveImageToLocalPath();
+      }
+
       final name = _nameController.text;
       final email = _emailController.text;
       final address = _addressController.text;
@@ -89,6 +99,7 @@ class _ProfileFormState extends State<ProfileForm> {
         email: email.isNotEmpty ? email : null,
         address: address.isNotEmpty ? address : null,
         userType: userType,
+        profileImagePath: profileImagePath ?? _user?.profileImagePath,
       );
 
       try {
@@ -109,26 +120,33 @@ class _ProfileFormState extends State<ProfileForm> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
+          SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
     }
   }
 
   Future<void> _fetchUserData() async {
-    _user = await DatabaseHelper.fetchUser();
+    try {
+      _user = await DatabaseHelper.fetchUser();
+      print('Fetched user: $_user');
+      if (_user != null) {
+        _nameController.text = _user!.name ?? '';
+        _emailController.text = _user!.email ?? '';
+        _addressController.text = _user!.address ?? '';
 
-    // Update the input field values if the user exists
-    if (_user != null) {
-      _nameController.text = _user!.name ?? '';
-      _emailController.text = _user!.email ?? '';
-      _addressController.text = _user!.address ?? '';
-      setState(() {
-        dropdownvalue = _user!.userType.toString().split('.').last;
-      });
-
-      // _profileUrlController.text = _user!.profileUrl ?? '';
+        setState(() {
+          dropdownvalue = getDropDownvalue(_user!
+              .userType
+              .toString()
+              .split('.')
+              .last);
+          profileImagePath = _user!.profileImagePath;
+        });
+      }
+    }catch (e) {
+      print('Error fetching user data: $e');
+      // Handle the error accordingly
     }
   }
 
@@ -144,6 +162,7 @@ class _ProfileFormState extends State<ProfileForm> {
     return null;
   }
 
+
   UserType _getUserTypeFromValue(String value) {
     switch (value) {
       case 'Patient':
@@ -156,12 +175,22 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
+  Future<void> _saveImageToLocalPath() async {
+    if (profileImagePath != null) {
+      final dir = await getApplicationDocumentsDirectory();
+      final targetPath = path.join(dir.path, savedImageFilename!);
+      final File file = File(profileImagePath!);
+      await file.copy(targetPath);
+      profileImagePath = targetPath;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _addressController.dispose();
-    _profileUrlController.dispose();
+    _userTypeController.dispose();
     super.dispose();
   }
 
@@ -170,6 +199,8 @@ class _ProfileFormState extends State<ProfileForm> {
       case 'Select':
       case 'Auswählen':
         return items[0];
+      case 'Patient':
+        return items[1];
       case 'Doctor':
       case 'Doktor':
         return items[2];
@@ -178,6 +209,7 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     Map<String, String> language =
@@ -185,10 +217,8 @@ class _ProfileFormState extends State<ProfileForm> {
     items = [
       language['items_select'].toString(),
       language['items_patient'].toString(),
-      language['items_doctor'].toString()
+      language['items_doctor'].toString(),
     ];
-    dropdownvalue = getDropDownvalue(dropdownvalue);
-
     return SingleChildScrollView(
       // Wrap the form with SingleChildScrollView
       child: SizedBox(
@@ -206,21 +236,25 @@ class _ProfileFormState extends State<ProfileForm> {
                     onTap: () {
                       getImageFromGallery();
                     },
-                    child: CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * 0.29,
-                      backgroundColor: Colors.white,
-                      backgroundImage: imgFile == null
-                          ? null
-                          : FileImage(
-                              File(imgFile!.path),
-                            ),
-                      child: imgFile == null
-                          ? Icon(
-                              Icons.add_a_photo_outlined,
-                              color: Colors.grey,
-                              size: 80,
-                            )
-                          : null,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: MediaQuery.of(context).size.width * 0.29,
+                          backgroundColor: Colors.white,
+                          backgroundImage: profileImagePath != null
+                              ? FileImage(File(profileImagePath!))
+                              : null,
+                        ),
+
+
+                      if (profileImagePath == null)
+                          Icon(
+                          Icons.add_a_photo_outlined,
+                          color: Colors.grey,
+                          size: MediaQuery.of(context).size.width * 0.20,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -280,6 +314,7 @@ class _ProfileFormState extends State<ProfileForm> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
+                    print("onChanged: $newValue");
                     setState(() {
                       dropdownvalue = newValue!;
                     });

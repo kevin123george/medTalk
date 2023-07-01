@@ -3,6 +3,8 @@ import 'package:medTalk/models/user.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../models/schedulers.dart';
+
 class DatabaseHelper {
   static const int _version = 1;
   static const String _dbName = "Medtalk.db";
@@ -14,7 +16,7 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, _dbName);
 
-    return await openDatabase(
+    final database = await openDatabase(
       path,
       onCreate: (db, version) async {
         await db.execute('''
@@ -23,20 +25,57 @@ class DatabaseHelper {
             name TEXT NOT NULL,
             email TEXT,
             address TEXT,
-            userType TEXT NOT NULL
+            userType TEXT NOT NULL,
+            profileImagePath TEXT
           )
         ''');
 
         await db.execute('''
           CREATE TABLE IF NOT EXISTS Records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
             text TEXT NOT NULL,
-            timestamp INTEGER NOT NULL
+            timestamp INTEGER NOT NULL,
+            title TEXT
+            
+
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE schedulers(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            startDateTime TEXT,
+            endDateTime TEXT,
+            reminderTime TEXT,
+            body TEXT,
+            reminderType TEXT,
+            repeatType TEXT,
+            repeatEndDate TEXT,
+            isRecurrent BOOLEAN
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < newVersion) {
+          await db.execute('''
+          ALTER TABLE Users ADD COLUMN profileImagePath TEXT
+        ''');
+        }
+        await db.execute('PRAGMA user_version = $newVersion');
+      },
       version: _version,
     );
+    final columns = await database.rawQuery("PRAGMA table_info(Users)");
+    final hasProfileImagePathColumn = columns.any((column) => column['name'] == 'profileImagePath');
+
+    if (!hasProfileImagePathColumn) {
+      await database.execute('ALTER TABLE Users ADD COLUMN profileImagePath TEXT');
+    }
+
+    return database;
+
   }
   // User table operations
 
@@ -51,6 +90,8 @@ class DatabaseHelper {
 
   static Future<int> updateUser(User user) async {
     final db = await _getDb();
+    print('user submit db ist ' );
+    print(user.profileImagePath);
     return await db.update(
       'Users',
       user.toMap(),
@@ -89,6 +130,7 @@ class DatabaseHelper {
         email: userData['email'] as String?,
         address: userData['address'] as String?,
         userType: userType,
+        profileImagePath: userData['profileImagePath'] as String?,
       );
     } else {
       // User doesn't exist in the database, return a new empty user
@@ -98,9 +140,11 @@ class DatabaseHelper {
         email: null,
         address: null,
         userType: UserType.Patient,
+        profileImagePath: null,
       );
     }
   }
+
 
 
   // Records table operations
@@ -138,20 +182,42 @@ class DatabaseHelper {
       whereArgs: [record.id],
     );
   }
+  static Future<List<Records>> searchRecords(String searchQuery) async {
+    List<Records> recordsList = <Records>[];
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.rawQuery('''
+  SELECT * FROM Records
+  WHERE LOWER(name) LIKE '%${searchQuery.toLowerCase()}%' 
+     OR LOWER(title) LIKE '%${searchQuery.toLowerCase()}%'
+  ORDER BY timestamp DESC
+''');
+    for (Map<String, dynamic> item in records) {
+      Records record = new Records(
+        id: item['id'],
+        text: item['text'],
+        name: item['name'],
+        title: item['title'],
+        timestamp: item['timestamp'],
+      );
+      recordsList.add(record);
+    }
 
-
+    return recordsList;
+  }
   static Future<List<Records>> fetchAllRecords() async {
     List<Records> recordsList = <Records>[];
     final db = await _getDb();
     final List<Map<String, dynamic>> records = await db.query(
         'Records',
-        orderBy: 'id DESC',
+        orderBy: 'timestamp DESC',
     );
 
     for (Map<String, dynamic> item in records) {
       Records record = new Records(
         id: item['id'],
         text: item['text'],
+        name: item['name'],
+        title: item['title'],
         timestamp: item['timestamp'],
       );
       recordsList.add(record);
@@ -167,6 +233,7 @@ class DatabaseHelper {
       'Records',
       where: 'timestamp >= ? AND timestamp <= ?',
       whereArgs: [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+      orderBy: 'timestamp DESC',
     );
 
     for (Map<String, dynamic> item in records) {
@@ -174,6 +241,8 @@ class DatabaseHelper {
         id: item['id'],
         text: item['text'],
         timestamp: item['timestamp'],
+          title: item['title'],
+        name: item['name'],
       );
       recordsList.add(record);
     }
@@ -194,6 +263,8 @@ class DatabaseHelper {
         id: latestRecord['id'],
         text: latestRecord['text'],
         timestamp: latestRecord['timestamp'],
+        title:latestRecord['title'],
+        name:latestRecord['name'],
       );
     }
 
@@ -210,6 +281,100 @@ class DatabaseHelper {
     });
   }
 
+
+
+  static Future<Records?> fetchRecordById(int id) async {
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+      'Records',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (records.isNotEmpty) {
+      Map<String, dynamic> item = records.first;
+      Records record = Records(
+        id: item['id'],
+        text: item['text'],
+        title: item['title'],
+        name: item['name'],
+        timestamp: item['timestamp'],
+      );
+      return record;
+    }
+
+    return null; // Return null if record with the given ID is not found
+  }
+
+  // Schedulers table operations
+
+  Future<int> insertScheduler(Schedulers scheduler) async {
+    final Database db = await _getDb();;
+    return await db.insert('schedulers', scheduler.toMap());
+  }
+
+  Future<List<Schedulers>> getAllSchedulers() async {
+    final Database db = await _getDb();;
+    final List<Map<String, dynamic>> maps = await db.query('schedulers');
+    return List.generate(maps.length, (index) {
+      return Schedulers(
+        id: maps[index]['id'],
+        title: maps[index]['title'],
+        startDateTime: DateTime.parse(maps[index]['startDateTime']),
+        endDateTime: DateTime.parse(maps[index]['endDateTime']),
+        reminderTime: DateTime.parse(maps[index]['reminderTime']),
+        body: maps[index]['body'],
+        reminderType: getScheduleTypeFromString(maps[index]['reminderType']),
+        repeatType: getRepeatTypeFromString(maps[index]['repeatType']),
+        repeatEndDate: DateTime.parse(maps[index]['repeatEndDate']),
+        isRecurrent: maps[index]['isRecurrent'] == 1 ? true : false,
+      );
+    });
+  }
+
+  Future<int> updateScheduler(Schedulers scheduler) async {
+    final Database db = await _getDb();;
+    return await db.update(
+      'schedulers',
+      scheduler.toMap(),
+      where: 'id = ?',
+      whereArgs: [scheduler.id],
+    );
+  }
+
+  Future<int> deleteScheduler(int id) async {
+    final Database db = await _getDb();;
+    return await db.delete(
+      'schedulers',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+
+  ScheduleType getScheduleTypeFromString(String type) {
+    switch (type) {
+      case 'Appointment':
+        return ScheduleType.Appointment;
+      case 'GeneralReminder':
+        return ScheduleType.GeneralReminder;
+      default:
+        return ScheduleType.GeneralReminder;
+    }
+  }
+
+  RepeatType getRepeatTypeFromString(String type) {
+    switch (type) {
+      case 'Daily':
+        return RepeatType.Daily;
+      case 'Weekly':
+        return RepeatType.Weekly;
+      case 'Monthly':
+        return RepeatType.Monthly;
+      default:
+        return RepeatType.Daily;
+    }
+  }
 
 }
 

@@ -60,7 +60,8 @@ enum ColorImageProvider {
 enum ScreenSelected {
   speechToText(0),
   profile(1),
-  records(2);
+  records(2),
+  calender(2);
 
   const ScreenSelected(this.value);
 
