@@ -12,6 +12,7 @@ import 'package:medTalk/screens/record_screen.dart';
 import 'package:medTalk/screens/speech_to_text_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'dart:ui';
@@ -82,6 +83,92 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
 
     _landingDialogCheck();
+  }
+
+
+
+  Future<void> setupLocalNotifications() async {
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+    // Android Settings
+    final AndroidInitializationSettings androidSetting =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    /// A notification action which triggers a url launch event
+    const String urlLaunchActionId = 'id_1';
+
+    /// A notification action which triggers a App navigation event
+    const String navigationActionId = 'id_3';
+
+    /// Defines a iOS/MacOS notification category for text input actions.
+    const String darwinNotificationCategoryText = 'textCategory';
+
+    /// Defines a iOS/MacOS notification category for plain actions.
+    const String darwinNotificationCategoryPlain = 'plainCategory';
+
+    final List<DarwinNotificationCategory> darwinNotificationCategories =
+    <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        darwinNotificationCategoryText,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            'text_1',
+            'Action 1',
+            buttonTitle: 'Send',
+            placeholder: 'Placeholder',
+          ),
+        ],
+      ),
+      DarwinNotificationCategory(
+        darwinNotificationCategoryPlain,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2 (destructive)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            navigationActionId,
+            'Action 3 (foreground)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_4',
+            'Action 4 (auth required)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.authenticationRequired,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ];
+
+    // iOS and macOS Settings
+    final DarwinInitializationSettings darwinSettings =
+    DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false
+    );
+
+    var initSettings =
+    InitializationSettings(android: androidSetting, iOS: darwinSettings);
+
+    await flutterLocalNotificationsPlugin.initialize(initSettings).then((_) {
+      debugPrint('setupPlugin: setup success');
+    }).catchError((Object error) {
+      debugPrint('Error: $error');
+    });
   }
 
   Future<void> _landingDialogCheck() async {

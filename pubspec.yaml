@@ -21,6 +21,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^21.2.10
   logger:
   image_picker: ^0.8.8
+  flutter_local_notifications: ^14.1.1
 
 
 
