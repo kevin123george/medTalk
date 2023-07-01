@@ -33,8 +33,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
         .colorScheme
         .onSurface);
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+    return Expanded(
       child: SingleChildScrollView(
         child: Column(
           children: [
