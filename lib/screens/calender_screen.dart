@@ -41,13 +41,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
       return Random().nextInt(10000);
     }
 
-    void scheduleDummyReminder() {
+    // Example of using scheduleTextNotifications
+    void scheduleReminderDummy() {
       DateTime currentTime = DateTime.now();
       DateTime reminderTime = currentTime.add(Duration(seconds: 5));
       int notificationId = generateRandomId();
       String title = 'Reminder Title';
       String body = 'Reminder Body';
-
       Notifications.scheduleTextNotifications(
           reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
     }
@@ -65,14 +65,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.topLeft,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: scheduleDummyReminder,
-                  child: Text('Schedule Reminder'),
-                ),
-              ],
-            ),
           ),
         ),
       ),
