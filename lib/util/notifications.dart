@@ -15,17 +15,19 @@ class Notifications {
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
     final List<DarwinNotificationCategory> darwinNotificationCategories =
-        getDarwinNotificationCategory();
+    getDarwinNotificationCategory();
 
     // iOS Settings
     final DarwinInitializationSettings darwinSettings =
     DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-        onDidReceiveLocalNotification:
-            (int id, String? title, String? body, String? payload) async {},
-        notificationCategories: darwinNotificationCategories,
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification:
+          (int id, String? title, String? body, String? payload) async {
+        print("iOS notification received");
+      },
+      notificationCategories: darwinNotificationCategories,
     );
 
     var initSettings =
@@ -38,7 +40,6 @@ class Notifications {
     });
   }
 
-  
   static Future scheduleTextNotifications(
       DateTime reminderTime,
       int notificationId,
@@ -57,7 +58,7 @@ class Notifications {
     );
 
     DarwinNotificationDetails darwinNotificationDetails =
-        new DarwinNotificationDetails();
+    new DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
 
     var platformChannelSpecifics  = NotificationDetails(
         android: androidNotificationDetails,
@@ -83,13 +84,11 @@ class Notifications {
   }
 
   static List<DarwinNotificationCategory> getDarwinNotificationCategory() {
-    /// A notification action which triggers a url launch event
-    const String urlLaunchActionId = 'id_1';
     /// A notification action which triggers a App navigation event
     const String navigationActionId = 'id_3';
-    /// Defines a iOS/MacOS notification category for text input actions.
+    /// Defines a iOS notification category for text input actions.
     const String darwinNotificationCategoryText = 'textCategory';
-    /// Defines a iOS/MacOS notification category for plain actions.
+    /// Defines a iOS notification category for plain actions.
     const String darwinNotificationCategoryPlain = 'plainCategory';
 
     return <DarwinNotificationCategory>[
@@ -136,31 +135,4 @@ class Notifications {
       )
     ];
   }
-
-  // void onDidReceiveLocalNotification(
-  //     int id, String title, String body, String payload) async {
-  //   // display a dialog with the notification details, tap ok to go to another page
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) => CupertinoAlertDialog(
-  //       title: Text(title),
-  //       content: Text(body),
-  //       actions: [
-  //         CupertinoDialogAction(
-  //           isDefaultAction: true,
-  //           child: Text('Ok'),
-  //           onPressed: () async {
-  //             Navigator.of(context, rootNavigator: true).pop();
-  //             await Navigator.push(
-  //               context,
-  //               MaterialPageRoute(
-  //                 builder: (context) => SecondScreen(payload),
-  //               ),
-  //             );
-  //           },
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
 }
