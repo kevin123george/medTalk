@@ -91,6 +91,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void _landingTermsPage() async {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return TermsDialog(
@@ -130,6 +131,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void _landingPolicyPage() async {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return PolicyDialog(

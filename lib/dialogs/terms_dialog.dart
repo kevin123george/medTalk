@@ -86,6 +86,7 @@ class TermsDialog extends StatelessWidget {
                       if (policyPreference == false ||
                           policyPreference == null) {
                         showDialog(
+                          barrierDismissible: false,
                           context: context,
                           builder: (BuildContext context) {
                             return PolicyDialog(
