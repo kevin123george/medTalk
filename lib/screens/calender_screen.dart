@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:medTalk/util/db_helper.dart';
@@ -36,18 +36,15 @@ class _CalenderScreenState extends State<CalenderScreen> {
   @override
   Widget build(BuildContext context) {
 
-    int lastNotificationId = 0;
-
-    int generateNotificationId() {
-      lastNotificationId++;
-      return lastNotificationId;
+    int generateRandomId() {
+      // Generate a unique ID
+      return Random().nextInt(10000);
     }
 
     void scheduleDummyReminder() {
       DateTime currentTime = DateTime.now();
       DateTime reminderTime = currentTime.add(Duration(seconds: 5));
-      print("dummy reminder time: " + reminderTime.toIso8601String());
-      int notificationId = generateNotificationId(); // Generate a unique ID
+      int notificationId = generateRandomId();
       String title = 'Reminder Title';
       String body = 'Reminder Body';
 

@@ -17,12 +17,14 @@ class Notifications {
     final List<DarwinNotificationCategory> darwinNotificationCategories =
         getDarwinNotificationCategory();
 
-    // iOS and macOS Settings
+    // iOS Settings
     final DarwinInitializationSettings darwinSettings =
     DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,
         requestSoundPermission: false,
+        onDidReceiveLocalNotification:
+            (int id, String? title, String? body, String? payload) async {},
         notificationCategories: darwinNotificationCategories,
     );
 
@@ -54,7 +56,13 @@ class Notifications {
       enableVibration: true,
     );
 
-    var platformChannelSpecifics  = NotificationDetails(android: androidNotificationDetails);
+    DarwinNotificationDetails darwinNotificationDetails =
+        new DarwinNotificationDetails();
+
+    var platformChannelSpecifics  = NotificationDetails(
+        android: androidNotificationDetails,
+        iOS: darwinNotificationDetails
+    );
 
     timezone.TZDateTime zonedTime = timezone.TZDateTime.from(
       reminderTime,
