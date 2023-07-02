@@ -11,11 +11,11 @@ Medtalk employs advanced speech-to-text technology to convert spoken words into 
 Medtalk requires access to your device's microphone to capture spoken words and convert them into text. The app will request permission to access the microphone upon installation. This permission is essential for the proper functioning of the speech-to-text feature.
 Medtalk may require an internet connection in certain scenarios, such as when the used transcription language is not matching the device language.
 
-**Local Data Storage** 
+**Local Data Storage**
 
-Medtalk ensures that all user data, including transcriptions, is stored exclusively on the user's local device. We do not collect, transmit, or store any data on external servers or cloud-based platforms. 
+Medtalk ensures that all user data, including transcriptions, is stored exclusively on the user's local device. We do not collect, transmit, or store any data on external servers or cloud-based platforms.
 
-**User Responsibility** 
+**User Responsibility**
 
 Users bear sole responsibility for the content of their transcriptions and any actions taken based on the accuracy or reliability of the transcriptions. The BlueByte team and the Medtalk app shall not be held liable for any consequences arising from the use of the app, including errors, inaccuracies, or any loss or damage incurred.
 By using the Medtalk app, you acknowledge and agree to the terms outlined above. If you do not agree with any part of this disclaimer, we kindly request that you refrain from using the app.
