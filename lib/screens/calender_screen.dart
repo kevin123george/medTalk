@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:medTalk/util/db_helper.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:medTalk/providers/font_provider.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 
 import '../models/records.dart';
+import '../models/schedulers.dart';
 import '../providers/language_provider.dart';
 
 class CalenderScreen extends StatefulWidget {
@@ -18,24 +20,22 @@ class CalenderScreen extends StatefulWidget {
 }
 
 class _CalenderScreenState extends State<CalenderScreen> {
+  List<Schedulers> schedulers = [];
   List<String> items = [];
   Map<String, String> language = {};
+
   @override
   void initState() {
+    fetchEvents();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme
-        .apply(displayColor: Theme
-        .of(context)
-        .colorScheme
-        .onSurface);
-    Map<String, String> language =
-        context.watch<LanguageProvider>().languageMap;
+    final textTheme = Theme.of(context).textTheme.apply(
+      displayColor: Theme.of(context).colorScheme.onSurface,
+    );
+    language = context.watch<LanguageProvider>().languageMap;
     items = [
       language['repeat_none'].toString(),
       language['repeat_daily'].toString(),
@@ -43,43 +43,38 @@ class _CalenderScreenState extends State<CalenderScreen> {
       language['repeat_monthly'].toString(),
     ];
     return Expanded(
-
       child: SingleChildScrollView(
         child: Column(
           children: [
             // Button
             Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              width: MediaQuery.of(context).size.width,
               child: SizedBox(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                child: ElevatedButton.icon(
+                width: MediaQuery.of(context).size.width,
+                child: FloatingActionButton.large(
                   onPressed: () {
-                    //TODO: Add event
                     _showDialog(language, items);
                   },
-                  icon: Icon(Icons.add),
-                  label: Text(language['add_event'] ?? 'Add Event'),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(width: 8),
+                        Text(language['add_event'] ?? 'Add Event'),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
             // List
-            ...List.generate(10, (index) {
+            ...schedulers.map((Schedulers scheduler) {
               return Container(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                width: MediaQuery.of(context).size.width,
                 child: SizedBox(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
+                  width: MediaQuery.of(context).size.width,
                   child: InkWell(
                     onTap: () {
                       // Show dialog
@@ -87,8 +82,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text('Event $index'),
-                            content: Text('This is the text of event $index'),
+                            title: Text(
+                              scheduler.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            content: Text(scheduler.body ?? ''),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -107,12 +107,14 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text('Event Name $index',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              scheduler.title,
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
                             SizedBox(height: 10),
-                            Text('Short description of Event $index'),
+                            Text(scheduler.body ?? ''),
                             SizedBox(height: 10),
-                            Text('Time of event $index'),
+                            Text(getFormattedTimestamp(scheduler.startDateTime!.toInt())),
                           ],
                         ),
                       ),
@@ -120,12 +122,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
                   ),
                 ),
               );
-            }),
+            }).toList(),
           ],
         ),
       ),
     );
   }
+
   void _showDialog(Map<String, String> language, List<String> items) {
     String? _selectedRepeat = language['repeat_none'];
     DateTime _selectedDate = DateTime.now();
@@ -136,7 +139,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
         initialTime: TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
       );
       if (picked != null) {
-        _selectedDate = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, picked.hour, picked.minute);
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          picked.hour,
+          picked.minute,
+        );
       }
     }
 
@@ -148,29 +157,40 @@ class _CalenderScreenState extends State<CalenderScreen> {
         lastDate: DateTime.now().add(Duration(days: 365)),
       );
       if (picked != null) {
-        _selectedDate = DateTime(picked.year, picked.month, picked.day, _selectedDate.hour, _selectedDate.minute);
-        await _pickTime();  // Chain the time picker here
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _selectedDate.hour,
+          _selectedDate.minute,
+        );
+        await _pickTime(); // Chain the time picker here
       }
     }
 
     showDialog(
       context: context,
       builder: (context) {
+        final eventTitleController = TextEditingController();
+        final eventDescriptionController = TextEditingController();
+
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(language['add_event'] ?? 'Add Eventing'),
+              title: Text(language['add_event'] ?? 'Add Event'),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
+                      controller: eventTitleController,
                       decoration: InputDecoration(
                         labelText: language['event_name'],
                       ),
                     ),
                     SizedBox(height: 10),
                     TextField(
+                      controller: eventDescriptionController,
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: language['event_description'],
@@ -189,7 +209,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             setState(() {});
                           },
                         ),
-
                       ],
                     ),
                     SizedBox(height: 10),
@@ -199,12 +218,14 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         SizedBox(width: 10),
                         DropdownButton<String>(
                           value: _selectedRepeat,
-                          items: items.map((String value)  {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                          items: items.map(
+                                (String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            },
+                          ).toList(),
                           onChanged: (newValue) {
                             setState(() {
                               _selectedRepeat = newValue;
@@ -225,7 +246,26 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         SizedBox(width: 10),
                         TextButton(
                           onPressed: () {
-                            //TODO: Add event to database
+                            final newScheduler = Schedulers(
+                              title: eventTitleController.text,
+                              startDateTime: _selectedDate.microsecondsSinceEpoch,
+                              endDateTime: null,
+                              body: eventDescriptionController.text,
+                              repeatType: getRepeatTypeFromString(_selectedRepeat ?? ''),
+                              reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,
+                              // repeatEndDate: DateTime.now(),
+                            );
+
+                            DatabaseHelper.insertScheduler(newScheduler).then((schedulerId) {
+                              if (schedulerId != null) {
+                                print('Scheduler inserted with ID: $schedulerId');
+                                // TODO: Refresh the list of events
+                                fetchEvents();
+                              } else {
+                                print('Failed to insert scheduler');
+                              }
+                            });
+
                             Navigator.pop(context);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
@@ -242,5 +282,41 @@ class _CalenderScreenState extends State<CalenderScreen> {
     );
   }
 
+  RepeatType getRepeatTypeFromString(String type) {
+    switch (type) {
+      case 'Repeat None':
+        return RepeatType.None;
+      case 'Repeat Daily':
+        return RepeatType.Daily;
+      case 'Repeat Weekly':
+        return RepeatType.Weekly;
+      case 'Repeat Monthly':
+        return RepeatType.Monthly;
+      default:
+        return RepeatType.None;
+    }
+  }
 
+  // Future<int?> insertScheduler(Schedulers scheduler) async {
+  //   final db = await DatabaseHelper.instance.database;
+  //   return await db.insert('schedulers', scheduler.toMap());
+  // }
+
+  Future<void> fetchEvents() async {
+    final listOfSchedules = await DatabaseHelper.getAllSchedulers();
+    print("-----------------");
+    print(listOfSchedules);
+    print("-----------------");
+    setState(() {
+      schedulers = listOfSchedules;
+    });
+  }
+
+  String getFormattedTimestamp(int timestampInMilliseconds) {
+    DateTime dateTime =
+    DateTime.fromMicrosecondsSinceEpoch(timestampInMilliseconds);
+    String formattedDateTime =
+    DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+    return formattedDateTime;
+  }
 }
