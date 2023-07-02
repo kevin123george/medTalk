@@ -32,19 +32,25 @@ class _CalenderScreenState extends State<CalenderScreen> {
     Notifications.initialize(flutterLocalNotificationsPlugin);
   }
 
+  // Example of using scheduleTextNotifications
+  void scheduleReminderDummy() {
+    DateTime currentTime = DateTime.now();
+    DateTime reminderTime = currentTime.add(Duration(seconds: 5));
+    int notificationId = generateRandomId();
+    String title = 'Reminder Title';
+    String body = 'Reminder Body';
+    Notifications.scheduleTextNotifications(
+        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
+  }
+
+  void scheduleNotifications(DateTime reminderTime, String title, String body) {
+    int notificationId = generateRandomId();
+    Notifications.scheduleTextNotifications(
+        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    // Example of using scheduleTextNotifications
-    void scheduleReminderDummy() {
-      DateTime currentTime = DateTime.now();
-      DateTime reminderTime = currentTime.add(Duration(seconds: 5));
-      int notificationId = generateRandomId();
-      String title = 'Reminder Title';
-      String body = 'Reminder Body';
-      Notifications.scheduleTextNotifications(
-          reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
-    }
 
     final textTheme = Theme
         .of(context)
@@ -148,6 +154,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
   void _showDialog(Map<String, String> language, List<String> items) {
     String? _selectedRepeat = language['repeat_none'];
     DateTime _selectedDate = DateTime.now();
+    String? _eventName = "";
+    String? _eventDescription = "";
 
     Future<void> _pickTime() async {
       final TimeOfDay? picked = await showTimePicker(
@@ -187,6 +195,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                       decoration: InputDecoration(
                         labelText: language['event_name'],
                       ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _eventName = newValue;
+                        });
+                      },
                     ),
                     SizedBox(height: 10),
                     TextField(
@@ -194,6 +207,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                       decoration: InputDecoration(
                         labelText: language['event_description'],
                       ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _eventDescription = newValue;
+                        });
+                      },
                     ),
                     SizedBox(height: 10),
                     Row(
@@ -246,6 +264,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                           onPressed: () {
                             //TODO: Add event to database
                             Navigator.pop(context);
+                            scheduleNotifications(_selectedDate, _eventName!, _eventDescription!);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
                         ),
