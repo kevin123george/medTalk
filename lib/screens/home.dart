@@ -96,8 +96,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return TermsDialog(
-          );
+          return TermsDialog();
         },
       );
 
@@ -116,8 +115,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     context: context,
                     configuration: FadeScaleTransitionConfiguration(),
                     builder: (context) {
-                      return TermsDialog(
-                      );
+                      return TermsDialog();
                     },
                   );
                 },
@@ -127,7 +125,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       );
     });
   }
-
 
   Future<void> _printStoredPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -141,6 +138,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       print("Stored preference: User rejected biometric authentication");
     }
   }
+
   void _checkBiometricAuth() async {
     bool canCheckBiometrics;
 
@@ -150,7 +148,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       print("Error checking biometrics: $e");
       canCheckBiometrics = false;
     }
-    if(canCheckBiometrics){
+    if (canCheckBiometrics) {
       print("Device supports biometric authentication");
       WidgetsBinding.instance?.addPostFrameCallback((_) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -168,6 +166,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       print("Device doesn't support biometric authentication");
     }
   }
+
   Future<bool> _authenticate() async {
     bool authenticated = false;
     try {
@@ -184,10 +183,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return authenticated;
   }
 
-
-  void _showBiometricDialog(){
-    Map<String, String> language =
-        context.read<LanguageProvider>().languageMap;
+  void _showBiometricDialog() {
+    Map<String, String> language = context.read<LanguageProvider>().languageMap;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -222,6 +219,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       },
     );
   }
+
   @override
   void dispose() {
     controller.dispose();
@@ -425,13 +423,12 @@ class _BrightnessButtonState extends State<_BrightnessButton> {
         children: [
           Flexible(
             child: IconButton(
-              icon: isBright
-                  ? const Icon(Icons.dark_mode_outlined)
-                  : const Icon(Icons.light_mode_outlined),
-              onPressed: () {
-                widget.handleBrightnessChange(!isBright);
-            }
-            ),
+                icon: isBright
+                    ? const Icon(Icons.dark_mode_outlined)
+                    : const Icon(Icons.light_mode_outlined),
+                onPressed: () {
+                  widget.handleBrightnessChange(!isBright);
+                }),
           ),
           Visibility(
               visible: widget.showLabels,
