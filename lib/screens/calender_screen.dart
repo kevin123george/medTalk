@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,10 +7,16 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/records.dart';
 import '../models/schedulers.dart';
 import '../providers/language_provider.dart';
+import '../util/common.dart';
+import '../util/notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 
 class CalenderScreen extends StatefulWidget {
   const CalenderScreen({Key? key}) : super(key: key);
@@ -28,6 +34,24 @@ class _CalenderScreenState extends State<CalenderScreen> {
   void initState() {
     fetchEvents();
     super.initState();
+    Notifications.initialize(flutterLocalNotificationsPlugin);
+  }
+
+  // Example of using scheduleTextNotifications
+  void scheduleReminderDummy() {
+    DateTime currentTime = DateTime.now();
+    DateTime reminderTime = currentTime.add(Duration(seconds: 5));
+    int notificationId = generateRandomId();
+    String title = 'Reminder Title';
+    String body = 'Reminder Body';
+    Notifications.scheduleTextNotifications(
+        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
+  }
+
+  void scheduleNotifications(DateTime reminderTime, String title, String body) {
+    int notificationId = generateRandomId();
+    Notifications.scheduleTextNotifications(
+        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
   }
 
   @override
@@ -132,6 +156,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
   void _showDialog(Map<String, String> language, List<String> items) {
     String? _selectedRepeat = language['repeat_none'];
     DateTime _selectedDate = DateTime.now();
+    String? _eventName = "";
+    String? _eventDescription = "";
 
     Future<void> _pickTime() async {
       final TimeOfDay? picked = await showTimePicker(
@@ -187,6 +213,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                       decoration: InputDecoration(
                         labelText: language['event_name'],
                       ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _eventName = newValue;
+                        });
+                      },
                     ),
                     SizedBox(height: 10),
                     TextField(
@@ -195,6 +226,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                       decoration: InputDecoration(
                         labelText: language['event_description'],
                       ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _eventDescription = newValue;
+                        });
+                      },
                     ),
                     SizedBox(height: 10),
                     Row(
@@ -267,6 +303,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             });
 
                             Navigator.pop(context);
+                            scheduleNotifications(_selectedDate, _eventName!, _eventDescription!);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
                         ),

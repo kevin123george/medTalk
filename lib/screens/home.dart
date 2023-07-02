@@ -14,7 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
-import 'dart:ui';
 
 import 'profile_screen.dart';
 import '../components.dart';
@@ -81,6 +80,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     _landingDialogCheck();
   }
+
 
   Future<void> _landingDialogCheck() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
