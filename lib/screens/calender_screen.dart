@@ -10,6 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/records.dart';
 import '../providers/language_provider.dart';
+import '../util/common.dart';
 import '../util/notifications.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -35,11 +36,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    int generateRandomId() {
-      // Generate a unique ID
-      return Random().nextInt(10000);
-    }
 
     // Example of using scheduleTextNotifications
     void scheduleReminderDummy() {
