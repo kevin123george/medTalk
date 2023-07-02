@@ -6,19 +6,19 @@ enum ScheduleType {
 enum RepeatType {
   Daily,
   Weekly,
-  Monthly,
+  Monthly, None,
 }
 
 class Schedulers {
   int? id;
   String title;
-  DateTime? startDateTime;
-  DateTime? endDateTime;
-  DateTime? reminderTime; // when to remind the user example 10 min before starttime
+  int? startDateTime;
+  int? endDateTime;
+  int? reminderTime; // when to remind the user example 10 min before starttime
   String? body;
   ScheduleType? reminderType;
   RepeatType? repeatType;
-  DateTime? repeatEndDate;
+  int? repeatEndDate;
   bool isRecurrent;
 
   Schedulers({
@@ -29,7 +29,9 @@ class Schedulers {
     this.body,
     this.reminderType = ScheduleType.GeneralReminder,
     this.repeatType = RepeatType.Daily,
-    this.isRecurrent = false, required DateTime reminderTime, required DateTime repeatEndDate,
+    this.isRecurrent = false,
+    this.reminderTime,
+    // required DateTime repeatEndDate,
   });
 
   @override
@@ -47,7 +49,7 @@ class Schedulers {
       'body': body,
       'reminderType': reminderType.toString().split('.').last,
       'repeatType': repeatType.toString().split('.').last,
-      'repeatEndDate': repeatEndDate,
+      // 'repeatEndDate': repeatEndDate,
       'isRecurrent': isRecurrent,
     };
   }
