@@ -51,6 +51,16 @@ class LanguageProvider with ChangeNotifier {
      'edit_recordtitle':'Geben Sie den Titel des Rezepts ein',
      'author':'Autorin',
      'dictionary_title':'Medizinisches Wörterbuch',
+     'add_event': 'Ereignis hinzufügen',
+     'event_name': 'Veranstaltungsname',
+     'event_description': 'Eventbeschreibung',
+     'repeat': 'Wiederholen',
+     'repeat_none': 'Keiner',
+     'repeat_daily': 'Täglich',
+     'repeat_weekly': 'Wöchentlich',
+     'repeat_monthly': 'Monatlich',
+     'cancel': 'Stornieren',
+     'submit': 'Einreichen',
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -96,6 +106,16 @@ class LanguageProvider with ChangeNotifier {
      'edit_recordtitle':'Enter the Title for medical prescription',
      'author':'Author',
      'dictionary_title':'Medical Dictionary',
+     'add_event': 'Add Event',
+     'event_name': 'Event Name',
+     'event_description': 'Event Description',
+     'repeat':'Repeat',
+     'repeat_none': 'None',
+     'repeat_daily': 'Daily',
+     'repeat_weekly': 'Weekly',
+     'repeat_monthly': 'Monthly',
+     'cancel': 'Cancel',
+     'submit': 'Submit',
    };
 
    List<String> get languageList => _languageList;
