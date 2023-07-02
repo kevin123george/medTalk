@@ -252,7 +252,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
                               endDateTime: null,
                               body: eventDescriptionController.text,
                               repeatType: getRepeatTypeFromString(_selectedRepeat ?? ''),
-                              // reminderTime: DateTime.now(), repeatEndDate: DateTime.now(),
+                              reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,
+                              // repeatEndDate: DateTime.now(),
                             );
 
                             DatabaseHelper.insertScheduler(newScheduler).then((schedulerId) {

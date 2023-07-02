@@ -30,7 +30,7 @@ class Schedulers {
     this.reminderType = ScheduleType.GeneralReminder,
     this.repeatType = RepeatType.Daily,
     this.isRecurrent = false,
-    // required DateTime reminderTime,
+    this.reminderTime,
     // required DateTime repeatEndDate,
   });
 

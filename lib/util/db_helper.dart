@@ -322,7 +322,7 @@ class DatabaseHelper {
         title: maps[index]['title'],
         startDateTime: maps[index]['startDateTime'],
         // endDateTime: DateTime.fromMicrosecondsSinceEpoch(maps[index]['endDateTime']),
-        // reminderTime: DateTime.parse(maps[index]['reminderTime']),
+        reminderTime: maps[index]['reminderTime'],
         body: maps[index]['body'],
         reminderType: getScheduleTypeFromString(maps[index]['reminderType']),
         repeatType: getRepeatTypeFromString(maps[index]['repeatType']),
