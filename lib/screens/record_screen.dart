@@ -31,7 +31,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
   var dictionaryTitle;
   var author;
   var saveLabel;
-
   List<Records> records = [];
   var jsonData;
   DateRangePickerController _dateRangePickerController =
@@ -352,13 +351,14 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             var data = confirmDeleteRecord(record);
                             int idValue = record.id!;
                             await Future.delayed(
-                                const Duration(seconds: 1), () {});
+                                const Duration(seconds:3), () {});
                             Records? value =
                                 await DatabaseHelper.fetchRecordById(idValue);
                             if (value == null) {
                               Navigator.pop(context);
                             }
                           },
+
                         ),
                       ])),
                   ListTile(
@@ -559,14 +559,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete),
-                                onPressed: () async {
-                                  final deletedRows =
-                                      await DatabaseHelper.deleteRecord(record);
-                                  if (deletedRows > 0) {
-                                    setState(() {
-                                      records.remove(record);
-                                    });
-                                  }
+                                onPressed: () {
+                                  confirmDeleteRecord(record);
                                 },
                               ),
                             ],
