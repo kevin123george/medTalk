@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.1.2
   local_auth: ^2.1.6
   flutter_datetime_picker: ^1.5.1
+  flutter_native_splash: ^2.3.1
 dev_dependencies:
 #  analysis_defaults:
 #    path: ../analysis_defaults
@@ -46,6 +47,18 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/logo_light.png
+  color_dark: "#000000"
+  image_dark: assets/images/logo_dark.png
+
+  android_12:
+    image: assets/images/logo_light.png
+    icon_background_color: "#ffffff"
+    image_dark: assets/images/logo_dark.png
+    icon_background_color_dark: "#000000"
 
 flutter:
   uses-material-design: true

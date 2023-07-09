@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -22,7 +23,8 @@ class SplashScreen extends StatelessWidget {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     String imagePath = '';
-    if(themeMode == ThemeMode.dark){
+    if(themeMode == ThemeMode.dark ||
+        SchedulerBinding.instance.platformDispatcher.platformBrightness == Brightness.dark){
       if (isLandscape) {
         if (aspectRatio <= 4 / 3) {
           imagePath = 'assets/images/4_3_landscape_dark.png';
