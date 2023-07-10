@@ -23,8 +23,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme.apply(
-      displayColor: Theme.of(context).colorScheme.onSurface,
-    );
+          displayColor: Theme.of(context).colorScheme.onSurface,
+        );
     return Expanded(
       child: Scaffold(
         body: Center(
@@ -120,7 +120,8 @@ class _ProfileFormState extends State<ProfileForm> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
+          SnackBar(
+              content: Text('Benutzerdaten konnten nicht aktualisiert werden')),
         );
       }
     }
@@ -136,15 +137,12 @@ class _ProfileFormState extends State<ProfileForm> {
         _addressController.text = _user!.address ?? '';
 
         setState(() {
-          dropdownvalue = getDropDownvalue(_user!
-              .userType
-              .toString()
-              .split('.')
-              .last);
+          dropdownvalue =
+              getDropDownvalue(_user!.userType.toString().split('.').last);
           profileImagePath = _user!.profileImagePath;
         });
       }
-    }catch (e) {
+    } catch (e) {
       print('Error fetching user data: $e');
       // Handle the error accordingly
     }
@@ -165,8 +163,6 @@ class _ProfileFormState extends State<ProfileForm> {
     }
     return null;
   }
-
-
 
   UserType _getUserTypeFromValue(String value) {
     switch (value) {
@@ -214,7 +210,6 @@ class _ProfileFormState extends State<ProfileForm> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     Map<String, String> language =
@@ -251,14 +246,13 @@ class _ProfileFormState extends State<ProfileForm> {
                               ? FileImage(File(profileImagePath!))
                               : null,
                         ),
-
-
-                      if (profileImagePath == null)
+                        if (profileImagePath == null)
                           Icon(
-                          Icons.add_a_photo_outlined,
-                          color: Colors.grey,
-                          size: MediaQuery.of(context).size.width * 0.20,
-                        ),
+                            Icons.add_a_photo_outlined,
+                            color: Colors.grey,
+                            // size: MediaQuery.of(context).size.width * 0.08,
+                            size: 90,
+                          ),
                       ],
                     ),
                   ),
