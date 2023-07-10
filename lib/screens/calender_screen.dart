@@ -236,7 +236,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                     Row(
                       children: [
                         Flexible(
-                          child: Text('Selected DateTime: ${_selectedDate.toIso8601String()}'),
+                          child: Text('Selected DateTime: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDate)}'),
                         ),
                         IconButton(
                           icon: Icon(Icons.calendar_today),
@@ -341,9 +341,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   Future<void> fetchEvents() async {
     final listOfSchedules = await DatabaseHelper.getAllSchedulers();
-    print("-----------------");
-    print(listOfSchedules);
-    print("-----------------");
     setState(() {
       schedulers = listOfSchedules;
     });

@@ -155,7 +155,7 @@ class DatabaseHelper {
       if (record.text == latestRecord.text || record.text.isEmpty || record.text.length ==0){
         return 0;
       }
-      if(latestRecord.text.split(" ").length +1 == record.text.split(" ").length){
+      if(latestRecord.text.split(" ").length +1 == record.text.split(" ").length || latestRecord.text.split(" ").length +2 == record.text.split(" ").length){
         print("there is a duplicate ");
         await deleteRecord(latestRecord);
         // Records records = Records(text: record.text, timestamp: record.timestamp, id: latestRecord.id);
@@ -315,7 +315,7 @@ class DatabaseHelper {
   static Future<List<Schedulers>> getAllSchedulers() async {
     final Database db = await _getDb();
     final List<Map<String, dynamic>> maps = await db.query('schedulers',
-      orderBy: 'startDateTime DESC',);
+      orderBy: 'id DESC',);
     return List.generate(maps.length, (index) {
       return Schedulers(
         id: maps[index]['id'],
