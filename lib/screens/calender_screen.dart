@@ -48,10 +48,49 @@ class _CalenderScreenState extends State<CalenderScreen> {
         reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
   }
 
-  void scheduleNotifications(DateTime reminderTime, String title, String body) {
+  void scheduleNotifications(DateTime startDate, DateTime endDate, RepeatType repeatType, String title, String body) {
     int notificationId = generateRandomId();
     Notifications.scheduleTextNotifications(
-        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
+        startDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+    switch (repeatType) {
+      case RepeatType.None:
+        return;
+      case RepeatType.Daily:
+        {
+          DateTime nextDate = startDate.add(Duration(days: 1));
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            nextDate = nextDate.add(Duration(days: 1));
+          }
+          return;
+        }
+      case RepeatType.Weekly:
+        {
+          DateTime nextDate = startDate.add(Duration(days: 7));
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            nextDate = nextDate.add(Duration(days: 7));
+          }
+          return;
+        }
+      case RepeatType.Monthly:
+        {
+          DateTime nextDate = DateTime(startDate.year, startDate.month + 1, startDate.day,
+              startDate.hour, startDate.minute, startDate.second, startDate.millisecond, startDate.microsecond);
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            nextDate = DateTime(nextDate.year, nextDate.month + 1, nextDate.day,
+                nextDate.hour, nextDate.minute, nextDate.second, nextDate.millisecond, nextDate.microsecond);
+          }
+          return;
+        }
+    }
   }
 
   @override
@@ -324,12 +363,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         SizedBox(width: 10),
                         TextButton(
                           onPressed: () {
+                            var repeatType = getRepeatTypeFromString(_selectedRepeat ?? '');
                             final newScheduler = Schedulers(
                               title: eventTitleController.text,
                               startDateTime: _selectedDate.microsecondsSinceEpoch,
                               endDateTime: _endDate?.microsecondsSinceEpoch,
                               body: eventDescriptionController.text,
-                              repeatType: getRepeatTypeFromString(_selectedRepeat ?? ''),
+                              repeatType: repeatType,
                               reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,
                               // repeatEndDate: DateTime.now(),
                             );
@@ -345,7 +385,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             });
 
                             Navigator.pop(context);
-                            scheduleNotifications(_selectedDate, _eventName!, _eventDescription!);
+                            scheduleNotifications(_selectedDate, _endDate, repeatType, _eventName!, _eventDescription!);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
                         ),
@@ -363,13 +403,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   RepeatType getRepeatTypeFromString(String type) {
     switch (type) {
-      case 'Repeat None':
+      case 'None':
         return RepeatType.None;
-      case 'Repeat Daily':
+      case 'Daily':
         return RepeatType.Daily;
-      case 'Repeat Weekly':
+      case 'Weekly':
         return RepeatType.Weekly;
-      case 'Repeat Monthly':
+      case 'Monthly':
         return RepeatType.Monthly;
       default:
         return RepeatType.None;
