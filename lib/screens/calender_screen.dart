@@ -48,13 +48,16 @@ class _CalenderScreenState extends State<CalenderScreen> {
         reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
   }
 
-  void scheduleNotifications(DateTime startDate, DateTime endDate, RepeatType repeatType, String title, String body) {
+  List<int> scheduleNotifications(
+      DateTime startDate, DateTime endDate, RepeatType repeatType, String title, String body) {
+    List<int> notificationIds = [];
     int notificationId = generateRandomId();
     Notifications.scheduleTextNotifications(
         startDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+    notificationIds.add(notificationId);
     switch (repeatType) {
       case RepeatType.None:
-        return;
+        return notificationIds;
       case RepeatType.Daily:
         {
           DateTime nextDate = startDate.add(Duration(days: 1));
@@ -62,9 +65,10 @@ class _CalenderScreenState extends State<CalenderScreen> {
             notificationId = generateRandomId();
             Notifications.scheduleTextNotifications(
                 nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
             nextDate = nextDate.add(Duration(days: 1));
           }
-          return;
+          return notificationIds;
         }
       case RepeatType.Weekly:
         {
@@ -73,9 +77,10 @@ class _CalenderScreenState extends State<CalenderScreen> {
             notificationId = generateRandomId();
             Notifications.scheduleTextNotifications(
                 nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
             nextDate = nextDate.add(Duration(days: 7));
           }
-          return;
+          return notificationIds;
         }
       case RepeatType.Monthly:
         {
@@ -85,11 +90,20 @@ class _CalenderScreenState extends State<CalenderScreen> {
             notificationId = generateRandomId();
             Notifications.scheduleTextNotifications(
                 nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
             nextDate = DateTime(nextDate.year, nextDate.month + 1, nextDate.day,
                 nextDate.hour, nextDate.minute, nextDate.second, nextDate.millisecond, nextDate.microsecond);
           }
-          return;
+          return notificationIds;
         }
+      default:
+        return notificationIds;
+    }
+  }
+
+  void cancelScheduledNotifications(List<int> notificationIds) {
+    for (int id in notificationIds) {
+      flutterLocalNotificationsPlugin.cancel(id);
     }
   }
 
@@ -364,6 +378,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         TextButton(
                           onPressed: () {
                             var repeatType = getRepeatTypeFromString(_selectedRepeat ?? '');
+                            List<int> notificationIds = scheduleNotifications(_selectedDate, _endDate, repeatType, _eventName!, _eventDescription!);
                             final newScheduler = Schedulers(
                               title: eventTitleController.text,
                               startDateTime: _selectedDate.microsecondsSinceEpoch,
@@ -371,6 +386,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                               body: eventDescriptionController.text,
                               repeatType: repeatType,
                               reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,
+                              notificationIds: notificationIds
                               // repeatEndDate: DateTime.now(),
                             );
 
@@ -385,7 +401,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             });
 
                             Navigator.pop(context);
-                            scheduleNotifications(_selectedDate, _endDate, repeatType, _eventName!, _eventDescription!);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
                         ),
