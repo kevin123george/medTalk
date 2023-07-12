@@ -20,6 +20,7 @@ class Schedulers {
   RepeatType? repeatType;
   int? repeatEndDate;
   bool isRecurrent;
+  List<int> notificationIds;
 
   Schedulers({
     this.id,
@@ -31,12 +32,13 @@ class Schedulers {
     this.repeatType = RepeatType.Daily,
     this.isRecurrent = false,
     this.reminderTime,
+    this.notificationIds = const [],
     // required DateTime repeatEndDate,
   });
 
   @override
   String toString() {
-    return 'Schedulers{id: $id, title: $title, startDateTime: $startDateTime, endDateTime: $endDateTime, reminderTime: $reminderTime, body: $body, reminderType: $reminderType, repeatType: $repeatType, repeatEndDate: $repeatEndDate, isRecurrent: $isRecurrent}';
+    return 'Schedulers{id: $id, title: $title, startDateTime: $startDateTime, endDateTime: $endDateTime, reminderTime: $reminderTime, body: $body, reminderType: $reminderType, repeatType: $repeatType, repeatEndDate: $repeatEndDate, isRecurrent: $isRecurrent, notificationIds: $notificationIds}';
   }
 
   Map<String, dynamic> toMap() {
@@ -51,6 +53,7 @@ class Schedulers {
       'repeatType': repeatType.toString().split('.').last,
       // 'repeatEndDate': repeatEndDate,
       'isRecurrent': isRecurrent,
+      'notificationIds': notificationIds,
     };
   }
 }
