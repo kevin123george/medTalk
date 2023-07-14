@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:medTalk/models/records.dart';
 import 'package:medTalk/models/user.dart';
 import 'package:sqflite/sqflite.dart';
@@ -53,6 +55,7 @@ class DatabaseHelper {
             reminderType TEXT,
             repeatType TEXT,
             isRecurrent BOOLEAN
+            notificationIds TEXT
           )
         ''');
       },
@@ -61,6 +64,9 @@ class DatabaseHelper {
           await db.execute('''
           ALTER TABLE Users ADD COLUMN profileImagePath TEXT
         ''');
+          await db.execute('''
+              ALTER TABLE schedulers ADD COLUMN notificationIds TEXT
+           ''');
         }
         await db.execute('PRAGMA user_version = $newVersion');
       },
@@ -71,6 +77,12 @@ class DatabaseHelper {
 
     if (!hasProfileImagePathColumn) {
       await database.execute('ALTER TABLE Users ADD COLUMN profileImagePath TEXT');
+    }
+
+    final schedulersColumns = await database.rawQuery("PRAGMA table_info(schedulers)");
+    final hasNotificationIdsColumn = schedulersColumns.any((column) => column['name'] == 'notificationIds');
+    if (!hasNotificationIdsColumn) {
+      await database.execute('ALTER TABLE schedulers ADD COLUMN notificationIds TEXT');
     }
 
     return database;
@@ -328,6 +340,7 @@ class DatabaseHelper {
         repeatType: getRepeatTypeFromString(maps[index]['repeatType']),
         // repeatEndDate: DateTime.parse(maps[index]['repeatEndDate']),
         isRecurrent: maps[index]['isRecurrent'] == 1 ? true : false,
+        notificationIds: List<int>.from(jsonDecode(maps[index]['notificationIds'])),
       );
     });
   }

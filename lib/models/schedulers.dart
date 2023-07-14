@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 enum ScheduleType {
   Appointment,
   GeneralReminder,
@@ -53,7 +55,7 @@ class Schedulers {
       'repeatType': repeatType.toString().split('.').last,
       // 'repeatEndDate': repeatEndDate,
       'isRecurrent': isRecurrent,
-      'notificationIds': notificationIds,
+      'notificationIds': jsonEncode(notificationIds),
     };
   }
 }
