@@ -130,7 +130,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                             resultText = result.recognizedWords;
                           });
                         },
-                        localeId: 'de-DE',
+                        localeId: locationId,
                       );
                       // Records? latestRecord = await DatabaseHelper.fetchLatestRecord();
                       // if (text != helperText && !speechToText.isListening && latestRecord != null && latestRecord.text != text)

@@ -48,10 +48,63 @@ class _CalenderScreenState extends State<CalenderScreen> {
         reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
   }
 
-  void scheduleNotifications(DateTime reminderTime, String title, String body) {
+  List<int> scheduleNotifications(
+      DateTime startDate, DateTime endDate, RepeatType repeatType, String title, String body) {
+    List<int> notificationIds = [];
     int notificationId = generateRandomId();
     Notifications.scheduleTextNotifications(
-        reminderTime, notificationId, title, body, flutterLocalNotificationsPlugin);
+        startDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+    notificationIds.add(notificationId);
+    switch (repeatType) {
+      case RepeatType.None:
+        return notificationIds;
+      case RepeatType.Daily:
+        {
+          DateTime nextDate = startDate.add(Duration(days: 1));
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
+            nextDate = nextDate.add(Duration(days: 1));
+          }
+          return notificationIds;
+        }
+      case RepeatType.Weekly:
+        {
+          DateTime nextDate = startDate.add(Duration(days: 7));
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
+            nextDate = nextDate.add(Duration(days: 7));
+          }
+          return notificationIds;
+        }
+      case RepeatType.Monthly:
+        {
+          DateTime nextDate = DateTime(startDate.year, startDate.month + 1, startDate.day,
+              startDate.hour, startDate.minute, startDate.second, startDate.millisecond, startDate.microsecond);
+          while (nextDate.isBefore(endDate) || nextDate.isAtSameMomentAs(endDate)) {
+            notificationId = generateRandomId();
+            Notifications.scheduleTextNotifications(
+                nextDate, notificationId, title, body, flutterLocalNotificationsPlugin);
+            notificationIds.add(notificationId);
+            nextDate = DateTime(nextDate.year, nextDate.month + 1, nextDate.day,
+                nextDate.hour, nextDate.minute, nextDate.second, nextDate.millisecond, nextDate.microsecond);
+          }
+          return notificationIds;
+        }
+      default:
+        return notificationIds;
+    }
+  }
+
+  void cancelScheduledNotifications(List<int> notificationIds) {
+    for (int id in notificationIds) {
+      flutterLocalNotificationsPlugin.cancel(id);
+    }
   }
 
   @override
@@ -156,27 +209,52 @@ class _CalenderScreenState extends State<CalenderScreen> {
   void _showDialog(Map<String, String> language, List<String> items) {
     String? _selectedRepeat = language['repeat_none'];
     DateTime _selectedDate = DateTime.now();
+    DateTime _endDate = DateTime.now().add(Duration(days: 1));
     String? _eventName = "";
     String? _eventDescription = "";
 
-    Future<void> _pickTime() async {
+    Future<DateTime> _pickTime(String helpText, DateTime initialTime) async {
       final TimeOfDay? picked = await showTimePicker(
+        helpText: helpText,
         context: context,
-        initialTime: TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
+        initialTime: TimeOfDay(hour: initialTime.hour, minute: initialTime.minute),
       );
       if (picked != null) {
-        _selectedDate = DateTime(
-          _selectedDate.year,
-          _selectedDate.month,
-          _selectedDate.day,
+        return DateTime(
+          initialTime.year,
+          initialTime.month,
+          initialTime.day,
           picked.hour,
           picked.minute,
         );
+      } else {
+        return initialTime;
+      }
+    }
+
+    Future<void> _pickEndDate() async {
+      final DateTime? picked = await showDatePicker(
+        helpText: "Select End Date",
+        context: context,
+        initialDate: _endDate,
+        firstDate: _endDate,
+        lastDate: DateTime.now().add(Duration(days: 365)),
+      );
+      if (picked != null) {
+        _endDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _endDate.hour,
+          _endDate.minute,
+        );
+        _endDate = await _pickTime("Select end time", _endDate);
       }
     }
 
     Future<void> _pickDate() async {
       final DateTime? picked = await showDatePicker(
+        helpText: "Select Start Date",
         context: context,
         initialDate: _selectedDate,
         firstDate: DateTime.now().subtract(Duration(days: 365)),
@@ -190,7 +268,9 @@ class _CalenderScreenState extends State<CalenderScreen> {
           _selectedDate.hour,
           _selectedDate.minute,
         );
-        await _pickTime(); // Chain the time picker here
+        _selectedDate = await _pickTime("Select start time", _selectedDate); // Chain the time picker here
+        _endDate = _selectedDate.add(Duration(days: 1));
+        await _pickEndDate();
       }
     }
 
@@ -236,12 +316,27 @@ class _CalenderScreenState extends State<CalenderScreen> {
                     Row(
                       children: [
                         Flexible(
-                          child: Text('Selected DateTime: ${_selectedDate.toIso8601String()}'),
+                          child: Text('Start Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDate)}'),
                         ),
                         IconButton(
                           icon: Icon(Icons.calendar_today),
                           onPressed: () async {
                             await _pickDate();
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text('End Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(_endDate)}'),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            await _pickEndDate();
                             setState(() {});
                           },
                         ),
@@ -282,13 +377,16 @@ class _CalenderScreenState extends State<CalenderScreen> {
                         SizedBox(width: 10),
                         TextButton(
                           onPressed: () {
+                            var repeatType = getRepeatTypeFromString(_selectedRepeat ?? '');
+                            List<int> notificationIds = scheduleNotifications(_selectedDate, _endDate, repeatType, _eventName!, _eventDescription!);
                             final newScheduler = Schedulers(
                               title: eventTitleController.text,
                               startDateTime: _selectedDate.microsecondsSinceEpoch,
-                              endDateTime: null,
+                              endDateTime: _endDate?.microsecondsSinceEpoch,
                               body: eventDescriptionController.text,
-                              repeatType: getRepeatTypeFromString(_selectedRepeat ?? ''),
+                              repeatType: repeatType,
                               reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,
+                              notificationIds: notificationIds
                               // repeatEndDate: DateTime.now(),
                             );
 
@@ -303,7 +401,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             });
 
                             Navigator.pop(context);
-                            scheduleNotifications(_selectedDate, _eventName!, _eventDescription!);
                           },
                           child: Text(language['submit'] ?? 'Submit'),
                         ),
@@ -321,13 +418,13 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   RepeatType getRepeatTypeFromString(String type) {
     switch (type) {
-      case 'Repeat None':
+      case 'None':
         return RepeatType.None;
-      case 'Repeat Daily':
+      case 'Daily':
         return RepeatType.Daily;
-      case 'Repeat Weekly':
+      case 'Weekly':
         return RepeatType.Weekly;
-      case 'Repeat Monthly':
+      case 'Monthly':
         return RepeatType.Monthly;
       default:
         return RepeatType.None;
@@ -341,9 +438,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   Future<void> fetchEvents() async {
     final listOfSchedules = await DatabaseHelper.getAllSchedulers();
-    print("-----------------");
-    print(listOfSchedules);
-    print("-----------------");
     setState(() {
       schedulers = listOfSchedules;
     });

@@ -7,6 +7,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'package:medTalk/providers/language_provider.dart';
+import 'package:medTalk/screens/splash_screen.dart';
 import 'package:medTalk/util/db_helper.dart';
 import 'package:provider/provider.dart';
 
@@ -153,17 +154,21 @@ class _AppState extends State<App> {
         useMaterial3: useMaterial3,
         brightness: Brightness.dark,
       ),
-      home: Home(
-        useLightMode: useLightMode,
-        useMaterial3: useMaterial3,
-        colorSelected: colorSelected,
-        imageSelected: imageSelected,
-        handleBrightnessChange: handleBrightnessChange,
-        handleMaterialVersionChange: handleMaterialVersionChange,
-        handleColorSelect: handleColorSelect,
-        handleImageSelect: handleImageSelect,
-        colorSelectionMethod: colorSelectionMethod,
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashScreen(themeMode: themeMode),
+        '/home': (context) => Home(
+          useLightMode: useLightMode,
+          useMaterial3: useMaterial3,
+          colorSelected: colorSelected,
+          imageSelected: imageSelected,
+          handleBrightnessChange: handleBrightnessChange,
+          handleMaterialVersionChange: handleMaterialVersionChange,
+          handleColorSelect: handleColorSelect,
+          handleImageSelect: handleImageSelect,
+          colorSelectionMethod: colorSelectionMethod,
+        ),
+      },
     );
   }
 }
