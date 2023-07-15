@@ -18,7 +18,6 @@ class SplashScreen extends StatelessWidget {
         designSize: Size(750, 1334));
 
     double aspectRatio = ScreenUtil().screenWidth / ScreenUtil().screenHeight;
-    print('------------------->' + themeMode.toString());
     bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 

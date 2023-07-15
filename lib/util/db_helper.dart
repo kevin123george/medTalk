@@ -101,8 +101,6 @@ class DatabaseHelper {
 
   static Future<int> updateUser(User user) async {
     final db = await _getDb();
-    print('user submit db ist ' );
-    print(user.profileImagePath);
     return await db.update(
       'Users',
       user.toMap(),
@@ -168,7 +166,6 @@ class DatabaseHelper {
         return 0;
       }
       if(latestRecord.text.split(" ").length +1 == record.text.split(" ").length || latestRecord.text.split(" ").length +2 == record.text.split(" ").length){
-        print("there is a duplicate ");
         await deleteRecord(latestRecord);
         // Records records = Records(text: record.text, timestamp: record.timestamp, id: latestRecord.id);
         // return updateRecord(records);

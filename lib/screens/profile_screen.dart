@@ -130,7 +130,6 @@ class _ProfileFormState extends State<ProfileForm> {
   Future<void> _fetchUserData() async {
     try {
       _user = await DatabaseHelper.fetchUser();
-      print('Fetched user: $_user');
       if (_user != null) {
         _nameController.text = _user!.name ?? '';
         _emailController.text = _user!.email ?? '';

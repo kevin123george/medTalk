@@ -25,7 +25,6 @@ class Notifications {
       requestSoundPermission: true,
       onDidReceiveLocalNotification:
           (int id, String? title, String? body, String? payload) async {
-        print("iOS notification received");
       },
       notificationCategories: darwinNotificationCategories,
     );

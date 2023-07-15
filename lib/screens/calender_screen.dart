@@ -207,7 +207,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
                                           TextButton(
                                             child: Text(language['cancel'] ?? 'Cancel'),
                                             onPressed: () {
-                                              print('Cancel button pressed');
                                               Navigator.of(context).pop();
                                             },
                                           ),
@@ -217,7 +216,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
                                               DatabaseHelper dbHelper = DatabaseHelper();
                                               if (scheduler.id != null) {
                                                 await dbHelper.deleteScheduler(scheduler.id!);
-                                                print('Delete button pressed for scheduler with title: ${scheduler.title}');
                                                 Navigator.of(context).pop();
                                                 await fetchEvents();
                                               }

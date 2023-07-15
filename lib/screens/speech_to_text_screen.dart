@@ -85,7 +85,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
               if (!isButtonPressed) {
                 var available = await speechToText.initialize();
                 if (available) {
-                  print("the thing is available");
                   setState(() {
                     isButtonPressed = true;
                     isListening = true;
@@ -115,8 +114,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                         speechToText = SpeechToText();
                         available = await speechToText.initialize();
                       }
-                      print("Triggered every 10 seconds");
-                      print(available);
                       speechToText.listen(
                         onResult: (result) {
                           setState(() {

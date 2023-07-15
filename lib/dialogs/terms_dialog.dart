@@ -123,9 +123,7 @@ class _TermsDialogState extends State<TermsDialog> {
                         onPressed: () async {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
-                          print("User accepted Terms and Conditions!!!");
                           prefs.setBool('termsPreference', true);
-                          print(prefs.getBool('termsPreference'));
                           Navigator.of(context).pop();
                         },
                         child: Container(

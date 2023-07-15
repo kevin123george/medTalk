@@ -77,7 +77,6 @@ class PolicyDialog extends StatelessWidget {
                     onPressed: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      print("User accepted Privacy Policy");
                       prefs.setBool('policyPreference', true);
                       Navigator.of(context).pop();
                     },

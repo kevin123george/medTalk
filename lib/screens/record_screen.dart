@@ -80,10 +80,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> fetchRecords() async {
-    print("sdsdsdsdsd");
-    print(startDate);
     if (startDate != null && endDate != null) {
-      print("inside if");
       DateTime endDateRounded = roundEndDate(endDate!);
       final List<Records> fetchedRecords =
           await DatabaseHelper.fetchAllRecordsInTimeRange(
@@ -120,7 +117,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
     setState(() {
       jsonData = json.decode(jsonString);
     });
-    print(jsonData);
   }
 
   String medDictLookUp(String userInput) {
