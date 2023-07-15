@@ -61,6 +61,9 @@ class LanguageProvider with ChangeNotifier {
      'repeat_monthly': 'Monatlich',
      'cancel': 'Stornieren',
      'submit': 'Einreichen',
+     'delete_confirm': 'Sind Sie sicher, dass Sie löschen möchten?',
+     'delete': 'Löschen',
+
    };
    Map<String, String> _english = {
      'language': 'English',
@@ -116,6 +119,8 @@ class LanguageProvider with ChangeNotifier {
      'repeat_monthly': 'Monthly',
      'cancel': 'Cancel',
      'submit': 'Submit',
+     'delete_confirm': 'Are you sure you want to delete?',
+     'delete': 'Delete',
    };
 
    List<String> get languageList => _languageList;
