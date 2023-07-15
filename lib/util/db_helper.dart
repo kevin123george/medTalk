@@ -54,7 +54,7 @@ class DatabaseHelper {
             body TEXT,
             reminderType TEXT,
             repeatType TEXT,
-            isRecurrent BOOLEAN
+            isRecurrent BOOLEAN,
             notificationIds TEXT
           )
         ''');

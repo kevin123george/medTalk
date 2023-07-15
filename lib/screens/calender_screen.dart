@@ -192,6 +192,45 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             Text(scheduler.body ?? ''),
                             SizedBox(height: 10),
                             Text(getFormattedTimestamp(scheduler.startDateTime!.toInt())),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Confirmation'),
+                                        content: Text(language['delete_confirm'] ?? 'Are you sure you want to delete.?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text(language['cancel'] ?? 'Cancel'),
+                                            onPressed: () {
+                                              print('Cancel button pressed');
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text(language['delete'] ?? 'Delete'),
+                                            onPressed: () async {
+                                              DatabaseHelper dbHelper = DatabaseHelper();
+                                              if (scheduler.id != null) {
+                                                await dbHelper.deleteScheduler(scheduler.id!);
+                                                print('Delete button pressed for scheduler with title: ${scheduler.title}');
+                                                Navigator.of(context).pop();
+                                                await fetchEvents();
+                                              }
+
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -393,6 +432,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             DatabaseHelper.insertScheduler(newScheduler).then((schedulerId) {
                               if (schedulerId != null) {
                                 print('Scheduler inserted with ID: $schedulerId');
+                                print('db save ist!!!');
+                                print(newScheduler);
                                 // TODO: Refresh the list of events
                                 fetchEvents();
                               } else {
