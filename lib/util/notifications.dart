@@ -46,41 +46,42 @@ class Notifications {
       String title,
       String body,
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    AndroidNotificationDetails androidNotificationDetails =
-    new AndroidNotificationDetails(
-      "medTalk_channel_Id",
-      "medTalk_channel_name",
-      channelDescription:  "medTalk_channel_description",
-      playSound: true,
-      importance: Importance.max,
-      priority: Priority.high,
-      enableVibration: true,
-    );
+    try {
+      AndroidNotificationDetails androidNotificationDetails =
+      new AndroidNotificationDetails(
+        "medTalk_channel_Id",
+        "medTalk_channel_name",
+        channelDescription:  "medTalk_channel_description",
+        playSound: true,
+        importance: Importance.max,
+        priority: Priority.high,
+        enableVibration: true,
+      );
 
-    DarwinNotificationDetails darwinNotificationDetails =
-    new DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
+      DarwinNotificationDetails darwinNotificationDetails =
+      new DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
 
-    var platformChannelSpecifics  = NotificationDetails(
-        android: androidNotificationDetails,
-        iOS: darwinNotificationDetails
-    );
+      var platformChannelSpecifics  = NotificationDetails(
+          android: androidNotificationDetails,
+          iOS: darwinNotificationDetails
+      );
 
-    timezone.TZDateTime zonedTime = timezone.TZDateTime.from(
-      reminderTime,
-      timezone.local,
-    ).subtract(const Duration(seconds: 1));
+      timezone.TZDateTime zonedTime = timezone.TZDateTime.from(
+        reminderTime,
+        timezone.local,
+      ).subtract(const Duration(seconds: 1));
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      notificationId,
-      title,
-      body,
-      zonedTime,
-      platformChannelSpecifics,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
-      payload: 'notification_payload',
-    );
-
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        notificationId,
+        title,
+        body,
+        zonedTime,
+        platformChannelSpecifics,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'notification_payload',
+      );
+    } catch (e) {}
   }
 
   static List<DarwinNotificationCategory> getDarwinNotificationCategory() {
