@@ -46,8 +46,9 @@ class _RecordsScreenState extends State<RecordsScreen> {
     //createDummyRecords();
     handleDuplicateSession();
 
-    fetchRecords();
     readJsonData();
+    fetchRecords();
+
   }
 
   Future<void> createDummyRecords() async {
