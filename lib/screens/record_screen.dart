@@ -45,7 +45,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
     super.initState();
     //createDummyRecords();
     handleDuplicateSession();
-
     readJsonData();
     fetchRecords();
 

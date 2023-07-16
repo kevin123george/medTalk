@@ -95,7 +95,7 @@ class LanguageProvider with ChangeNotifier {
      'items_select': 'Select',
      'items_patient': 'Patient',
      'items_doctor': 'Doctor',
-     'locale-id':'en-EN',
+     'locale-id':'en-US',
      'accept': 'Accept',
      'decline': 'Declare',
      'mdFileName': 'terms_and_conditions.md',
