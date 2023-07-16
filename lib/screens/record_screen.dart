@@ -278,7 +278,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
-                    // labelText: language['edit_docname'],
                     labelText: editRecordTitleLabel,
                   ),
                 ),
@@ -289,8 +288,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     labelText: editDoctorNameLabel,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                SizedBox(height: 10),
+                Expanded( // Place the Expanded widget here to make the TextField expanded
                   child: TextField(
                     controller: textController,
                     onChanged: (value) {
@@ -304,14 +303,15 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 ),
                 SizedBox(height: 50),
                 ElevatedButton(
-                    onPressed: () async {
-                      record.title = titleController.text;
-                      record.name = nameController.text;
-                      await DatabaseHelper.updateRecord(record);
-                      Navigator.pop(context);
-                      fetchRecords();
-                    },
-                    child: Text(saveLabel)),
+                  onPressed: () async {
+                    record.title = titleController.text;
+                    record.name = nameController.text;
+                    await DatabaseHelper.updateRecord(record);
+                    Navigator.pop(context);
+                    fetchRecords();
+                  },
+                  child: Text(saveLabel),
+                ),
               ],
             ),
           ),
