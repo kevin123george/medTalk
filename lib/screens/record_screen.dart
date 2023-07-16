@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:medTalk/components.dart';
 import 'package:medTalk/providers/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -45,6 +44,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
   void initState() {
     super.initState();
     //createDummyRecords();
+    handleDuplicateSession();
+
     fetchRecords();
     readJsonData();
   }
@@ -79,6 +80,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
     fetchRecords();
   }
 
+  Future<void> handleDuplicateSession() async {
+   await DatabaseHelper.handleDuplicateSession();
+   fetchRecords();
+  }
   Future<void> fetchRecords() async {
     if (startDate != null && endDate != null) {
       DateTime endDateRounded = roundEndDate(endDate!);
@@ -314,8 +319,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> openRecordDetailsModal(Records record, double fontSize) async {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double modalHeight = screenHeight * 0.5;
 
     showModalBottomSheet(
       context: context,

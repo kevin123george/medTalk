@@ -24,9 +24,7 @@ dependencies:
   flutter_local_notifications: ^14.1.1
   timezone: ^0.9.0
   flutter_screenutil:
-
-
-
+  uuid:
   intl: ^0.18.0
   cupertino_icons: ^1.0.2
   url_launcher: ^6.1.8

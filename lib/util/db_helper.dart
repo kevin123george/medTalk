@@ -38,12 +38,14 @@ class DatabaseHelper {
             name TEXT,
             text TEXT NOT NULL,
             timestamp INTEGER NOT NULL,
-            title TEXT
-            
-
+            title TEXT,
+            session TEXT
           )
         ''');
 
+        await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_session ON Records (session)
+        ''');
         await db.execute('''
           CREATE TABLE schedulers(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -212,6 +214,81 @@ class DatabaseHelper {
 
     return recordsList;
   }
+
+  static Future<List<Records>> fetchRecordBySession(String session) async {
+    List<Records> recordsList = <Records>[];
+    final db = await _getDb();
+    final List<Map<String, dynamic>> records = await db.query(
+      'Records',
+      where: 'session = ?',
+      whereArgs: [session],
+      orderBy: 'id'
+    );
+    for (Map<String, dynamic> item in records) {
+      Records record = new Records(
+        id: item['id'],
+        text: item['text'],
+        name: item['name'],
+        title: item['title'],
+        timestamp: item['timestamp'],
+        session: item['session'],
+      );
+      recordsList.add(record);
+    }
+
+    return recordsList;
+  }
+
+  static String concatenateText(List<Records> sessionRecords) {
+    String concatenatedText = '';
+    String? session = '';
+    for (Records record in sessionRecords) {
+      concatenatedText += record.text + '. ';
+      session = record.session;// You can change the separator if needed
+    }
+    return concatenatedText;
+  }
+
+  static Future<int> deleteRecordBySession(String session) async {
+    final Database db = await _getDb();;
+    return await db.delete(
+      'Records',
+      where: 'session = ?',
+      whereArgs: [session],
+    );
+  }
+
+
+  static Future<List> handleDuplicateSession() async {
+    final db = await _getDb();
+
+    // Fetch unique session IDs
+    final List<Map<String, dynamic>> sessions = await db.rawQuery('''
+      SELECT DISTINCT session FROM Records
+    ''');
+
+    List uniqueSessionIds = sessions.map((session) => session['session']).toList();
+    print(uniqueSessionIds);
+    for (String sessionId in uniqueSessionIds) {
+      List<Records> session = await fetchRecordBySession(sessionId);
+      if(session.length == 1){
+        continue;
+      }
+      try{
+        var latestRecord = session.last;
+        latestRecord.text = concatenateText(session);
+         deleteRecordBySession(sessionId);
+         addRecord(latestRecord);
+      }catch(e){
+
+      }
+
+
+    }
+
+    return uniqueSessionIds;
+  }
+
   static Future<List<Records>> fetchAllRecords() async {
     List<Records> recordsList = <Records>[];
     final db = await _getDb();

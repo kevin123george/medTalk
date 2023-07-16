@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:animations/animations.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../dialogs/policy_dialog.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../providers/language_provider.dart';

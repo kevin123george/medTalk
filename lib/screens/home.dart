@@ -92,7 +92,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   void _landingTermsPage() async {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -150,7 +150,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
     if (canCheckBiometrics) {
       print("Device supports biometric authentication");
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         bool? isBiometricAuth = prefs.getBool('biometricAuth');
         if (isBiometricAuth == true) {

@@ -1,15 +1,10 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:medTalk/util/db_helper.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
-import 'package:medTalk/providers/font_provider.dart';
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../models/records.dart';
 import '../models/schedulers.dart';
 import '../providers/language_provider.dart';
 import '../util/common.dart';
@@ -109,9 +104,6 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme.apply(
-      displayColor: Theme.of(context).colorScheme.onSurface,
-    );
     language = context.watch<LanguageProvider>().languageMap;
     items = [
       language['repeat_none'].toString(),
@@ -419,7 +411,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                             final newScheduler = Schedulers(
                               title: eventTitleController.text,
                               startDateTime: _selectedDate.microsecondsSinceEpoch,
-                              endDateTime: _endDate?.microsecondsSinceEpoch,
+                              endDateTime: _endDate.microsecondsSinceEpoch,
                               body: eventDescriptionController.text,
                               repeatType: repeatType,
                               reminderTime: _selectedDate.microsecondsSinceEpoch - 5000,

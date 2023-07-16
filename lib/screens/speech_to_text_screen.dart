@@ -6,6 +6,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:provider/provider.dart';
 import 'package:medTalk/providers/font_provider.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/records.dart';
 import '../providers/language_provider.dart';
@@ -20,6 +21,8 @@ class SpeechToTextScreen extends StatefulWidget {
 
 
 class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
+  var resultList = [];
+  var session;
   var initPressed = false;
   var text;
   var locationId;
@@ -27,6 +30,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
   var helperText;
   var isListening = false;
   var isButtonPressed = false;
+  String records = '';
   SpeechToText speechToText = SpeechToText();
   Timer? timer;
 
@@ -36,6 +40,7 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
     final language = context.read<LanguageProvider>().languageMap;
     text = language['intro_text']!;
     helperText = language['helper_text']!;
+    session = Uuid().v4();
   }
 
 
@@ -56,16 +61,34 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
     return Expanded(
       child: Scaffold(
-        body: Container(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(10.0),
-          alignment: Alignment.topLeft,
-          child: SingleChildScrollView(
-            child: Text(
-              initPressed ? resultText : text,
-              style: _getTextStyle(textTheme),
-            ),
+          // alignment: Alignment.topLeft,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleChildScrollView(
+                child: Text(
+                  records,
+                  style: _getTextStyle(textTheme),
+                ),
+              ),
+              Divider( // Add a divider here
+                height: 20, // Adjust the height of the divider as needed
+                thickness: 2, // Adjust the thickness of the divider as needed
+                color: Colors.grey, // Adjust the color of the divider as needed
+              ),
+              SizedBox(height: 20), // Adding spacing between the text boxes
+              SingleChildScrollView(
+                child: Text(
+                  initPressed ?  resultText : text,
+                  style: _getTextStyle(textTheme),
+                ),
+              ),
+            ],
           ),
         ),
+
         floatingActionButton: AvatarGlow(
           animate: isButtonPressed,
           shape: BoxShape.rectangle,
@@ -91,12 +114,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                     speechToText.listen(
                       onResult: (result) {
                         setState(() {
-                          List<dynamic> alternates =
-                          result.toJson()["alternates"];
-                          List<String> recognizedWords = alternates
-                              .map((alternate) => alternate["recognizedWords"])
-                              .toList()
-                              .cast<String>();
                           resultText = result.recognizedWords;
                         });
                       },
@@ -117,13 +134,6 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                       speechToText.listen(
                         onResult: (result) {
                           setState(() {
-                            List<dynamic> alternates =
-                            result.toJson()["alternates"];
-                            List<String> recognizedWords = alternates
-                                .map((alternate) =>
-                            alternate["recognizedWords"])
-                                .toList()
-                                .cast<String>();
                             resultText = result.recognizedWords;
                           });
                         },
@@ -134,10 +144,13 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                       if (resultText != helperText && !speechToText.isListening) {
                         final recordEntry = Records(
                             text: resultText,
-                            timestamp:
-                            DateTime.now().millisecondsSinceEpoch);
-                        final generatedId =
-                        await DatabaseHelper.addRecord(recordEntry);
+                            timestamp: DateTime.now().millisecondsSinceEpoch,
+                            session: session
+                        );
+
+                        final generatedId = await DatabaseHelper.addRecord(recordEntry);
+                        previousSessionResults();
+
                       }
                     }
                   });
@@ -150,9 +163,14 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                 if (resultText != helperText) {
                   final recordEntry = Records(
                       text: resultText,
-                      timestamp: DateTime.now().millisecondsSinceEpoch);
+                      timestamp: DateTime.now().millisecondsSinceEpoch,
+                      session: session
+                  );
+
                   final generatedId =
                   await DatabaseHelper.addRecord(recordEntry);
+                  var sessionRecords = await DatabaseHelper.fetchRecordBySession(session);
+                  previousSessionResults();
                 }
                 speechToText.stop();
 
@@ -179,6 +197,15 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
         : value == 2.0
         ? textTheme.displayLarge
         : textTheme.displayMedium;
+  }
+
+  Future<String> previousSessionResults() async {
+    final List<Records> sessionRecords = await DatabaseHelper.fetchRecordBySession(session);
+    var concat = DatabaseHelper.concatenateText(sessionRecords);
+    setState(() {
+      records = concat;
+    });
+    return concat.toString();
   }
 }
 

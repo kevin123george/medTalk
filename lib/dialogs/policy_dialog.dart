@@ -15,7 +15,6 @@ class PolicyDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isTerms;
 
     return Dialog(
       shape:

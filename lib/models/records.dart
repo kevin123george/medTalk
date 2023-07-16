@@ -1,3 +1,4 @@
+
 class Records {
  final int? id;
  String text;
@@ -5,6 +6,7 @@ class Records {
  final int? uid;
  String? name;
  String? title;
+ String? session;
 
  Records({
   required this.text,
@@ -13,6 +15,7 @@ class Records {
   this.uid,
   this.name,
   this.title,
+  this.session,
  });
 
  Map<String, dynamic> toMap() {
@@ -22,6 +25,7 @@ class Records {
    'timestamp': timestamp,
    'name': name,
    'title': title,
+   'session': session,
   };
  }
 
@@ -32,6 +36,7 @@ class Records {
    timestamp: map['timestamp'],
    name: map['name'],
    title: map['title'],
+   session: map['session'],
   );
  }
 }
