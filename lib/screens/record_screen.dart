@@ -81,10 +81,12 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> handleDuplicateSession() async {
-   await DatabaseHelper.handleDuplicateSession();
-   fetchRecords();
+    await DatabaseHelper.handleDuplicateSession();
+    fetchRecords();
   }
+
   Future<void> fetchRecords() async {
+    await Future.delayed(const Duration(seconds: 1), () {});
     if (startDate != null && endDate != null) {
       DateTime endDateRounded = roundEndDate(endDate!);
       final List<Records> fetchedRecords =
@@ -106,8 +108,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
       setState(() {
         records = fetchedRecords;
       });
-    } else if(!(searchQuery != null && searchQuery!.isNotEmpty) && !(startDate != null && endDate != null)) {
-
+    } else if (!(searchQuery != null && searchQuery!.isNotEmpty) &&
+        !(startDate != null && endDate != null)) {
       final List<Records> fetchedRecords =
           await DatabaseHelper.fetchAllRecords();
       setState(() {
@@ -126,7 +128,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
   String medDictLookUp(String userInput) {
     RegExp wordPattern = RegExp(r'\b\w+\b');
-    List<String?> preprocessedWords = wordPattern.allMatches(userInput.toLowerCase()).map((match) => match.group(0)).toList();
+    List<String?> preprocessedWords = wordPattern
+        .allMatches(userInput.toLowerCase())
+        .map((match) => match.group(0))
+        .toList();
     List<String> combinations = [];
 
     for (int i = 0; i < preprocessedWords.length; i++) {
@@ -319,7 +324,6 @@ class _RecordsScreenState extends State<RecordsScreen> {
   }
 
   Future<void> openRecordDetailsModal(Records record, double fontSize) async {
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -350,65 +354,67 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             var data = confirmDeleteRecord(record);
                             int idValue = record.id!;
                             await Future.delayed(
-                                const Duration(seconds:3), () {});
+                                const Duration(seconds: 3), () {});
                             Records? value =
                                 await DatabaseHelper.fetchRecordById(idValue);
                             if (value == null) {
                               Navigator.pop(context);
                             }
                           },
-
                         ),
                       ])),
                   ListTile(
                     title: Text(
                       record.title?.isEmpty ?? true ? '' : record.title!,
                       style: TextStyle(
-                        fontSize: fontSize ,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   Divider(),
-
-                  SingleChildScrollView(
-                    child: ListBody(
-                      children: [
-                        Text(
-                          record.name?.isEmpty ?? true ? '' : record.name!,
-                          style: TextStyle(
-                            fontSize: fontSize ,
-                            fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: ListBody(
+                        children: [
+                          Text(
+                            record.name?.isEmpty ?? true ? '' : record.name!,
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Divider(),
-
-                        Text(
-                          record.text,
-                          style: TextStyle(fontSize: fontSize),
-                        ),
-                        Divider(height:fontSize,color: Colors.cyan,),
-                        Text(
-                          dictionaryTitle,
-                          style: TextStyle(fontSize: fontSize),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            style: TextStyle(fontSize: fontSize * 0.9),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: medDictLookUp(record.text),
-                                style: TextStyle(
-                                  fontSize: fontSize * 0.7,
-                                  fontStyle: FontStyle.italic,
+                          Divider(),
+                          Text(
+                            record.text,
+                            style: TextStyle(fontSize: fontSize),
+                          ),
+                          Divider(
+                            height: fontSize,
+                            color: Colors.cyan,
+                          ),
+                          Text(
+                            dictionaryTitle,
+                            style: TextStyle(fontSize: fontSize),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              style: TextStyle(fontSize: fontSize * 0.9),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: medDictLookUp(record.text),
+                                  style: TextStyle(
+                                    fontSize: fontSize * 0.7,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             );
@@ -543,7 +549,8 @@ class _RecordsScreenState extends State<RecordsScreen> {
                                   ? ' '
                                   : record.title!,
                               style: TextStyle(
-                                  fontSize: fontSize, fontWeight: FontWeight.bold),
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                           trailing: Row(
@@ -599,7 +606,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Text(
-                                      record.text,
+                                      record.text.length > 100
+                                          ? record.text.substring(0, 100) +
+                                              '...'
+                                          : record.text,
                                       style: TextStyle(fontSize: fontSize),
                                     ),
                                   ),

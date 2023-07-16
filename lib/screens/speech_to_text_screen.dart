@@ -69,8 +69,8 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
             children: [
               SingleChildScrollView(
                 child: Text(
-                  records,
-                  style: _getTextStyle(textTheme),
+                  resultText,
+                  // style: _getTextStyle(textTheme),
                 ),
               ),
               Divider( // Add a divider here
@@ -79,9 +79,11 @@ class _SpeechToTextScreenState extends State<SpeechToTextScreen> {
                 color: Colors.grey, // Adjust the color of the divider as needed
               ),
               SizedBox(height: 20), // Adding spacing between the text boxes
+
               SingleChildScrollView(
                 child: Text(
-                  initPressed ?  resultText : text,
+                  initPressed ?  records : text,
+
                   style: _getTextStyle(textTheme),
                 ),
               ),
